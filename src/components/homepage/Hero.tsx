@@ -53,7 +53,11 @@ export default function Hero() {
       ))}
       
       {/* DARKER Overlay - Increased from 60% to 70% darkness */}
+<<<<<<< HEAD
       <div className="absolute inset-0 bg-black/85"></div>
+=======
+      <div className="absolute inset-0 bg-black/90"></div>
+>>>>>>> e1e346ece051adc775115da9107dfe196386e56d
       
       {/* Optional: Additional Gradient Overlay for Better Text Readability */}
       <div 
@@ -103,8 +107,11 @@ export default function Hero() {
             </span>
           </a>
         </div>
+<<<<<<< HEAD
 
        
+=======
+>>>>>>> e1e346ece051adc775115da9107dfe196386e56d
       </div>
 
       {/* Image Navigation Dots */}
