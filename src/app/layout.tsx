@@ -1,17 +1,10 @@
+// src/app/layout.tsx
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
+import { inter, playfair } from './fonts'; // ADD THIS LINE
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({ 
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'Radikal Creative Technologies',
@@ -32,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`${inter.variable} ${playfair.variable} scroll-smooth`}> {/* CHANGE THIS LINE */}
       <body className={`${inter.className} antialiased bg-white text-black overflow-x-hidden`}>
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col pt-16">

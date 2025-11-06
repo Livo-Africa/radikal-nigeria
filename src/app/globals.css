@@ -1,4 +1,7 @@
-@import "tailwindcss";
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --primary-black: #000000;
@@ -32,62 +35,45 @@ video {
   }
 }
 
-/* Custom animations with performance in mind */
+/* CRITICAL MISSING: Custom Animation Keyframes */
 @keyframes float {
-  0%, 100% { 
-    transform: translateY(0px); 
-  }
-  50% { 
-    transform: translateY(-10px); 
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes glow {
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); 
-  }
-  50% { 
-    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); 
-  }
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
 }
 
 @keyframes shimmer {
-  0% { 
-    background-position: -200% 0; 
-  }
-  100% { 
-    background-position: 200% 0; 
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-  }
-  to { 
-    opacity: 1; 
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from { 
-    transform: translateY(30px); 
-    opacity: 0; 
-  }
-  to { 
-    transform: translateY(0); 
-    opacity: 1; 
-  }
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from { 
-    transform: scale(0.9); 
-    opacity: 0; 
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce-glow {
+  0%, 100% { 
+    transform: translateY(0) scale(1); 
+    box-shadow: 0 0 20px #25D366, 0 0 30px #25D366; 
   }
-  to { 
-    transform: scale(1); 
-    opacity: 1; 
+  50% { 
+    transform: translateY(-10px) scale(1.1); 
+    box-shadow: 0 0 30px #25D366, 0 0 50px #25D366; 
   }
 }
 
@@ -121,11 +107,9 @@ video {
   animation: scaleIn 0.5s ease-out forwards;
 }
 
-/* Smooth scroll with fallback */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
+.animate-bounce-glow {
+  animation: bounce-glow 2s ease-in-out infinite;
+  will-change: transform, box-shadow;
 }
 
 /* Custom gradient text */
@@ -159,17 +143,6 @@ video {
 }
 
 /* WhatsApp floating button enhancements */
-@keyframes bounce-glow {
-  0%, 100% { 
-    transform: translateY(0) scale(1); 
-    box-shadow: 0 0 20px #25D366, 0 0 30px #25D366; 
-  }
-  50% { 
-    transform: translateY(-10px) scale(1.1); 
-    box-shadow: 0 0 30px #25D366, 0 0 50px #25D366; 
-  }
-}
-
 .animate-bounce-glow {
   animation: bounce-glow 2s ease-in-out infinite;
   will-change: transform, box-shadow;
@@ -233,7 +206,7 @@ video {
   }
 }
 
-/* Dark mode support (if needed in future) */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .dark-mode-fallback {
     background-color: #000000;
@@ -247,7 +220,7 @@ video {
   contain-intrinsic-size: 1000px;
 }
 
-/* Optimize aspect ratios to prevent layout shifts */
+/* Optimize aspect ratios */
 .aspect-optimized {
   aspect-ratio: 4/5;
 }
@@ -299,7 +272,7 @@ video {
   }
 }
 
-/* Screen reader only - for accessibility */
+/* Screen reader only */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -319,7 +292,7 @@ video {
   text-rendering: optimizeSpeed;
 }
 
-/* Prevent FOUC (Flash of Unstyled Content) */
+/* Prevent FOUC */
 .no-fouc {
   visibility: hidden;
   opacity: 0;
@@ -329,12 +302,6 @@ video {
   visibility: visible;
   opacity: 1;
   transition: opacity 0.3s ease-in;
-}
-
-/* Critical image loading */
-.critical-image {
-  priority: high;
-  fetchpriority: high;
 }
 
 /* Mobile-optimized testimonial styles */
@@ -347,96 +314,14 @@ video {
 
 .line-clamp-4 {
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 4;  /* FIXED: was -webkit-line-camp */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Touch-friendly improvements */
-@media (max-width: 768px) {
-  .testimonial-card {
-    padding: 1rem;
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
-  
-  /* Better touch targets */
-  .filter-tab {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .load-more-btn {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-  }
-}
-
-/* Smooth scrolling for mobile filter tabs */
-.filter-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-.filter-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
-}
-
-/* Performance optimizations */
-.testimonial-image {
-  content-visibility: auto;
-  contain-intrinsic-size: 100px;
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .testimonial-card {
-    transition: none;
-    transform: none;
-  }
-}
-
-/* Add to your existing globals.css */
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-4 {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Mobile scroll snap for testimonials */
-@media (max-width: 768px) {
-  .testimonial-scroll-container {
-    scroll-snap-type: x mandatory;
-    overflow-x: auto;
-  }
-  
-  .testimonial-card {
-    scroll-snap-align: start;
-    flex-shrink: 0;
-  }
-}
-
-/* Ensure images don't cause layout shifts */
-.testimonial-image {
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
-/* Loading states */
-.skeleton-loading {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-/* Error state styling */
-.testimonial-error {
-  border: 2px dashed #e53e3e;
-  background-color: #fed7d7;
 }

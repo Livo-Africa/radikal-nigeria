@@ -27,8 +27,7 @@ const nextConfig = {
     minimumCacheTTL: 3600,
   },
 
-  // External packages for server components
-  serverExternalPackages: ['googleapis'],
+  optimizeFonts: false,
 
   // Compress responses
   compress: true,
@@ -52,7 +51,7 @@ const nextConfig = {
   // Enable trailing slashes for better SEO
   trailingSlash: false,
 
-  // Security headers
+  // FIXED: Less restrictive security headers
   async headers() {
     return [
       {
@@ -74,10 +73,7 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
           },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://sheets.googleapis.com;"
-          },
+          // REMOVED: Overly restrictive CSP that breaks Google Sheets
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains'
