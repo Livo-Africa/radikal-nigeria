@@ -55,7 +55,7 @@ export default function IndividualsPage() {
               </p>
 
               <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-                Get <span className="text-[#D4AF37] font-semibold">studio-quality headshots</span> and <span className="text-[#D4AF37] font-semibold">social media content</span> from your phone. 
+                Get <span className="text-[#D4AF37] font-semibold">studio-quality photos</span> and <span className="text-[#D4AF37] font-semibold">Personal branded content</span> on your phone. 
                 Our technology enhances your photos while our team ensures perfection.
               </p>
 
