@@ -52,12 +52,8 @@ export default function Hero() {
         />
       ))}
       
-      {/* DARKER Overlay - Increased from 60% to 70% darkness */}
-<<<<<<< HEAD
-      <div className="absolute inset-0 bg-black/85"></div>
-=======
+      {/* Dark Overlay - Using 90% darkness as it was the most recent change */}
       <div className="absolute inset-0 bg-black/90"></div>
->>>>>>> e1e346ece051adc775115da9107dfe196386e56d
       
       {/* Optional: Additional Gradient Overlay for Better Text Readability */}
       <div 
@@ -78,7 +74,7 @@ export default function Hero() {
           Virtual Photography Studio
         </h1>
         
-        {/* Rotating Subheadings - CHANGED TO RED (#B91C1C) */}
+        {/* Rotating Subheadings */}
         <div className="h-20 mb-8 flex items-center justify-center">
           <div className="text-xl md:text-2xl lg:text-3xl text-white font-light transition-all duration-500 transform hover:scale-105">
             {subheadings[currentSubheading]}
@@ -107,11 +103,6 @@ export default function Hero() {
             </span>
           </a>
         </div>
-<<<<<<< HEAD
-
-       
-=======
->>>>>>> e1e346ece051adc775115da9107dfe196386e56d
       </div>
 
       {/* Image Navigation Dots */}
