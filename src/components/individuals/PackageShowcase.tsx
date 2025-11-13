@@ -1,4 +1,4 @@
-// src/components/individuals/PackageShowcase.tsx - UPDATED
+// src/components/individuals/PackageShowcase.tsx - MODERN MOBILE UX
 export default function PackageShowcase() {
   const packageCategories = [
     {
@@ -8,13 +8,22 @@ export default function PackageShowcase() {
           name: "Birthday Basic",
           price: "₵40",
           features: ["4 pictures", "1 outfit", "1 hairstyle", "Birthday theme"],
-          bestFor: "Birthday celebrations"
+          bestFor: "Birthday celebrations",
+          popular: false
+        },
+        {
+          name: "Birthday Basic",
+          price: "₵70",
+          features: ["6 pictures", "2 outfit", "2 hairstyle", "Birthday theme"],
+          bestFor: "Birthday celebrations",
+          popular: true
         },
         {
           name: "Graduation Shots", 
           price: "₵70",
           features: ["3 images", "Personalized gown", "1 outfit"],
-          bestFor: "Graduation ceremonies"
+          bestFor: "Graduation ceremonies",
+          popular: false
         }
       ]
     },
@@ -25,35 +34,15 @@ export default function PackageShowcase() {
           name: "Solo Standard",
           price: "₵50",
           features: ["4 pictures", "1 outfit", "1 hairstyle"],
-          bestFor: "Social media & casual use"
+          bestFor: "Social media & casual use",
+          popular: false
         },
         {
           name: "Solo Medium",
           price: "₵90", 
           features: ["8 pictures", "2 outfits", "2 hairstyles"],
-          bestFor: "Personal branding"
-        }
-      ]
-    },
-    {
-      title: "Group & Couple",
-      packages: [
-        {
-          name: "Group Standard",
-          price: "₵80",
-          features: ["4 pictures", "2 outfits", "2 hairstyles"],
-          bestFor: "Couples & small groups"
-        }
-      ]
-    },
-    {
-      title: "Professional Shots",
-      packages: [
-        {
-          name: "Profile Headshots",
-          price: "₵30",
-          features: ["2 images", "1 hairstyle", "1 outfit"],
-          bestFor: "LinkedIn & profiles"
+          bestFor: "Personal branding",
+          popular: true
         }
       ]
     }
@@ -66,35 +55,53 @@ export default function PackageShowcase() {
           Choose Your Package
         </h2>
         
-        {/* Mobile: Horizontal Scroll */}
-        <div className="lg:hidden">
-          <div className="flex overflow-x-auto pb-6 -mx-4 px-4 snap-x snap-mandatory space-x-4">
-            {packageCategories.flatMap(category => 
-              category.packages.map((pkg, index) => (
-                <div 
-                  key={`${category.title}-${index}`}
-                  className="flex-shrink-0 w-80 bg-white rounded-2xl p-6 shadow-lg border border-gray-100 snap-center"
-                >
-                  <div className="text-center mb-4">
-                    <h4 className="text-lg font-bold text-gray-900">{pkg.name}</h4>
-                    <div className="text-2xl font-bold text-[#D4AF37] my-2">{pkg.price}</div>
-                    <div className="text-sm text-gray-500">{pkg.bestFor}</div>
+        {/* Modern Mobile Design - Stacked Cards */}
+        <div className="lg:hidden space-y-6">
+          {packageCategories.flatMap(category => 
+            category.packages.map((pkg, index) => (
+              <div 
+                key={`${category.title}-${index}`}
+                className={`bg-white rounded-3xl p-6 shadow-2xl border-2 transition-all duration-500 transform hover:scale-[1.02] ${
+                  pkg.popular 
+                    ? 'border-[#D4AF37] bg-gradient-to-br from-[#D4AF37]/5 to-transparent' 
+                    : 'border-gray-100'
+                }`}
+              >
+                {/* Popular Badge */}
+                {pkg.popular && (
+                  <div className="inline-block bg-[#D4AF37] text-black text-xs font-bold px-4 py-2 rounded-full mb-4">
+                    ⭐ MOST POPULAR
                   </div>
-                  <ul className="space-y-2 mb-4">
-                    {pkg.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-gray-600">
-                        <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full mr-2"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className="w-full bg-black text-white py-3 rounded-lg font-semibold text-sm">
-                    Choose Package
-                  </button>
+                )}
+
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{pkg.name}</h3>
+                    <p className="text-gray-600 text-sm mt-1">{pkg.bestFor}</p>
+                  </div>
+                  <div className="text-2xl font-bold text-[#D4AF37] bg-black/5 rounded-2xl px-4 py-2">
+                    {pkg.price}
+                  </div>
                 </div>
-              ))
-            )}
-          </div>
+
+                {/* Features as Tags */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {pkg.features.map((feature, idx) => (
+                    <span 
+                      key={idx}
+                      className="bg-gray-100 text-gray-700 px-3 py-2 rounded-xl text-sm font-medium"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+
+                <button className="w-full bg-black text-white font-bold py-4 rounded-2xl hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 active:scale-95">
+                  Select Package
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Desktop: Grid Layout */}

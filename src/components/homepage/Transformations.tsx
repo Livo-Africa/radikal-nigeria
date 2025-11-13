@@ -211,36 +211,12 @@ export default function Transformations({ transformations = [] }: { transformati
               </button>
             </div>
 
-            {/* Transformation Info */}
-            <div className="text-center bg-gray-900/80 backdrop-blur-sm p-6 rounded-3xl border border-gray-800 hover:border-gray-600 transition-all duration-500 mb-8">
-              <h4 className="text-2xl font-bold mb-3 text-white">{currentTransform.title}</h4>
-              <div className="flex flex-wrap justify-center gap-3 text-sm">
-                <span className="bg-[#D4AF37] text-black px-3 py-2 rounded-full font-semibold">
-                  {currentTransform.service}
-                </span>
-                <span className="bg-[#B91C1C] text-white px-3 py-2 rounded-full font-semibold">
-                  {currentTransform.metrics}
-                </span>
-              </div>
-            </div>
+           
 
             {/* Navigation & Actions */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               {/* Navigation Dots */}
-              <div className="flex space-x-3">
-                {filteredTransformations.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleNavigation(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      index === currentIndex 
-                        ? 'bg-[#D4AF37] scale-125 shadow-lg shadow-[#D4AF37]/50' 
-                        : 'bg-gray-600 hover:bg-gray-400 hover:scale-110'
-                    }`}
-                    aria-label={`Go to transformation ${index + 1}`}
-                  />
-                ))}
-              </div>
+             
 
               {/* View More Button */}
               <a 
