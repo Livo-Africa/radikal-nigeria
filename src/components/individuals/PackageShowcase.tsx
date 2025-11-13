@@ -1,135 +1,89 @@
-// src/components/individuals/PackageShowcase.tsx - UPDATED
-export default function PackageShowcase() {
-  const packageCategories = [
+// src/components/individuals/ProcessSection.tsx - FIXED (Horizontal scroll on mobile)
+export default function ProcessSection() {
+  const processSteps = [
     {
-      title: "Special Occasions",
-      packages: [
-        {
-          name: "Birthday Basic",
-          price: "₵40",
-          features: ["4 pictures", "1 outfit", "1 hairstyle", "Birthday theme"],
-          bestFor: "Birthday celebrations"
-        },
-        {
-          name: "Graduation Shots", 
-          price: "₵70",
-          features: ["3 images", "Personalized gown", "1 outfit"],
-          bestFor: "Graduation ceremonies"
-        }
-      ]
+      step: 1,
+      title: "Choose Package",
+      description: "Select from our curated packages",
+      icon: "📦",
+      details: "Pick the perfect package for your needs"
     },
     {
-      title: "Solo Packages",
-      packages: [
-        {
-          name: "Solo Standard",
-          price: "₵50",
-          features: ["4 pictures", "1 outfit", "1 hairstyle"],
-          bestFor: "Social media & casual use"
-        },
-        {
-          name: "Solo Medium",
-          price: "₵90", 
-          features: ["8 pictures", "2 outfits", "2 hairstyles"],
-          bestFor: "Personal branding"
-        }
-      ]
+      step: 2,
+      title: "Upload Photos",
+      description: "Share your selfies or photos",
+      icon: "📱",
+      details: "Simple upload from your phone or device"
     },
     {
-      title: "Group & Couple",
-      packages: [
-        {
-          name: "Group Standard",
-          price: "₵80",
-          features: ["4 pictures", "2 outfits", "2 hairstyles"],
-          bestFor: "Couples & small groups"
-        }
-      ]
+      step: 3,
+      title: "Customize",
+      description: "Select outfits & styles",
+      icon: "🎨",
+      details: "Choose from our virtual wardrobe"
     },
     {
-      title: "Professional Shots",
-      packages: [
-        {
-          name: "Profile Headshots",
-          price: "₵30",
-          features: ["2 images", "1 hairstyle", "1 outfit"],
-          bestFor: "LinkedIn & profiles"
-        }
-      ]
+      step: 4,
+      title: "We Work Our Magic",
+      description: "Advanced enhancement technology",
+      icon: "✨",
+      details: "Professional editing and enhancement"
+    },
+    {
+      step: 5,
+      title: "Delivery",
+      description: "Receive via WhatsApp in 1-3 hours",
+      icon: "⚡",
+      details: "Instant delivery to your phone"
     }
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-4 font-playfair">
-          Choose Your Package
+          How It Works
         </h2>
-        
+        <p className="text-xl text-center mb-8 text-gray-600 max-w-2xl mx-auto">
+          Simple 5-step process to professional photos
+        </p>
+
         {/* Mobile: Horizontal Scroll */}
         <div className="lg:hidden">
           <div className="flex overflow-x-auto pb-6 -mx-4 px-4 snap-x snap-mandatory space-x-4">
-            {packageCategories.flatMap(category => 
-              category.packages.map((pkg, index) => (
-                <div 
-                  key={`${category.title}-${index}`}
-                  className="flex-shrink-0 w-80 bg-white rounded-2xl p-6 shadow-lg border border-gray-100 snap-center"
-                >
-                  <div className="text-center mb-4">
-                    <h4 className="text-lg font-bold text-gray-900">{pkg.name}</h4>
-                    <div className="text-2xl font-bold text-[#D4AF37] my-2">{pkg.price}</div>
-                    <div className="text-sm text-gray-500">{pkg.bestFor}</div>
-                  </div>
-                  <ul className="space-y-2 mb-4">
-                    {pkg.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-gray-600">
-                        <div className="w-1.5 h-1.5 bg-[#D4AF37] rounded-full mr-2"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className="w-full bg-black text-white py-3 rounded-lg font-semibold text-sm">
-                    Choose Package
-                  </button>
+            {processSteps.map((step) => (
+              <div 
+                key={step.step}
+                className="flex-shrink-0 w-80 bg-white rounded-2xl p-6 shadow-lg border border-gray-100 snap-center"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold text-lg mx-auto mb-4">
+                  {step.step}
                 </div>
-              ))
-            )}
+                <div className="text-3xl mb-4 transform group-hover:scale-125 transition-transform duration-500">
+                  {step.icon}
+                </div>
+                <h3 className="text-lg font-bold mb-2 text-gray-900">{step.title}</h3>
+                <p className="text-gray-600 mb-3 font-semibold text-sm">{step.description}</p>
+                <p className="text-xs text-gray-500">{step.details}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Desktop: Grid Layout */}
-        <div className="hidden lg:block space-y-12">
-          {packageCategories.map((category, categoryIndex) => (
-            <div key={category.title}>
-              <h3 className="text-2xl font-bold mb-6 text-gray-900 text-center">
-                {category.title}
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                {category.packages.map((pkg, pkgIndex) => (
-                  <div 
-                    key={pkg.name}
-                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
-                  >
-                    <div className="text-center mb-4">
-                      <h4 className="text-xl font-bold text-gray-900">{pkg.name}</h4>
-                      <div className="text-3xl font-bold text-[#D4AF37] my-2">{pkg.price}</div>
-                      <div className="text-sm text-gray-500 font-semibold">{pkg.bestFor}</div>
-                    </div>
-                    <ul className="space-y-2 mb-6">
-                      {pkg.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center text-gray-600">
-                          <div className="w-2 h-2 bg-[#D4AF37] rounded-full mr-3"></div>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <button className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                      Choose Package
-                    </button>
-                  </div>
-                ))}
+        <div className="hidden lg:grid grid-cols-5 gap-4 max-w-6xl mx-auto">
+          {processSteps.map((step) => (
+            <div 
+              key={step.step}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 text-center"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold text-lg mx-auto mb-4">
+                {step.step}
               </div>
+              <div className="text-3xl mb-4">{step.icon}</div>
+              <h3 className="text-lg font-bold mb-2 text-gray-900">{step.title}</h3>
+              <p className="text-gray-600 mb-3 font-semibold text-sm">{step.description}</p>
+              <p className="text-xs text-gray-500">{step.details}</p>
             </div>
           ))}
         </div>

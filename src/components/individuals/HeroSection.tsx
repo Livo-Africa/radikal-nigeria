@@ -28,7 +28,7 @@ export default function HeroSection() {
   }, [transformations.length]);
 
   return (
-    <section className="pt-20 min-h-screen flex items-center justify-center relative overflow-hidden bg-black">
+    <section className="pt-20 min-h-screen flex items-center justify-center relative overflow-hidden bg-black/70">
       {/* Split-screen background - KEEPING YOUR DESIGN */}
       <div className="absolute inset-0 flex">
         {/* Before side */}
