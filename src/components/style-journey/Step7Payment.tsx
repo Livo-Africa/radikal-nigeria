@@ -29,6 +29,86 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
     setOrderId(newOrderId);
   }, []);
 
+  // THIS IS WHERE THE MAGIC HAPPENS! 🎯
+  const sendOrderToBackend = async () => {
+    const orderData = {
+      orderId,
+      ...formData,
+      timestamp: new Date().toISOString(),
+      status: 'paid'
+    };
+
+    let sheetsResponse;
+
+    try {
+      // 1. Send to Google Sheets (Order Tracking)
+      sheetsResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      const sheetsResult = await sheetsResponse.json();
+      
+      if (!sheetsResult.success) {
+        throw new Error('Failed to save order to Google Sheets');
+      }
+
+      console.log('✅ Order saved to Google Sheets:', sheetsResult);
+
+      // 2. Send Telegram notification to team
+      await fetch('/api/telegram/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          customer: formData.whatsappNumber,
+          package: formData.package?.name,
+          amount: formData.finalTotal,
+          urgent: formData.addOns?.includes('rush-delivery')
+        })
+      });
+
+      // 3. Send SMS confirmation to customer
+      await fetch('/api/sms/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: formData.whatsappNumber,
+          orderId,
+          package: formData.package?.name,
+          amount: formData.finalTotal,
+          deliveryTime: formData.addOns?.includes('rush-delivery') ? '1 hour' : formData.package?.deliveryTime
+        })
+      });
+
+      // 4. Send WhatsApp order received confirmation
+      await fetch('/api/whatsapp/send-order-received', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: formData.whatsappNumber,
+          orderId,
+          package: formData.package?.name
+        })
+      });
+
+      console.log('🎉 All backend systems notified!');
+
+    } catch (error) {
+      console.error('Error sending to backend:', error);
+      
+      // Even if other services fail, if Google Sheets worked, we consider it a success
+      // but log the error for debugging
+      if (!sheetsResponse?.ok) {
+        throw error; // Re-throw if Google Sheets failed
+      }
+      
+      // If Google Sheets worked but other services failed, we can still proceed
+      console.warn('Google Sheets saved but other services failed');
+    }
+  };
+
   // Simulate Paystack payment integration
   const handlePayment = async () => {
     if (!selectedMethod) return;
@@ -65,84 +145,6 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
       setPaymentStatus('failed');
     }
   };
-
-  // THIS IS WHERE THE MAGIC HAPPENS! 
-const sendOrderToBackend = async () => {
-  const orderData = {
-    orderId,
-    ...formData,
-    timestamp: new Date().toISOString(),
-    status: 'paid'
-  };
-
-  try {
-    // 1. Send to Google Sheets (Order Tracking)
-    const sheetsResponse = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
-    });
-
-    const sheetsResult = await sheetsResponse.json();
-    
-    if (!sheetsResult.success) {
-      throw new Error('Failed to save order to Google Sheets');
-    }
-
-    console.log('✅ Order saved to Google Sheets:', sheetsResult);
-
-    // 2. Send Telegram notification to team
-    await fetch('/api/telegram/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderId,
-        customer: formData.whatsappNumber,
-        package: formData.package?.name,
-        amount: formData.finalTotal,
-        urgent: formData.addOns?.includes('rush-delivery')
-      })
-    });
-
-    // 3. Send SMS confirmation to customer
-    await fetch('/api/sms/send-confirmation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: formData.whatsappNumber,
-        orderId,
-        package: formData.package?.name,
-        amount: formData.finalTotal,
-        deliveryTime: formData.addOns?.includes('rush-delivery') ? '1 hour' : formData.package?.deliveryTime
-      })
-    });
-
-    // 4. Send WhatsApp order received confirmation
-    await fetch('/api/whatsapp/send-order-received', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: formData.whatsappNumber,
-        orderId,
-        package: formData.package?.name
-      })
-    });
-
-    console.log('🎉 All backend systems notified!');
-
-  } catch (error) {
-    console.error('Error sending to backend:', error);
-    
-    // Even if other services fail, if Google Sheets worked, we consider it a success
-    // but log the error for debugging
-    if (!sheetsResponse?.ok) {
-      throw error; // Re-throw if Google Sheets failed
-    }
-    
-    // If Google Sheets worked but other services failed, we can still proceed
-    console.warn('Google Sheets saved but other services failed');
-  }
-};
 
   const handleBack = () => {
     if (containerRef.current) {
