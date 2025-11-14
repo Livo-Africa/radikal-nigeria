@@ -48,13 +48,21 @@ const shootTypes: ShootType[] = [
   }
 ];
 
+// UPDATED: Added currentStep to the interface
 interface Step1ShootTypeProps {
   formData: any;
   setFormData: (data: any) => void;
+  currentStep: number; // ADDED THIS LINE
   setCurrentStep: (step: number) => void;
 }
 
-export default function Step1ShootType({ formData, setFormData, setCurrentStep }: Step1ShootTypeProps) {
+// UPDATED: Added currentStep parameter
+export default function Step1ShootType({ 
+  formData, 
+  setFormData, 
+  currentStep, // ADDED THIS PARAMETER
+  setCurrentStep 
+}: Step1ShootTypeProps) {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);

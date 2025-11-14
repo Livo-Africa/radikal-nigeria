@@ -19,3 +19,11 @@ export interface FormData {
   addOns: string[];
   total: number;
 }
+
+// ADDED: Common interface for all step components
+export interface StepComponentProps {
+  formData: FormData;
+  setFormData: (data: FormData) => void;
+  currentStep: number;
+  setCurrentStep: (step: number) => void;
+}
