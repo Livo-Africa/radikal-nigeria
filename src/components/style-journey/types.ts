@@ -7,6 +7,19 @@ export interface ShootType {
   color: string;
 }
 
+export interface Package {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  photos: number;
+  outfits: number;
+  deliveryTime: string;
+  features: string[];
+  popular: boolean;
+  color: string;
+}
+
 export interface FormData {
   shootType: string | null;
   shootTypeName: string | null;

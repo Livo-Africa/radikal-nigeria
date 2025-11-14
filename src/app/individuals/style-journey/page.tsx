@@ -1,10 +1,11 @@
-// src/app/individuals/style-journey/page.tsx
+// src/app/individuals/style-journey/page.tsx (update the steps array)
 'use client';
 import { useState } from 'react';
 import Navigation from '@/components/shared/Navigation';
 import Footer from '@/components/shared/Footer';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
 import Step1ShootType from '@/components/style-journey/Step1ShootType';
+import Step2Package from '@/components/style-journey/Step2Package'; // ADD THIS IMPORT
 import StepNavigation from '@/components/style-journey/StepNavigation';
 
 export default function StyleJourney() {
@@ -24,6 +25,7 @@ export default function StyleJourney() {
 
   const steps = [
     { number: 1, title: 'Shoot Type', component: Step1ShootType },
+    { number: 2, title: 'Package', component: Step2Package }, // ADD THIS STEP
     // We'll add other steps later
   ];
 
