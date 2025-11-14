@@ -8,7 +8,8 @@ import Step1ShootType from '@/components/style-journey/Step1ShootType';
 import Step2Package from '@/components/style-journey/Step2Package';
 import Step3PhotoUpload from '@/components/style-journey/Step3PhotoUpload';
 import Step4OutfitSelection from '@/components/style-journey/Step4OutfitSelection';
-import Step5StyleCustomization from '@/components/style-journey/Step5StyleCustomization'; // ADD THIS IMPORT
+import Step5StyleCustomization from '@/components/style-journey/Step5StyleCustomization';
+import Step6Review from '@/components/style-journey/Step6Review';
 import StepNavigation from '@/components/style-journey/StepNavigation';
 
 export default function StyleJourney() {
@@ -23,7 +24,8 @@ export default function StyleJourney() {
     whatsappNumber: '',
     specialRequests: '',
     addOns: [],
-    total: 0
+    total: 0,
+    finalTotal: 0
   });
 
   const steps = [
@@ -31,8 +33,9 @@ export default function StyleJourney() {
     { number: 2, title: 'Package', component: Step2Package },
     { number: 3, title: 'Photos', component: Step3PhotoUpload },
     { number: 4, title: 'Outfits', component: Step4OutfitSelection },
-    { number: 5, title: 'Style', component: Step5StyleCustomization }, // ADD THIS STEP
-    // We'll add other steps later
+    { number: 5, title: 'Style', component: Step5StyleCustomization },
+    { number: 6, title: 'Review', component: Step6Review }, 
+    // We'll add Step 7 (Payment) next
   ];
 
   const CurrentStepComponent = steps[currentStep - 1]?.component;
