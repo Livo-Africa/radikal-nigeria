@@ -1,7 +1,6 @@
 // SIMPLIFIED: src/components/style-journey/Step3PhotoUpload.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
 interface Step3PhotoUploadProps {
   formData: any;
@@ -27,15 +26,12 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
 
   // Required photos based on package
   const requiredPhotos = [
     { type: 'face' as const, label: 'Clear Face Selfie', description: 'Front-facing, good lighting, neutral expression' },
     { type: 'body' as const, label: 'Full Body Photo', description: 'Stand straight, fitted clothes, simple background' }
   ];
-
-  
 
   // Validate Ghana WhatsApp number
   useEffect(() => {
@@ -187,21 +183,16 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     }, 200);
   };
 
-const handleBack = () => {
-  // Track abandonment if user has provided phone number
-  if (hasPhoneNumber) {
-    trackAbandonment('navigated_back_from_step_3');
-  }
-  
-  if (containerRef.current) {
-    containerRef.current.style.opacity = '0.9';
-    containerRef.current.style.transform = 'scale(0.98)';
-  }
-  
-  setTimeout(() => {
-    setCurrentStep(2);
-  }, 200);
-};
+  const handleBack = () => {
+    if (containerRef.current) {
+      containerRef.current.style.opacity = '0.9';
+      containerRef.current.style.transform = 'scale(0.98)';
+    }
+    
+    setTimeout(() => {
+      setCurrentStep(2);
+    }, 200);
+  };
 
   // Get uploaded photo for a specific type
   const getUploadedPhoto = (type: 'face' | 'body') => {
