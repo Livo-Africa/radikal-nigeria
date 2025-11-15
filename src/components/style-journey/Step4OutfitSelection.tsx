@@ -1,6 +1,7 @@
 // components/style-journey/Step4OutfitSelection.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
 interface Step4OutfitSelectionProps {
   formData: any;
@@ -24,6 +25,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
   const [showNextButton, setShowNextButton] = useState(false);
   const [showWardrobeModal, setShowWardrobeModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
 
   // Get outfit slots based on package
   const outfitSlots = formData.package?.outfits || 2;
@@ -126,16 +128,21 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
     }, 200);
   };
 
-  const handleBack = () => {
-    if (containerRef.current) {
-      containerRef.current.style.opacity = '0.9';
-      containerRef.current.style.transform = 'scale(0.98)';
-    }
-    
-    setTimeout(() => {
-      setCurrentStep(3);
-    }, 200);
-  };
+ const handleBack = () => {
+  // Track abandonment if user has provided phone number
+  if (hasPhoneNumber) {
+    trackAbandonment('navigated_back_from_step_4');
+  }
+  
+  if (containerRef.current) {
+    containerRef.current.style.opacity = '0.9';
+    containerRef.current.style.transform = 'scale(0.98)';
+  }
+  
+  setTimeout(() => {
+    setCurrentStep(3);
+  }, 200);
+};
 
   // Filter outfits by category
   const [activeFilter, setActiveFilter] = useState('All');

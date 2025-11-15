@@ -11,6 +11,8 @@ import Step4OutfitSelection from '@/components/style-journey/Step4OutfitSelectio
 import Step5StyleCustomization from '@/components/style-journey/Step5StyleCustomization';
 import Step6Review from '@/components/style-journey/Step6Review';
 import Step7Payment from '@/components/style-journey/Step7Payment'; 
+import SessionRecovery from '@/components/style-journey/SessionRecovery';
+
 
 export default function StyleJourney() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -45,6 +47,12 @@ export default function StyleJourney() {
       <Navigation />
       
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-20 pb-32">
+        <SessionRecovery 
+        formData={formData}
+        setFormData={setFormData}
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+      />
         {/* Progress Bar */}
         <div className="container mx-auto px-4 py-6">
           <div className="max-w-4xl mx-auto">

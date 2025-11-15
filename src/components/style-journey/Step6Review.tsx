@@ -1,6 +1,7 @@
 // components/style-journey/Step6Review.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
 interface Step6ReviewProps {
   formData: any;
@@ -24,6 +25,8 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
   const [isValidNumber, setIsValidNumber] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
+  
 
   // Add-ons data
   const addOns: AddOn[] = [
@@ -83,16 +86,21 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
     }, 200);
   };
 
-  const handleBack = () => {
-    if (containerRef.current) {
-      containerRef.current.style.opacity = '0.9';
-      containerRef.current.style.transform = 'scale(0.98)';
-    }
-    
-    setTimeout(() => {
-      setCurrentStep(5);
-    }, 200);
-  };
+const handleBack = () => {
+  // Track abandonment if user has provided phone number
+  if (hasPhoneNumber) {
+    trackAbandonment('navigated_back_from_step_6');
+  }
+  
+  if (containerRef.current) {
+    containerRef.current.style.opacity = '0.9';
+    containerRef.current.style.transform = 'scale(0.98)';
+  }
+  
+  setTimeout(() => {
+    setCurrentStep(5);
+  }, 200);
+};
 
   // Format phone number as user types
   const handlePhoneChange = (value: string) => {

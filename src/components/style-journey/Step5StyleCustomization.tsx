@@ -1,6 +1,7 @@
 // components/style-journey/Step5StyleCustomization.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
 interface Step5StyleCustomizationProps {
   formData: any;
@@ -76,6 +77,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
   const [showNextButton, setShowNextButton] = useState(false);
   const [activeDescription, setActiveDescription] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
 
   // Check if user has made any selections or can skip
   useEffect(() => {
@@ -163,32 +165,42 @@ export default function Step5StyleCustomization({ formData, setFormData, current
     }, 200);
   };
 
-  const handleBack = () => {
-    if (containerRef.current) {
-      containerRef.current.style.opacity = '0.9';
-      containerRef.current.style.transform = 'scale(0.98)';
-    }
-    
-    setTimeout(() => {
-      setCurrentStep(4);
-    }, 200);
-  };
+ const handleBack = () => {
+  // Track abandonment if user has provided phone number
+  if (hasPhoneNumber) {
+    trackAbandonment('navigated_back_from_step_5');
+  }
+  
+  if (containerRef.current) {
+    containerRef.current.style.opacity = '0.9';
+    containerRef.current.style.transform = 'scale(0.98)';
+  }
+  
+  setTimeout(() => {
+    setCurrentStep(4);
+  }, 200);
+};
 
-  const handleSkipAll = () => {
-    setFormData((prev: any) => ({ 
-      ...prev, 
-      style: { skipped: true }
-    }));
-    
-    if (containerRef.current) {
-      containerRef.current.style.opacity = '0.9';
-      containerRef.current.style.transform = 'scale(0.98)';
-    }
-    
-    setTimeout(() => {
-      setCurrentStep(6);
-    }, 200);
-  };
+ const handleSkipAll = () => {
+  // Track abandonment if user skips styling after providing phone
+  if (hasPhoneNumber) {
+    trackAbandonment('skipped_styling_step');
+  }
+  
+  setFormData((prev: any) => ({ 
+    ...prev, 
+    style: { skipped: true }
+  }));
+  
+  if (containerRef.current) {
+    containerRef.current.style.opacity = '0.9';
+    containerRef.current.style.transform = 'scale(0.98)';
+  }
+  
+  setTimeout(() => {
+    setCurrentStep(6);
+  }, 200);
+};;
 
   return (
     <div 

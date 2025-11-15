@@ -1,6 +1,7 @@
-// components/style-journey/Step3PhotoUpload.tsx
+// SIMPLIFIED: src/components/style-journey/Step3PhotoUpload.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
 interface Step3PhotoUploadProps {
   formData: any;
@@ -15,21 +16,18 @@ interface UploadedPhoto {
   preview: string;
   type: 'face' | 'body';
   status: 'uploading' | 'success' | 'error';
-  validation: {
-    hasFace: boolean;
-    isClear: boolean;
-    goodLighting: boolean;
-    fullBodyVisible?: boolean;
-  };
 }
 
 export default function Step3PhotoUpload({ formData, setFormData, currentStep, setCurrentStep }: Step3PhotoUploadProps) {
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState(formData.whatsappNumber || '');
+  const [isValidNumber, setIsValidNumber] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
 
   // Required photos based on package
   const requiredPhotos = [
@@ -37,7 +35,47 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     { type: 'body' as const, label: 'Full Body Photo', description: 'Stand straight, fitted clothes, simple background' }
   ];
 
-  // Check if all required photos are uploaded and validated
+  
+
+  // Validate Ghana WhatsApp number
+  useEffect(() => {
+    const ghanaRegex = /^\+233[0-9]{9}$/;
+    const isValid = ghanaRegex.test(whatsappNumber);
+    setIsValidNumber(isValid);
+    
+    // Save to form data when valid
+    if (isValid) {
+      setFormData((prev: any) => ({ 
+        ...prev, 
+        whatsappNumber 
+      }));
+    }
+  }, [whatsappNumber, setFormData]);
+
+  // Format phone number as user types
+  const handlePhoneChange = (value: string) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+    
+    // Format based on input
+    let formatted = '';
+    if (digits.startsWith('233')) {
+      formatted = '+' + digits;
+    } else if (digits.startsWith('0')) {
+      formatted = '+233' + digits.slice(1);
+    } else {
+      formatted = '+' + digits;
+    }
+    
+    // Limit to 12 digits after +233
+    if (formatted.length > 13) {
+      formatted = formatted.slice(0, 13);
+    }
+    
+    setWhatsappNumber(formatted);
+  };
+
+  // Check if all required photos are uploaded
   useEffect(() => {
     const facePhoto = uploadedPhotos.find(photo => photo.type === 'face' && photo.status === 'success');
     const bodyPhoto = uploadedPhotos.find(photo => photo.type === 'body' && photo.status === 'success');
@@ -52,15 +90,15 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     if (!files || files.length === 0) return;
 
     Array.from(files).forEach(file => {
-      processAndValidateFile(file, type);
+      processAndUploadFile(file, type);
     });
 
     // Reset input
     event.target.value = '';
   };
 
-  // Process and validate uploaded file
-  const processAndValidateFile = (file: File, type: 'face' | 'body') => {
+  // Process and upload file (simplified - no validation)
+  const processAndUploadFile = (file: File, type: 'face' | 'body') => {
     const photoId = Date.now().toString();
     const previewUrl = URL.createObjectURL(file);
 
@@ -70,49 +108,23 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
       file,
       preview: previewUrl,
       type,
-      status: 'uploading',
-      validation: {
-        hasFace: false,
-        isClear: false,
-        goodLighting: false,
-        fullBodyVisible: type === 'body' ? false : undefined
-      }
+      status: 'uploading'
     };
 
     setUploadedPhotos(prev => [...prev, newPhoto]);
     setIsUploading(true);
 
-    // Simulate upload and validation process
+    // Simulate upload process (no validation)
     setTimeout(() => {
-      validatePhoto(newPhoto, file).then(validation => {
-        setUploadedPhotos(prev => 
-          prev.map(photo => 
-            photo.id === photoId 
-              ? { ...photo, status: 'success', validation } 
-              : photo
-          )
-        );
-        setIsUploading(false);
-      });
-    }, 1500);
-  };
-
-  // Simple photo validation (simulated - in real app, this would use AI/ML)
-  const validatePhoto = async (photo: UploadedPhoto, file: File): Promise<UploadedPhoto['validation']> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        // Simulate validation checks
-        const validation: UploadedPhoto['validation'] = {
-          hasFace: Math.random() > 0.3, // 70% chance of "face detected"
-          isClear: file.size > 50000, // Basic file size check
-          goodLighting: Math.random() > 0.4, // 60% chance of good lighting
-          fullBodyVisible: photo.type === 'body' ? Math.random() > 0.3 : undefined
-        };
-        resolve(validation);
-      };
-      img.src = photo.preview;
-    });
+      setUploadedPhotos(prev => 
+        prev.map(photo => 
+          photo.id === photoId 
+            ? { ...photo, status: 'success' } 
+            : photo
+        )
+      );
+      setIsUploading(false);
+    }, 1000); // Shorter delay since no validation
   };
 
   // Remove photo
@@ -134,7 +146,7 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
       cameraInputRef.current.onchange = (e) => {
         const files = (e.target as HTMLInputElement).files;
         if (files && files.length > 0) {
-          processAndValidateFile(files[0], type);
+          processAndUploadFile(files[0], type);
         }
       };
       cameraInputRef.current.click();
@@ -148,7 +160,7 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
       fileInputRef.current.onchange = (e) => {
         const files = (e.target as HTMLInputElement).files;
         if (files && files.length > 0) {
-          processAndValidateFile(files[0], type);
+          processAndUploadFile(files[0], type);
         }
       };
       fileInputRef.current.click();
@@ -175,27 +187,25 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     }, 200);
   };
 
-  const handleBack = () => {
-    if (containerRef.current) {
-      containerRef.current.style.opacity = '0.9';
-      containerRef.current.style.transform = 'scale(0.98)';
-    }
-    
-    setTimeout(() => {
-      setCurrentStep(2);
-    }, 200);
-  };
+const handleBack = () => {
+  // Track abandonment if user has provided phone number
+  if (hasPhoneNumber) {
+    trackAbandonment('navigated_back_from_step_3');
+  }
+  
+  if (containerRef.current) {
+    containerRef.current.style.opacity = '0.9';
+    containerRef.current.style.transform = 'scale(0.98)';
+  }
+  
+  setTimeout(() => {
+    setCurrentStep(2);
+  }, 200);
+};
 
   // Get uploaded photo for a specific type
   const getUploadedPhoto = (type: 'face' | 'body') => {
     return uploadedPhotos.find(photo => photo.type === type && photo.status === 'success');
-  };
-
-  // Get validation score for progress
-  const getValidationScore = (validation: UploadedPhoto['validation']) => {
-    const checks = Object.values(validation).filter(v => typeof v === 'boolean');
-    const passed = checks.filter(v => v).length;
-    return (passed / checks.length) * 100;
   };
 
   return (
@@ -239,22 +249,74 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
         </div>
       </div>
 
+      {/* WhatsApp Delivery Section */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border-2 border-green-200">
+          <div className="flex items-start space-x-4">
+            <div className="text-3xl">💬</div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Get Instant Delivery & Expert Feedback
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Enter your WhatsApp number to receive your photos instantly and get personalized styling tips from our experts
+              </p>
+              
+              <div className="space-y-3">
+                <div className="relative">
+                  <input
+                    type="tel"
+                    value={whatsappNumber}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder="+233 00 000 0000"
+                    className={`w-full border rounded-xl p-4 pr-12 text-lg font-mono transition-all duration-300 ${
+                      isValidNumber 
+                        ? 'border-green-500 bg-green-50 focus:ring-2 focus:ring-green-500/20' 
+                        : whatsappNumber 
+                        ? 'border-red-500 bg-red-50 focus:ring-2 focus:ring-red-500/20'
+                        : 'border-gray-300 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20'
+                    }`}
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    {isValidNumber ? (
+                      <span className="text-green-500 text-2xl">✓</span>
+                    ) : whatsappNumber ? (
+                      <span className="text-red-500 text-2xl">✗</span>
+                    ) : (
+                      <span className="text-gray-400 text-2xl">📱</span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="text-sm text-gray-500">
+                  {isValidNumber ? (
+                    <span className="text-green-600">✓ Perfect! We'll deliver your photos here</span>
+                  ) : whatsappNumber ? (
+                    <span className="text-red-600">Please use a valid Ghana number (+233XXXXXXXXX)</span>
+                  ) : (
+                    <span>Optional - but recommended for instant delivery</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Upload Sections */}
       <div className="max-w-4xl mx-auto space-y-8">
         {requiredPhotos.map((reqPhoto, index) => {
           const uploadedPhoto = getUploadedPhoto(reqPhoto.type);
           const isUploaded = !!uploadedPhoto;
-          const validationScore = uploadedPhoto ? getValidationScore(uploadedPhoto.validation) : 0;
 
           return (
             <div key={reqPhoto.type} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               {/* Section Header */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className={`
-                    w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                    ${isUploaded ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'}
-                  `}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    isUploaded ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
                     {isUploaded ? '✓' : index + 1}
                   </div>
                   <div>
@@ -271,9 +333,6 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
                   <div className="text-right">
                     <div className="text-sm font-semibold text-green-600">
                       ✓ Uploaded
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {validationScore.toFixed(0)}% quality
                     </div>
                   </div>
                 )}
@@ -332,51 +391,13 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
                       </div>
                     </div>
                     
-                    {/* Validation Results */}
+                    {/* Success Message */}
                     <div className="flex-1">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                        {Object.entries(uploadedPhoto.validation).map(([key, value]) => {
-                          if (typeof value !== 'boolean') return null;
-                          
-                          const labels: Record<string, string> = {
-                            hasFace: 'Face detected',
-                            isClear: 'Clear image',
-                            goodLighting: 'Good lighting',
-                            fullBodyVisible: 'Full body visible'
-                          };
-                          
-                          return (
-                            <div key={key} className="flex items-center space-x-2">
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                                value ? 'bg-green-500' : 'bg-red-500'
-                              }`}>
-                                {value ? '✓' : '✗'}
-                              </div>
-                              <span className={`text-sm ${
-                                value ? 'text-green-700' : 'text-red-700'
-                              }`}>
-                                {labels[key] || key}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Quality Bar */}
                       <div className="mb-4">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-700">Photo Quality</span>
-                          <span className="font-semibold">{validationScore.toFixed(0)}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-1000 ${
-                              validationScore > 70 ? 'bg-green-500' : 
-                              validationScore > 40 ? 'bg-yellow-500' : 'bg-red-500'
-                            }`}
-                            style={{ width: `${validationScore}%` }}
-                          ></div>
-                        </div>
+                        <h4 className="font-bold text-green-800 mb-2">✅ Photo Uploaded Successfully!</h4>
+                        <p className="text-green-700 text-sm">
+                          Your {reqPhoto.type === 'face' ? 'face selfie' : 'full body photo'} has been received and is ready for processing.
+                        </p>
                       </div>
                       
                       {/* Action Buttons */}
@@ -433,14 +454,7 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="
-            bg-gray-600 text-white font-bold py-4 px-6 
-            rounded-2xl shadow-xl 
-            transform transition-all duration-300 
-            hover:scale-105 hover:shadow-2xl
-            active:scale-95
-            flex items-center space-x-2
-          "
+          className="bg-gray-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 flex items-center space-x-2"
         >
           <span>←</span>
           <span>Back</span>
@@ -450,15 +464,7 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
         {showNextButton && (
           <button
             onClick={handleContinue}
-            className="
-              bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] 
-              text-white font-bold py-4 px-8 
-              rounded-2xl shadow-2xl 
-              transform transition-all duration-300 
-              hover:scale-105 hover:shadow-3xl
-              active:scale-95
-              flex items-center space-x-3
-            "
+            className="bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 px-8 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl active:scale-95 flex items-center space-x-3"
           >
             <span>Continue to Outfits</span>
             <span className="text-lg animate-bounce">→</span>
@@ -471,8 +477,8 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 text-center max-w-sm mx-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
-            <h3 className="font-bold text-lg mb-2">Processing Your Photo</h3>
-            <p className="text-gray-600">Validating image quality and requirements...</p>
+            <h3 className="font-bold text-lg mb-2">Uploading Your Photo</h3>
+            <p className="text-gray-600">Please wait while we process your photo...</p>
           </div>
         </div>
       )}
