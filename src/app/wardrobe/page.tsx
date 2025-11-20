@@ -1,6 +1,6 @@
 // src/app/wardrobe/page.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navigation from '@/components/shared/Navigation';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
@@ -15,7 +15,8 @@ interface Outfit {
   available: boolean;
 }
 
-export default function WardrobePage() {
+// Create a separate component that uses useSearchParams
+function WardrobeContent() {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -464,5 +465,21 @@ export default function WardrobePage() {
       <WhatsAppFloat />
       <Footer />
     </>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function WardrobePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading wardrobe...</p>
+        </div>
+      </div>
+    }>
+      <WardrobeContent />
+    </Suspense>
   );
 }
