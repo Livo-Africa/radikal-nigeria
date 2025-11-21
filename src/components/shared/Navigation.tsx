@@ -1,4 +1,4 @@
-// src/components/shared/Navigation.tsx - GLASS MORPHISM DESIGN
+// src/components/shared/Navigation.tsx - FIXED VERSION
 'use client';
 import { useState, useEffect } from 'react';
 import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X } from 'lucide-react';
@@ -8,14 +8,19 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [mounted, setMounted] = useState(false); // NEW: Track if component is mounted
 
   // Enhanced scroll detection
   useEffect(() => {
+    setMounted(true); // Component is now mounted
     const handleScroll = () => {
       const scrollY = window.scrollY;
       setScrolled(scrollY > 50);
       setIsAtTop(scrollY < 10);
     };
+    
+    // Set initial state
+    handleScroll();
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -96,12 +101,23 @@ export default function Navigation() {
     ]
   };
 
-  // Glass morphism styles based on scroll state
+  // FIXED: Glass morphism styles - Default to dark until we know scroll position
   const getNavStyles = () => {
+    // Before component is mounted, default to dark style for hero background
+    if (!mounted) {
+      return {
+        background: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        textColor: 'text-white',
+        shadow: 'none'
+      };
+    }
+
     if (isAtTop) {
       // At very top - subtle glass on dark hero background
       return {
-        background: 'rgba(255, 255, 255, 0.08)',
+        background: 'rgba(0, 0, 0, 0.8)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
         textColor: 'text-white',
@@ -117,7 +133,7 @@ export default function Navigation() {
         shadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       };
     } else {
-      // Minimal scroll - medium glass
+      // Minimal scroll - medium glass (shouldn't happen often)
       return {
         background: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(15px)',
@@ -159,7 +175,9 @@ export default function Navigation() {
                 <span className={`font-bold text-lg tracking-tight transition-colors duration-300 ${navStyles.textColor} group-hover:text-[#D4AF37]`}>
                   RADIKAL
                 </span>
-                <span className={`text-xs transition-colors duration-300 ${isAtTop ? 'text-white/70' : 'text-gray-600'} group-hover:text-[#D4AF37]`}>
+                <span className={`text-xs transition-colors duration-300 ${
+                  !mounted || isAtTop ? 'text-white/70' : 'text-gray-600'
+                } group-hover:text-[#D4AF37]`}>
                   Creative Technologies
                 </span>
               </div>
@@ -353,10 +371,12 @@ export default function Navigation() {
               </a>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* FIXED: Mobile Menu Button - Always visible with proper color */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`lg:hidden p-2 transition-colors ${navStyles.textColor}`}
+              className={`lg:hidden p-2 transition-colors ${
+                !mounted || isAtTop ? 'text-white' : 'text-gray-900'
+              }`}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -377,7 +397,7 @@ export default function Navigation() {
         <div 
           className="absolute inset-0"
           style={{
-            background: 'rgba(0, 0, 0, 0.4)',
+            background: 'rgba(0, 0, 0, 0.6)',
             backdropFilter: 'blur(8px)'
           }}
           onClick={() => setMobileMenuOpen(false)}
