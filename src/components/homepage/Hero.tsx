@@ -1,7 +1,7 @@
 // src/components/homepage/Hero.tsx - MOBILE FIRST
 'use client';
 import { useState, useEffect } from 'react';
-import { ArrowRight, Play, Camera, Building, ChevronDown } from 'lucide-react';
+import { ArrowRight, Play, Camera, Building, Zap,Star,Users  } from 'lucide-react';
 
 export default function Hero() {
   const [currentSubheading, setCurrentSubheading] = useState(0);
