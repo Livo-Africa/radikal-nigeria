@@ -1,10 +1,24 @@
 // src/components/homepage/Hero.tsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Camera, Building, Zap, Star, Users } from 'lucide-react';
+
+interface Symbol {
+  id: number;
+  svg: string;
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+  delay: number;
+  duration: number;
+}
 
 export default function Hero() {
   const [currentSubheading, setCurrentSubheading] = useState(0);
+  const [symbols, setSymbols] = useState<Symbol[]>([]);
+  const symbolCount = useRef(0);
+  const maxSymbols = 8; // Maximum symbols on screen at once
   
   const subheadings = [
     "Studio photos without the studio",
@@ -12,64 +26,141 @@ export default function Hero() {
     "Your Creative Partner in the Digital Age"
   ];
 
+  // SVG symbols data
+  const symbolTemplates = [
+    {
+      name: "Gye Nyame",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 744 1052" fill="currentColor">
+        <path d="M372 0C166 0 0 166 0 372s166 372 372 372 372-166 372-372S578 0 372 0z"/>
+      </svg>`
+    },
+    {
+      name: "Adinkrahene",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 744 1052" fill="currentColor">
+        <circle cx="372" cy="526" r="300" stroke="currentColor" fill="none" stroke-width="20"/>
+        <circle cx="372" cy="526" r="150" stroke="currentColor" fill="none" stroke-width="20"/>
+      </svg>`
+    },
+    {
+      name: "Sankofa",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 744 1052" fill="currentColor">
+        <path d="M372 100c-150 0-272 122-272 272s122 272 272 272 272-122 272-272S522 100 372 100z"/>
+      </svg>`
+    },
+    {
+      name: "Nsibidi Autonym",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 244 186" fill="currentColor">
+        <path d="M20 150 L120 30 L220 150 Z" stroke="currentColor" fill="none" stroke-width="8"/>
+      </svg>`
+    },
+    {
+      name: "Cowrie",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+        <path d="M20,50 Q50,10 80,50 Q50,90 20,50 Z" stroke="currentColor" fill="none" stroke-width="3"/>
+        <path d="M35,45 Q50,35 65,45" stroke="currentColor" fill="none" stroke-width="2"/>
+      </svg>`
+    },
+    {
+      name: "Nsibidi Three Letters",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 617 487" fill="currentColor">
+        <path d="M100 200 L200 100 L300 200 Z" stroke="currentColor" fill="none" stroke-width="8"/>
+      </svg>`
+    },
+    {
+      name: "Yin Yang",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
+        <path d="M256 0a256 256 0 100 512 256 256 0 000-512zm0 128a128 128 0 010 256 128 128 0 010-256z"/>
+        <circle cx="256" cy="160" r="32" fill="white"/>
+        <circle cx="256" cy="352" r="32" fill="black"/>
+      </svg>`
+    },
+    {
+      name: "Infinity",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50" fill="currentColor">
+        <path d="M10 25c0-8 6-15 15-15s15 7 25 15-10 15-25 15-15-7-15-15zM50 25c10-8 15-15 25-15s15 7 15 15-6 15-15 15-15-7-25-15z" fill="none" stroke="currentColor" stroke-width="3"/>
+      </svg>`
+    }
+  ];
+
+  const colors = [
+    '#D4AF37', // Gold
+    '#F4D03F', // Yellow
+    '#FFFFFF', // White
+    '#E8C872', // Light Gold
+    '#F7DC6F'  // Pale Yellow
+  ];
+
+  const createSymbol = (): Symbol => {
+    const template = symbolTemplates[Math.floor(Math.random() * symbolTemplates.length)];
+    return {
+      id: symbolCount.current++,
+      svg: template.svg,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      scale: 0.3 + Math.random() * 0.7,
+      rotation: Math.random() * 360,
+      delay: Math.random() * 2000,
+      duration: 8000 + Math.random() * 7000
+    };
+  };
+
   useEffect(() => {
     const subheadingInterval = setInterval(() => {
       setCurrentSubheading((prev) => (prev + 1) % subheadings.length);
     }, 3000);
 
-    return () => clearInterval(subheadingInterval);
+    // Initial symbols
+    const initialSymbols = Array.from({ length: 4 }, createSymbol);
+    setSymbols(initialSymbols);
+
+    // Add new symbols periodically
+    const symbolInterval = setInterval(() => {
+      setSymbols(current => {
+        if (current.length >= maxSymbols) {
+          return current.slice(1);
+        }
+        return [...current, createSymbol()];
+      });
+    }, 2000);
+
+    return () => {
+      clearInterval(subheadingInterval);
+      clearInterval(symbolInterval);
+    };
   }, []);
 
   return (
     <section className="pt-16 min-h-[90vh] md:min-h-[100vh] flex items-center justify-center relative overflow-hidden bg-black">
-      {/* Animated Cultural Symbols Background */}
+      {/* Animated Background with Cultural Symbols */}
       <div className="absolute inset-0 overflow-hidden">
-        
-        {/* Floating Yin Yang Symbols */}
-        <div className="absolute top-1/4 left-1/4 animate-float-slow">
-          <YinYang />
-        </div>
-        <div className="absolute bottom-1/3 right-1/4 animate-float-reverse">
-          <YinYang size="sm" />
-        </div>
-
-        {/* Ghanaian Adinkra Symbols */}
-        <div className="absolute top-1/3 right-1/3 animate-spin-slow">
-          <Adinkra symbol="gyeNyame" />
-        </div>
-        <div className="absolute bottom-1/4 left-1/3 animate-pulse-slow">
-          <Adinkra symbol="sankofa" />
-        </div>
-
-        {/* Cowrie Shells */}
-        <div className="absolute top-1/5 right-1/5 animate-float">
-          <Cowrie />
-        </div>
-        <div className="absolute bottom-1/5 left-1/5 animate-float-delayed">
-          <Cowrie />
-        </div>
-
-        {/* Nsibidi Symbols */}
-        <div className="absolute top-2/3 left-1/5 animate-bounce-slow">
-          <Nsibidi symbol="love" />
-        </div>
-        <div className="absolute top-1/2 right-1/5 animate-ping-slow">
-          <Nsibidi symbol="unity" />
-        </div>
-
-        {/* Infinity Symbols */}
-        <div className="absolute bottom-1/2 left-1/2 animate-spin">
-          <InfinitySymbol />
-        </div>
+        {/* Floating Cultural Symbols */}
+        {symbols.map((symbol) => {
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          return (
+            <div
+              key={symbol.id}
+              className="absolute pointer-events-none"
+              style={{
+                left: `${symbol.x}%`,
+                top: `${symbol.y}%`,
+                transform: `scale(${symbol.scale}) rotate(${symbol.rotation}deg)`,
+                animation: `symbolFloat ${symbol.duration}ms ease-in-out ${symbol.delay}ms infinite`,
+                color: color,
+                opacity: 0.1 + Math.random() * 0.15
+              }}
+              dangerouslySetInnerHTML={{ __html: symbol.svg }}
+            />
+          );
+        })}
 
         {/* Animated Gradient Orbs */}
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-[#D4AF37]/20 to-[#F4D03F]/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#F4D03F]/10 to-[#D4AF37]/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-[#F4D03F]/10 to-[#D4AF37]/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2000ms'}}></div>
         
         {/* Geometric Patterns */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer"></div>
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer animation-delay-1000"></div>
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{animationDelay: '1000ms'}}></div>
         </div>
       </div>
 
@@ -141,155 +232,55 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Symbol Components */}
+      {/* Custom CSS for animations */}
       <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
+        @keyframes symbolFloat {
+          0% {
+            transform: translateY(100vh) scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            transform: translateY(80vh) scale(0.5) rotate(90deg);
+            opacity: 0.3;
+          }
+          30% {
+            transform: translateY(60vh) scale(0.8) rotate(180deg);
+            opacity: 0.4;
+          }
+          50% {
+            transform: translateY(40vh) scale(1) rotate(270deg);
+            opacity: 0.3;
+          }
+          70% {
+            transform: translateY(20vh) scale(0.8) rotate(360deg);
+            opacity: 0.2;
+          }
+          100% {
+            transform: translateY(-100px) scale(0) rotate(450deg);
+            opacity: 0;
+          }
         }
-        @keyframes floatReverse {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(-5deg); }
-        }
-        @keyframes floatSlow {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes ping-slow {
-          0% { transform: scale(1); opacity: 1; }
-          75%, 100% { transform: scale(2); opacity: 0; }
-        }
+
         @keyframes gradient {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        .animate-float-slow {
-          animation: float 8s ease-in-out infinite;
-        }
-        .animate-float-reverse {
-          animation: floatReverse 7s ease-in-out infinite;
-        }
-        .animate-float-delayed {
-          animation: float 9s ease-in-out infinite;
-          animation-delay: 2s;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 4s ease-in-out infinite;
-        }
-        .animate-ping-slow {
-          animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
+
         .animate-gradient-x {
           background-size: 200% 200%;
           animation: gradient 3s ease infinite;
         }
+
         .animate-shimmer {
           animation: shimmer 3s ease-in-out infinite;
-        }
-        .animation-delay-1000 {
-          animation-delay: 1s;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
         }
       `}</style>
     </section>
   );
 }
-
-// Symbol Components
-const YinYang = ({ size = "md" }) => {
-  const sizes = { sm: "w-8 h-8", md: "w-16 h-16", lg: "w-24 h-24" };
-  return (
-    <div className={`${sizes[size]} opacity-20 hover:opacity-40 transition-opacity duration-500`}>
-      <svg viewBox="0 0 100 100" className="text-white">
-        <path d="M50,0 C22.385,0 0,22.385 0,50 C0,77.615 22.385,100 50,100 C77.615,100 100,77.615 100,50 C100,22.385 77.615,0 50,0 Z M50,90 C28.804,90 10,71.196 10,50 C10,28.804 28.804,10 50,10 C71.196,10 90,28.804 90,50 C90,71.196 71.196,90 50,90 Z" fill="currentColor"/>
-        <circle cx="50" cy="25" r="10" fill="currentColor"/>
-        <circle cx="50" cy="75" r="10" fill="currentColor" className="text-black"/>
-      </svg>
-    </div>
-  );
-};
-
-const Adinkra = ({ symbol }) => {
-  const symbols = {
-    gyeNyame: (
-      <svg viewBox="0 0 100 100" className="w-12 h-12 text-[#D4AF37] opacity-30 hover:opacity-60 transition-opacity duration-500">
-        <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="2" fill="none"/>
-        <circle cx="50" cy="50" r="30" stroke="currentColor" strokeWidth="1" fill="none"/>
-        <path d="M35,35 L65,65 M35,65 L65,35" stroke="currentColor" strokeWidth="2"/>
-      </svg>
-    ),
-    sankofa: (
-      <svg viewBox="0 0 100 100" className="w-10 h-10 text-[#F4D03F] opacity-25 hover:opacity-50 transition-opacity duration-500">
-        <path d="M50,20 C30,20 20,30 20,50 C20,70 30,80 50,80 C70,80 80,70 80,50 C80,30 70,20 50,20 Z M45,40 L55,40 L55,60 L65,60 L50,75 L35,60 L45,60 Z" 
-              stroke="currentColor" strokeWidth="2" fill="none"/>
-      </svg>
-    )
-  };
-  return symbols[symbol] || symbols.gyeNyame;
-};
-
-const Cowrie = () => (
-  <div className="w-6 h-6 opacity-15 hover:opacity-30 transition-opacity duration-500">
-    <svg viewBox="0 0 100 100" className="text-white">
-      <path d="M20,50 Q50,10 80,50 Q50,90 20,50 Z" 
-            stroke="currentColor" strokeWidth="2" fill="currentColor"/>
-      <path d="M35,45 Q50,35 65,45" stroke="#D4AF37" strokeWidth="1" fill="none"/>
-    </svg>
-  </div>
-);
-
-const Nsibidi = ({ symbol }) => {
-  const symbols = {
-    love: (
-      <svg viewBox="0 0 100 100" className="w-8 h-8 text-[#D4AF37] opacity-20 hover:opacity-40 transition-opacity duration-500">
-        <path d="M50,30 Q70,20 80,40 Q90,60 70,70 Q50,80 30,70 Q10,60 20,40 Q30,20 50,30 Z" 
-              stroke="currentColor" strokeWidth="2" fill="none"/>
-        <circle cx="40" cy="50" r="3" fill="currentColor"/>
-        <circle cx="60" cy="50" r="3" fill="currentColor"/>
-        <path d="M40,65 Q50,70 60,65" stroke="currentColor" strokeWidth="2" fill="none"/>
-      </svg>
-    ),
-    unity: (
-      <svg viewBox="0 0 100 100" className="w-9 h-9 text-[#F4D03F] opacity-25 hover:opacity-45 transition-opacity duration-500">
-        <circle cx="30" cy="50" r="15" stroke="currentColor" strokeWidth="2" fill="none"/>
-        <circle cx="70" cy="50" r="15" stroke="currentColor" strokeWidth="2" fill="none"/>
-        <path d="M45,50 L55,50" stroke="currentColor" strokeWidth="3"/>
-        <path d="M30,35 L70,65 M30,65 L70,35" stroke="currentColor" strokeWidth="1"/>
-      </svg>
-    )
-  };
-  return symbols[symbol] || symbols.love;
-};
-
-const InfinitySymbol = () => (
-  <div className="w-14 h-14 opacity-15 hover:opacity-25 transition-opacity duration-500">
-    <svg viewBox="0 0 100 100" className="text-white">
-      <path d="M30,50 Q40,30 50,50 Q60,70 70,50 Q80,30 50,50 Q20,70 30,50 Z" 
-            stroke="currentColor" strokeWidth="3" fill="none"/>
-    </svg>
-  </div>
-);
