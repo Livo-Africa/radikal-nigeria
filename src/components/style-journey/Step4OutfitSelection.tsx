@@ -1,9 +1,8 @@
-// src/components/style-journey/Step4OutfitSelection.tsx - FIXED NAVIGATION
+// src/components/style-journey/Step4OutfitSelection.tsx - COMPLETE FIXED VERSION
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
-import { saveProgressToStorage } from '@/lib/session';
 
 interface Step4OutfitSelectionProps {
   formData: any;
@@ -45,6 +44,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
             // Auto-select browse option if we have outfits
             if (parsed.outfits.length > 0) {
               setSelectedOption('browse');
+              console.log('👗 Loaded outfits from storage:', parsed.outfits.length);
             }
           }
         } catch (error) {
@@ -65,14 +65,39 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
     setShowNextButton(!!canProceed);
   }, [selectedOption, selectedOutfits, outfitDescription, outfitSlots]);
 
+  // FIXED: Navigate to wardrobe (for adding more outfits)
+  const handleBrowseWardrobe = () => {
+    console.log('🚀 Navigating to wardrobe from step 4');
+    
+    // Save current progress
+    const progressData = {
+      sessionId: typeof window !== 'undefined' ? localStorage.getItem('radikal_session_id') : null,
+      formData,
+      currentStep,
+      lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem('radikal_booking_progress', JSON.stringify(progressData));
+    
+    // Navigate to wardrobe with step 4 as return point
+    router.push(`/wardrobe?returnToStep=4&slots=${outfitSlots}`);
+  };
+
   // Handle option selection
   const handleSelectOption = (option: string) => {
     setSelectedOption(option);
     
     if (option === 'browse') {
-      // Save progress and navigate to wardrobe - CLEAN SESSION FIRST
-      localStorage.removeItem('radikal_booking_progress'); // Clear any interference
-      saveProgressToStorage(formData, currentStep);
+      console.log('🚀 Navigating to wardrobe from step 4 - Browse option');
+      
+      // Save current progress
+      const progressData = {
+        sessionId: typeof window !== 'undefined' ? localStorage.getItem('radikal_session_id') : null,
+        formData,
+        currentStep,
+        lastUpdated: new Date().toISOString()
+      };
+      localStorage.setItem('radikal_booking_progress', JSON.stringify(progressData));
+      
       router.push(`/wardrobe?returnToStep=4&slots=${outfitSlots}`);
     } else if (option === 'auto') {
       // Auto-select outfits based on shoot type
@@ -82,14 +107,6 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
     } else if (option === 'skip') {
       setFormData((prev: any) => ({ ...prev, skipOutfits: true }));
     }
-  };
-
-  // Navigate to wardrobe (for adding more outfits)
-  const handleBrowseWardrobe = () => {
-    // FIXED: Clear session recovery interference first
-    localStorage.removeItem('radikal_booking_progress');
-    saveProgressToStorage(formData, currentStep);
-    router.push(`/wardrobe?returnToStep=4&slots=${outfitSlots}`);
   };
 
   // Auto-select outfits based on shoot type

@@ -1,4 +1,4 @@
-// src/app/wardrobe/page.tsx - FIXED FILTERS
+// src/app/wardrobe/page.tsx - COMPLETE FIXED VERSION
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -18,7 +18,6 @@ interface Outfit {
 // FIXED: Static categories that don't disappear
 const ALL_CATEGORIES = ['All', 'Professional', 'Casual', 'Cultural', 'Formal', 'Traditional'];
 
-// Create a separate component that uses useSearchParams
 function WardrobeContent() {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
@@ -36,6 +35,17 @@ function WardrobeContent() {
 
   // FIXED: Use static categories instead of dynamic calculation
   const categories = ALL_CATEGORIES;
+
+  // Debug info
+  useEffect(() => {
+    console.log('🔍 Wardrobe Debug Info:', {
+      isIntegratedMode,
+      returnToStep,
+      packageSlots,
+      selectedOutfits: selectedOutfits.length,
+      currentUrl: typeof window !== 'undefined' ? window.location.href : 'no window'
+    });
+  }, [isIntegratedMode, returnToStep, packageSlots, selectedOutfits]);
 
   // Load any previously selected outfits
   useEffect(() => {
@@ -93,6 +103,18 @@ function WardrobeContent() {
 
   // FIXED: Save selections and continue - ALWAYS return to step 4
   const handleContinue = () => {
+    if (isIntegratedMode && selectedOutfits.length === 0) {
+      alert(`Please select ${packageSlots} outfit${packageSlots > 1 ? 's' : ''} to continue`);
+      return;
+    }
+
+    console.log('🎯 Continuing from wardrobe with:', {
+      integratedMode: isIntegratedMode,
+      outfitsSelected: selectedOutfits.length,
+      packageSlots,
+      returnToStep
+    });
+
     // Save to localStorage for persistence
     const selectionData = {
       outfits: selectedOutfits,
@@ -102,11 +124,14 @@ function WardrobeContent() {
     
     localStorage.setItem('radikal_selected_outfits', JSON.stringify(selectionData));
 
+    // FIXED: Clear any session recovery interference first
+    localStorage.removeItem('radikal_booking_progress');
+    
     // FIXED: Always return to step 4 when coming from style journey
     if (isIntegratedMode) {
-      // Clear any session recovery that might interfere
-      localStorage.removeItem('radikal_booking_progress');
-      router.push('/individuals/style-journey?step=4');
+      console.log('🔄 Returning to style journey step 4 with outfits:', selectedOutfits.length);
+      // Use window.location to force a hard navigation and avoid React state issues
+      window.location.href = '/individuals/style-journey?step=4';
     } else {
       // Start new style journey with selected outfits
       router.push('/individuals/style-journey');
@@ -479,7 +504,7 @@ export default function WardrobePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading wonderful outfits...</p>
+          <p className="text-gray-600">Loading awesome outfits...</p>
         </div>
       </div>
     }>

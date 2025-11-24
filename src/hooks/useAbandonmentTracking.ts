@@ -54,9 +54,9 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
       return;
     }
 
-    // FIXED: Check if user was inactive for more than 1 minute before tracking
+    // FIXED: Check if user was inactive for more than 2 minutes before tracking
     const timeSinceLastAction = Date.now() - lastActionRef.current;
-    if (timeSinceLastAction < 60000) { // 1 minute
+    if (timeSinceLastAction < 120000) { // 2 minutes
       console.log('⏰ User was active recently, not tracking abandonment');
       return;
     }
@@ -115,12 +115,12 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasPhoneNumber, currentStep]);
 
-  // 2. Visibility Change - Only track after 30 seconds of inactivity
+  // 2. Visibility Change - Only track after 2 minutes of inactivity
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden' && hasPhoneNumber && currentStep >= 3) {
         const timeSinceLastAction = Date.now() - lastActionRef.current;
-        if (timeSinceLastAction > 30000) { // 30 seconds
+        if (timeSinceLastAction > 120000) { // 2 minutes
           trackAbandonment('tab_switch_inactivity');
         }
       }
