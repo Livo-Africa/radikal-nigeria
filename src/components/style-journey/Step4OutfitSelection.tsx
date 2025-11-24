@@ -1,4 +1,4 @@
-// components/style-journey/Step4OutfitSelection.tsx
+// src/components/style-journey/Step4OutfitSelection.tsx - FIXED NAVIGATION
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,7 +32,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
   // Get outfit slots based on package
   const outfitSlots = formData.package?.outfits || 2;
 
-  // Load any previously selected outfits from localStorage (from wardrobe)
+  // FIXED: Load outfits from localStorage and auto-select browse option
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('radikal_selected_outfits');
@@ -42,7 +42,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
           if (parsed.outfits && Array.isArray(parsed.outfits)) {
             setSelectedOutfits(parsed.outfits);
             
-            // If we have outfits from wardrobe, automatically select 'browse' option
+            // Auto-select browse option if we have outfits
             if (parsed.outfits.length > 0) {
               setSelectedOption('browse');
             }
@@ -70,7 +70,8 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
     setSelectedOption(option);
     
     if (option === 'browse') {
-      // Save progress and navigate to wardrobe
+      // Save progress and navigate to wardrobe - CLEAN SESSION FIRST
+      localStorage.removeItem('radikal_booking_progress'); // Clear any interference
       saveProgressToStorage(formData, currentStep);
       router.push(`/wardrobe?returnToStep=4&slots=${outfitSlots}`);
     } else if (option === 'auto') {
@@ -85,6 +86,8 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
 
   // Navigate to wardrobe (for adding more outfits)
   const handleBrowseWardrobe = () => {
+    // FIXED: Clear session recovery interference first
+    localStorage.removeItem('radikal_booking_progress');
     saveProgressToStorage(formData, currentStep);
     router.push(`/wardrobe?returnToStep=4&slots=${outfitSlots}`);
   };
@@ -169,7 +172,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
   const handleBack = () => {
     // Track abandonment if user has provided phone number
     if (hasPhoneNumber) {
-      trackAbandonment('navigated_back_from_step_4');
+      trackAbandonment('back_button_step_4');
     }
     
     // Clear temporary wardrobe storage when going back

@@ -60,3 +60,15 @@ export default async function IndividualsPage() {
     </>
   );
 }
+
+export const metadata = {
+  title: 'Virtual Photoshoots for Individuals - Radikal Creative Technologies',
+  description: 'Professional virtual photoshoots for individuals in Ghana. Headshots, graduation photos, social media content, and personal branding without the studio hassle.',
+  keywords: 'virtual photoshoot Ghana, professional headshots, graduation photos, personal branding, social media content, WhatsApp photoshoot',
+  openGraph: {
+    title: 'Virtual Photoshoots for Individuals - Radikal',
+    description: 'Professional photos without the studio. Perfect for LinkedIn, social media, and personal branding.',
+    type: 'website',
+    locale: 'en_GH',
+  },
+};

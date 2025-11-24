@@ -1,4 +1,4 @@
-// src/app/wardrobe/page.tsx
+// src/app/wardrobe/page.tsx - FIXED FILTERS
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -14,6 +14,9 @@ interface Outfit {
   tags: string[];
   available: boolean;
 }
+
+// FIXED: Static categories that don't disappear
+const ALL_CATEGORIES = ['All', 'Professional', 'Casual', 'Cultural', 'Formal', 'Traditional'];
 
 // Create a separate component that uses useSearchParams
 function WardrobeContent() {
@@ -31,8 +34,8 @@ function WardrobeContent() {
   const packageSlots = parseInt(searchParams.get('slots') || '0');
   const isIntegratedMode = returnToStep !== null;
 
-  // FIXED: Get categories using Array.from with proper parentheses
-  const categories = ['All', ...Array.from(new Set(outfits.map(o => o.category).filter(Boolean)))];
+  // FIXED: Use static categories instead of dynamic calculation
+  const categories = ALL_CATEGORIES;
 
   // Load any previously selected outfits
   useEffect(() => {
@@ -88,7 +91,7 @@ function WardrobeContent() {
     }
   };
 
-  // Save selections and continue
+  // FIXED: Save selections and continue - ALWAYS return to step 4
   const handleContinue = () => {
     // Save to localStorage for persistence
     const selectionData = {
@@ -99,10 +102,11 @@ function WardrobeContent() {
     
     localStorage.setItem('radikal_selected_outfits', JSON.stringify(selectionData));
 
-    // Navigate based on context
-    if (isIntegratedMode && returnToStep) {
-      // Return to exact step in style journey
-      router.push(`/individuals/style-journey?step=${returnToStep}`);
+    // FIXED: Always return to step 4 when coming from style journey
+    if (isIntegratedMode) {
+      // Clear any session recovery that might interfere
+      localStorage.removeItem('radikal_booking_progress');
+      router.push('/individuals/style-journey?step=4');
     } else {
       // Start new style journey with selected outfits
       router.push('/individuals/style-journey');
@@ -197,7 +201,7 @@ function WardrobeContent() {
                 </div>
               </div>
 
-              {/* Category Filters */}
+              {/* FIXED: Category Filters - Always show all categories */}
               <div className="flex flex-wrap gap-2 justify-center">
                 {categories.map(category => (
                   <button
@@ -475,7 +479,7 @@ export default function WardrobePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D4AF37] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading wardrobe...</p>
+          <p className="text-gray-600">Loading wonderful outfits...</p>
         </div>
       </div>
     }>

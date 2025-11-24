@@ -283,24 +283,7 @@ export default function Hero() {
             </a>
           </div>
 
-          {/* Social Proof */}
-          <div className="hidden md:grid grid-cols-3 gap-8 max-w-md mx-auto text-white/80 animate-fadeIn" style={{animationDelay: '600ms'}}>
-            <div className="flex flex-col items-center transform hover:scale-110 transition-transform duration-300">
-              <Zap className="w-6 h-6 text-green-400 mb-2" />
-              <div className="text-2xl font-bold">1-3h</div>
-              <div className="text-sm">Delivery</div>
-            </div>
-            <div className="flex flex-col items-center transform hover:scale-110 transition-transform duration-300">
-              <Star className="w-6 h-6 text-yellow-400 mb-2" />
-              <div className="text-2xl font-bold">4.9/5</div>
-              <div className="text-sm">Rating</div>
-            </div>
-            <div className="flex flex-col items-center transform hover:scale-110 transition-transform duration-300">
-              <Users className="w-6 h-6 text-blue-400 mb-2" />
-              <div className="text-2xl font-bold">500+</div>
-              <div className="text-sm">Clients</div>
-            </div>
-          </div>
+        
         </div>
       </div>
 

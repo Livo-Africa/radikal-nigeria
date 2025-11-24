@@ -1,9 +1,11 @@
+// src/hooks/useAbandonmentTracking.ts - LESS AGGRESSIVE
 import { useEffect, useRef } from 'react';
 
 export const useAbandonmentTracking = (formData: any, currentStep: number) => {
   const sessionIdRef = useRef<string>('');
   const hasPhoneNumber = formData?.whatsappNumber && formData.whatsappNumber !== '';
   const triggeredRef = useRef<string[]>([]); // Track already triggered reasons
+  const lastActionRef = useRef<number>(Date.now());
 
   useEffect(() => {
     // Initialize session ID
@@ -18,8 +20,13 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
   }, []);
 
   useEffect(() => {
-    // Save progress to localStorage
-    if (typeof window !== 'undefined' && currentStep >= 1) {
+    // Update last action timestamp on any user interaction
+    lastActionRef.current = Date.now();
+  }, [currentStep, formData]);
+
+  useEffect(() => {
+    // Save progress to localStorage - but only after meaningful steps
+    if (typeof window !== 'undefined' && currentStep >= 3) { // Only after step 3 (photos)
       const progressData = {
         sessionId: sessionIdRef.current,
         formData,
@@ -31,13 +38,13 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
   }, [formData, currentStep]);
 
   const trackAbandonment = async (reason: string = 'user_navigation') => {
-    // Prevent duplicate tracking for same reason
+    // FIXED: Prevent duplicate tracking for same reason
     if (triggeredRef.current.includes(reason)) {
       console.log('🔄 Already tracked this abandonment reason:', reason);
       return;
     }
 
-    // Only track if user provided phone number (after Step 3)
+    // FIXED: Only track if user provided phone number AND was beyond step 3
     if (!hasPhoneNumber || currentStep < 3) {
       console.log('❌ NOT TRACKING: No phone or before step 3', {
         hasPhoneNumber,
@@ -47,11 +54,19 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
       return;
     }
 
+    // FIXED: Check if user was inactive for more than 1 minute before tracking
+    const timeSinceLastAction = Date.now() - lastActionRef.current;
+    if (timeSinceLastAction < 60000) { // 1 minute
+      console.log('⏰ User was active recently, not tracking abandonment');
+      return;
+    }
+
     console.log('🔍 TRACKING ABANDONMENT:', {
       reason,
       step: currentStep,
       phone: formData.whatsappNumber,
-      sessionId: sessionIdRef.current
+      sessionId: sessionIdRef.current,
+      inactiveTime: timeSinceLastAction
     });
 
     triggeredRef.current.push(reason);
@@ -62,7 +77,8 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
         currentStep,
         formData,
         timestamp: new Date().toISOString(),
-        reason
+        reason,
+        inactiveDuration: timeSinceLastAction
       };
 
       // Use sendBeacon for more reliable tracking during page unload
@@ -85,14 +101,13 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
     }
   };
 
-  // 🔥 ENHANCED DETECTION METHODS
+  // FIXED: Less aggressive detection methods
 
-  // 1. Page Unload Detection (user closes browser/tab)
+  // 1. Page Unload Detection - Only track if user was beyond step 3
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
+      if (hasPhoneNumber && currentStep >= 3) {
         trackAbandonment('browser_closed');
-        // Note: This might not complete due to page unload, but we try
       }
     };
 
@@ -100,41 +115,13 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasPhoneNumber, currentStep]);
 
-  // 2. Route Change Detection (user navigates to other pages)
+  // 2. Visibility Change - Only track after 30 seconds of inactivity
   useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      const link = target.closest('a');
-      
-      if (link && hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
-        // Check if it's an external navigation (not within style journey)
-        const href = link.getAttribute('href');
-        if (href && !href.includes('/style-journey')) {
-          trackAbandonment('navigated_to_' + href.replace(/\//g, '_'));
-        }
-      }
-    };
-
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [hasPhoneNumber, currentStep]);
-
-  // 3. Visibility Change Detection (user switches tabs/minimizes)
-  useEffect(() => {
-    let hiddenStartTime: number;
-
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Page became hidden (user switched tabs or minimized)
-        hiddenStartTime = Date.now();
-      } else {
-        // Page became visible again
-        if (hiddenStartTime && hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
-          const hiddenDuration = Date.now() - hiddenStartTime;
-          // If user was away for more than 30 seconds, track as abandonment
-          if (hiddenDuration > 30000) {
-            trackAbandonment('tab_switch_inactivity');
-          }
+      if (document.visibilityState === 'hidden' && hasPhoneNumber && currentStep >= 3) {
+        const timeSinceLastAction = Date.now() - lastActionRef.current;
+        if (timeSinceLastAction > 30000) { // 30 seconds
+          trackAbandonment('tab_switch_inactivity');
         }
       }
     };
@@ -143,50 +130,8 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [hasPhoneNumber, currentStep]);
 
-  // 4. Inactivity Timeout (user doesn't interact for 2 minutes)
-  useEffect(() => {
-    let inactivityTimer: NodeJS.Timeout;
-
-    const resetTimer = () => {
-      clearTimeout(inactivityTimer);
-      if (hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
-        inactivityTimer = setTimeout(() => {
-          trackAbandonment('inactivity_timeout_2min');
-        }, 120000); // 2 minutes
-      }
-    };
-
-    // Reset timer on user activity
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    events.forEach(event => {
-      document.addEventListener(event, resetTimer);
-    });
-
-    resetTimer(); // Start the timer
-
-    return () => {
-      clearTimeout(inactivityTimer);
-      events.forEach(event => {
-        document.removeEventListener(event, resetTimer);
-      });
-    };
-  }, [hasPhoneNumber, currentStep]);
-
-  // 5. Browser Back Button Detection
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      if (hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
-        trackAbandonment('browser_back_button');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [hasPhoneNumber, currentStep]);
-
   return {
     trackAbandonment,
-    sessionId: sessionIdRef.current,
     hasPhoneNumber
   };
 };

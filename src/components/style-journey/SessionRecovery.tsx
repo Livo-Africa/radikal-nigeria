@@ -1,3 +1,4 @@
+// src/components/style-journey/SessionRecovery.tsx - LESS AGGRESSIVE
 'use client';
 import { useEffect } from 'react';
 
@@ -20,25 +21,24 @@ export default function SessionRecovery({ formData, setFormData, currentStep, se
         const now = new Date();
         const hoursDiff = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60);
         
-        // Only restore if within 24 hours and not already in a session
-        if (hoursDiff < 24 && currentStep === 1) {
-          // Check if we should show recovery prompt
-          if (progress.currentStep > 1 && progress.currentStep < 7) {
-            const shouldRecover = window.confirm(
-              `Welcome back! We found your incomplete ${progress.formData.shootTypeName || 'photoshoot'} booking from earlier. Would you like to continue where you left off?`
-            );
-            
-            if (shouldRecover) {
-              setFormData(progress.formData);
-              setCurrentStep(progress.currentStep);
-              console.log('🔄 Session recovered:', progress);
-            } else {
-              // Clear saved progress if user doesn't want to recover
-              localStorage.removeItem('radikal_booking_progress');
-            }
+        // FIXED: Only restore if within 2 hours AND user is at step 1
+        // AND the progress was from a meaningful step (not just started)
+        if (hoursDiff < 2 && currentStep === 1 && progress.currentStep > 2) {
+          // Only show recovery if user was beyond step 2 (package selection)
+          const shouldRecover = window.confirm(
+            `Continue your ${progress.formData.shootTypeName || 'photoshoot'}?`
+          );
+          
+          if (shouldRecover) {
+            setFormData(progress.formData);
+            setCurrentStep(progress.currentStep);
+            console.log('🔄 Session recovered:', progress);
+          } else {
+            // Clear saved progress if user doesn't want to recover
+            localStorage.removeItem('radikal_booking_progress');
           }
-        } else if (hoursDiff >= 24) {
-          // Clear expired progress
+        } else if (hoursDiff >= 2) {
+          // Clear expired progress (older than 2 hours)
           localStorage.removeItem('radikal_booking_progress');
           localStorage.removeItem('radikal_session_id');
         }
