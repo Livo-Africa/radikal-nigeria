@@ -1,7 +1,8 @@
-// components/style-journey/Step2Package.tsx
+// src/components/style-journey/Step2Package.tsx - WITH LUCIDE ICONS
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Package } from './types';
+import { Package as PackageIcon, Camera, Shirt, Clock, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 
 // Package data based on shoot type
 const packagesByType: Record<string, Package[]> = {
@@ -208,7 +209,7 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <span className="text-2xl">📦</span>
+          <PackageIcon className="w-8 h-8 text-[#D4AF37]" />
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
             CHOOSE YOUR PHOTOSHOOT PACKAGE
           </h1>
@@ -221,7 +222,7 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
         <div className="flex items-center justify-center space-x-6 mt-4 text-sm text-gray-500">
           <div className="flex items-center animate-pulse">
             <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center mr-2">
-              <span className="text-white text-xs">←</span>
+              <ArrowLeft className="w-3 h-3 text-white" />
             </div>
             <span>Swipe left to go back</span>
           </div>
@@ -230,7 +231,7 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
             <div className="flex items-center animate-pulse">
               <span className="mr-2">Swipe right to continue</span>
               <div className="w-6 h-6 bg-[#D4AF37] rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">→</span>
+                <ArrowRight className="w-3 h-3 text-white" />
               </div>
             </div>
           )}
@@ -290,16 +291,17 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
                 <div className="text-center">
                   <div className="flex justify-center space-x-6 text-sm">
                     <div className="flex items-center space-x-1">
-                      <span className="text-lg">📸</span>
+                      <Camera className="w-4 h-4" />
                       <span className="font-bold">{pkg.photos} photos</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <span className="text-lg">👗</span>
+                      <Shirt className="w-4 h-4" />
                       <span className="font-bold">{pkg.outfits} outfit{pkg.outfits > 1 ? 's' : ''}</span>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    Delivery: {pkg.deliveryTime}
+                  <div className="flex items-center justify-center space-x-1 text-xs text-gray-500 mt-1">
+                    <Clock className="w-3 h-3" />
+                    <span>Delivery: {pkg.deliveryTime}</span>
                   </div>
                 </div>
                 
@@ -321,13 +323,20 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
               {/* Selection Button */}
               <div className="mt-6 pt-4 border-t border-gray-200">
                 <button className={`
-                  w-full py-3 rounded-xl font-bold text-sm transition-all duration-300
+                  w-full py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center space-x-2
                   ${selectedPackage?.id === pkg.id
                     ? 'bg-[#D4AF37] text-black shadow-lg transform scale-105'
                     : 'bg-gray-100 text-gray-700 group-hover:bg-gray-200'
                   }
                 `}>
-                  {selectedPackage?.id === pkg.id ? 'Selected ✓' : 'Select Package'}
+                  {selectedPackage?.id === pkg.id ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Selected</span>
+                    </>
+                  ) : (
+                    <span>Select Package</span>
+                  )}
                 </button>
               </div>
               
@@ -380,7 +389,7 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
             flex items-center space-x-2
           "
         >
-          <span>←</span>
+          <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
         
@@ -399,7 +408,7 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
             "
           >
             <span>Continue to Photos</span>
-            <span className="text-lg animate-bounce">→</span>
+            <ArrowRight className="w-5 h-5 animate-bounce" />
           </button>
         )}
       </div>

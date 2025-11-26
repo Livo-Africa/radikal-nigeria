@@ -1,8 +1,9 @@
-// src/components/style-journey/Step4OutfitSelection.tsx - COMPLETE FIXED VERSION
+// src/components/style-journey/Step4OutfitSelection.tsx - WITH LUCIDE ICONS
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
+import { Shirt, FileText, Sparkles, SkipForward, ArrowRight, ArrowLeft, Check, X, Plus } from 'lucide-react';
 
 interface Step4OutfitSelectionProps {
   formData: any;
@@ -213,7 +214,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <span className="text-2xl">👗</span>
+          <Shirt className="w-8 h-8 text-[#D4AF37]" />
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
             CHOOSE YOUR OUTFITS
           </h1>
@@ -224,8 +225,9 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
         
         {/* Outfit Slots Info */}
         <div className="mt-4 flex justify-center">
-          <div className="bg-[#D4AF37]/10 text-[#D4AF37] rounded-full px-4 py-2 text-sm font-semibold">
-            🎯 {outfitSlots} outfit{outfitSlots > 1 ? 's' : ''} available with your {formData.package?.name} package
+          <div className="bg-[#D4AF37]/10 text-[#D4AF37] rounded-full px-4 py-2 text-sm font-semibold flex items-center space-x-2">
+            <Check className="w-4 h-4" />
+            <span>{outfitSlots} outfit{outfitSlots > 1 ? 's' : ''} available with your {formData.package?.name} package</span>
           </div>
         </div>
       </div>
@@ -244,18 +246,23 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
           `}
         >
           <div className="text-center">
-            <div className="text-5xl mb-4">👗</div>
+            <div className="flex justify-center mb-4">
+              <Shirt className="w-12 h-12 text-[#D4AF37]" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Browse Virtual Wardrobe</h3>
             <p className="text-gray-600 mb-4">
               Choose from 200+ professional outfits in our digital wardrobe
             </p>
             <div className="flex justify-center space-x-2 text-sm text-gray-500 mb-2">
-              <span>📱 Real Images</span>
-              <span>🔍 Search & Filter</span>
-              <span>🎯 Context-Aware</span>
+              <span>Real Images</span>
+              <span>•</span>
+              <span>Search & Filter</span>
+              <span>•</span>
+              <span>Context-Aware</span>
             </div>
-            <div className="text-[#D4AF37] font-semibold">
-              Select {outfitSlots} outfit{outfitSlots > 1 ? 's' : ''} ↗
+            <div className="text-[#D4AF37] font-semibold flex items-center justify-center space-x-1">
+              <span>Select {outfitSlots} outfit{outfitSlots > 1 ? 's' : ''}</span>
+              <ArrowRight className="w-4 h-4" />
             </div>
           </div>
           
@@ -277,15 +284,19 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
           `}
         >
           <div className="text-center">
-            <div className="text-5xl mb-4">📝</div>
+            <div className="flex justify-center mb-4">
+              <FileText className="w-12 h-12 text-blue-500" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Describe Your Style</h3>
             <p className="text-gray-600 mb-4">
               Tell us what you're looking for and we'll create the perfect looks
             </p>
             <div className="flex justify-center space-x-2 text-sm text-gray-500">
-              <span>💬 Detailed</span>
-              <span>🎯 Specific</span>
-              <span>✨ Custom</span>
+              <span>Detailed</span>
+              <span>•</span>
+              <span>Specific</span>
+              <span>•</span>
+              <span>Custom</span>
             </div>
           </div>
         </div>
@@ -302,15 +313,19 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
           `}
         >
           <div className="text-center">
-            <div className="text-5xl mb-4">🎨</div>
+            <div className="flex justify-center mb-4">
+              <Sparkles className="w-12 h-12 text-purple-500" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Let Radikal Style You</h3>
             <p className="text-gray-600 mb-4">
               Our expert stylists will choose perfect outfits for your photoshoot
             </p>
             <div className="flex justify-center space-x-2 text-sm text-gray-500">
-              <span>⭐ Expert Curated</span>
-              <span>🚀 Fast</span>
-              <span>✨ Surprise Me</span>
+              <span>Expert Curated</span>
+              <span>•</span>
+              <span>Fast</span>
+              <span>•</span>
+              <span>Surprise Me</span>
             </div>
           </div>
         </div>
@@ -327,15 +342,19 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
           `}
         >
           <div className="text-center">
-            <div className="text-5xl mb-4">⏭️</div>
+            <div className="flex justify-center mb-4">
+              <SkipForward className="w-12 h-12 text-gray-500" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Skip This Step</h3>
             <p className="text-gray-600 mb-4">
               We'll handle everything and create amazing looks for you
             </p>
             <div className="flex justify-center space-x-2 text-sm text-gray-500">
-              <span>🎯 Trust Experts</span>
-              <span>⚡ Save Time</span>
-              <span>🤝 We'll Guide You</span>
+              <span>Trust Experts</span>
+              <span>•</span>
+              <span>Save Time</span>
+              <span>•</span>
+              <span>We'll Guide You</span>
             </div>
           </div>
         </div>
@@ -344,7 +363,10 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
       {/* Selected Option Content */}
       {selectedOption === 'describe' && (
         <div className="max-w-2xl mx-auto bg-white rounded-2xl p-6 border-2 border-[#D4AF37] shadow-lg">
-          <h3 className="text-xl font-bold text-center mb-4">📝 Describe Your Preferred Style</h3>
+          <h3 className="text-xl font-bold text-center mb-4 flex items-center justify-center space-x-2">
+            <FileText className="w-6 h-6 text-[#D4AF37]" />
+            <span>Describe Your Preferred Style</span>
+          </h3>
           <textarea
             value={outfitDescription}
             onChange={(e) => setOutfitDescription(e.target.value)}
@@ -352,9 +374,13 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
             className="w-full h-32 border border-gray-300 rounded-xl p-4 text-sm resize-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
           />
           <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
-            <span>💡 Be as specific as possible for best results</span>
-            <span className={outfitDescription.length > 10 ? 'text-green-600' : 'text-gray-400'}>
-              {outfitDescription.length > 10 ? '✓ Ready to continue' : 'Minimum 10 characters'}
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4 text-green-500" />
+              <span>Be as specific as possible for best results</span>
+            </span>
+            <span className={outfitDescription.length > 10 ? 'text-green-600 flex items-center space-x-1' : 'text-gray-400 flex items-center space-x-1'}>
+              {outfitDescription.length > 10 ? <Check className="w-4 h-4" /> : <span>•</span>}
+              <span>{outfitDescription.length > 10 ? 'Ready to continue' : 'Minimum 10 characters'}</span>
             </span>
           </div>
         </div>
@@ -364,14 +390,16 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
       {selectedOption === 'browse' && selectedOutfits.length > 0 && (
         <div className="max-w-2xl mx-auto bg-white rounded-2xl p-6 border-2 border-[#D4AF37] shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-900">
-              ✅ Outfits Selected ({selectedOutfits.length}/{outfitSlots})
+            <h3 className="text-xl font-bold text-gray-900 flex items-center space-x-2">
+              <Check className="w-6 h-6 text-green-500" />
+              <span>Outfits Selected ({selectedOutfits.length}/{outfitSlots})</span>
             </h3>
             <button
               onClick={handleClearAll}
-              className="text-red-500 hover:text-red-700 text-sm font-semibold"
+              className="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center space-x-1"
             >
-              Clear All
+              <X className="w-4 h-4" />
+              <span>Clear All</span>
             </button>
           </div>
           
@@ -387,9 +415,10 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
                 </div>
                 <button
                   onClick={() => handleRemoveOutfit(outfit.id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-semibold"
+                  className="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center space-x-1"
                 >
-                  Remove
+                  <X className="w-4 h-4" />
+                  <span>Remove</span>
                 </button>
               </div>
             ))}
@@ -401,8 +430,9 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
                 onClick={handleBrowseWardrobe}
                 className="text-[#D4AF37] hover:text-[#b8941f] font-semibold flex items-center justify-center space-x-2"
               >
-                <span>+ Add more outfits</span>
-                <span>↗</span>
+                <Plus className="w-4 h-4" />
+                <span>Add more outfits</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -411,46 +441,72 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
 
       {selectedOption === 'browse' && selectedOutfits.length === 0 && (
         <div className="max-w-2xl mx-auto bg-yellow-50 rounded-2xl p-6 border-2 border-yellow-200 text-center">
-          <div className="text-4xl mb-4">👗</div>
+          <div className="flex justify-center mb-4">
+            <Shirt className="w-12 h-12 text-yellow-600" />
+          </div>
           <h3 className="text-xl font-bold text-yellow-800 mb-2">Ready to Browse Outfits?</h3>
           <p className="text-yellow-700 mb-4">
             You haven't selected any outfits yet. Visit our virtual wardrobe to choose {outfitSlots} outfit{outfitSlots > 1 ? 's' : ''} for your photoshoot.
           </p>
           <button
             onClick={handleBrowseWardrobe}
-            className="bg-[#D4AF37] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#b8941f] transition-colors"
+            className="bg-[#D4AF37] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#b8941f] transition-colors flex items-center space-x-2 mx-auto"
           >
-            Open Virtual Wardrobe ↗
+            <Shirt className="w-5 h-5" />
+            <span>Open Virtual Wardrobe</span>
+            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       )}
 
       {selectedOption === 'auto' && (
         <div className="max-w-2xl mx-auto bg-green-50 rounded-2xl p-6 border-2 border-green-200 text-center">
-          <div className="text-4xl mb-4">✨</div>
+          <div className="flex justify-center mb-4">
+            <Sparkles className="w-12 h-12 text-green-600" />
+          </div>
           <h3 className="text-xl font-bold text-green-800 mb-2">Perfect Outfits Selected!</h3>
           <p className="text-green-700 mb-4">
             Based on your {formData.shootTypeName} photoshoot, we've automatically selected {outfitSlots} outfits that will look amazing on you.
           </p>
-          <div className="flex justify-center space-x-2 text-sm text-green-600">
-            <span>✅ Professionally Curated</span>
-            <span>✅ Style-Matched</span>
-            <span>✅ Perfect Fit Guaranteed</span>
+          <div className="flex justify-center space-x-4 text-sm text-green-600">
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4" />
+              <span>Professionally Curated</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4" />
+              <span>Style-Matched</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4" />
+              <span>Perfect Fit Guaranteed</span>
+            </span>
           </div>
         </div>
       )}
 
       {selectedOption === 'skip' && (
         <div className="max-w-2xl mx-auto bg-blue-50 rounded-2xl p-6 border-2 border-blue-200 text-center">
-          <div className="text-4xl mb-4">🎯</div>
+          <div className="flex justify-center mb-4">
+            <SkipForward className="w-12 h-12 text-blue-600" />
+          </div>
           <h3 className="text-xl font-bold text-blue-800 mb-2">We've Got You Covered!</h3>
           <p className="text-blue-700 mb-4">
             Our expert stylists will choose the perfect outfits for your {formData.shootTypeName} photoshoot. Just focus on looking great!
           </p>
-          <div className="flex justify-center space-x-2 text-sm text-blue-600">
-            <span>🤝 Expert Guidance</span>
-            <span>⚡ Time Saved</span>
-            <span>✨ Surprise Element</span>
+          <div className="flex justify-center space-x-4 text-sm text-blue-600">
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4" />
+              <span>Expert Guidance</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4" />
+              <span>Time Saved</span>
+            </span>
+            <span className="flex items-center space-x-1">
+              <Check className="w-4 h-4" />
+              <span>Surprise Element</span>
+            </span>
           </div>
         </div>
       )}
@@ -469,7 +525,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
             flex items-center space-x-2
           "
         >
-          <span>←</span>
+          <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
         
@@ -488,7 +544,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
             "
           >
             <span>Continue to Styling</span>
-            <span className="text-lg animate-bounce">→</span>
+            <ArrowRight className="w-5 h-5 animate-bounce" />
           </button>
         )}
       </div>
@@ -496,8 +552,9 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
       {/* Progress Helper */}
       {selectedOption === 'browse' && selectedOutfits.length > 0 && selectedOutfits.length < outfitSlots && (
         <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-20 text-center">
-          <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-semibold animate-pulse">
-            🎯 Select {outfitSlots - selectedOutfits.length} more outfit{outfitSlots - selectedOutfits.length > 1 ? 's' : ''} to continue
+          <div className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-semibold animate-pulse flex items-center space-x-2">
+            <Check className="w-4 h-4" />
+            <span>Select {outfitSlots - selectedOutfits.length} more outfit{outfitSlots - selectedOutfits.length > 1 ? 's' : ''} to continue</span>
           </div>
         </div>
       )}

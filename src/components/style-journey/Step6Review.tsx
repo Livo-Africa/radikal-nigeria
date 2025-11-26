@@ -1,7 +1,8 @@
-// components/style-journey/Step6Review.tsx
+// src/components/style-journey/Step6Review.tsx - WITH LUCIDE ICONS
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
+import { CheckCircle, MessageCircle, FileText, CreditCard, Package, Shirt, Settings, ArrowRight, ArrowLeft, Plus, X, Zap, Shield, Users, Clock } from 'lucide-react';
 
 interface Step6ReviewProps {
   formData: any;
@@ -138,7 +139,7 @@ const handleBack = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <span className="text-2xl">✅</span>
+          <CheckCircle className="w-8 h-8 text-[#D4AF37]" />
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
             REVIEW YOUR ORDER
           </h1>
@@ -153,9 +154,9 @@ const handleBack = () => {
         <div className="space-y-6">
           {/* Order Summary Card */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <span className="mr-2">📋</span>
-              Order Summary
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <FileText className="w-6 h-6 text-[#D4AF37]" />
+              <span>Order Summary</span>
             </h2>
             
             <div className="space-y-4">
@@ -167,21 +168,25 @@ const handleBack = () => {
                 </div>
                 <button 
                   onClick={() => setCurrentStep(1)}
-                  className="text-[#D4AF37] hover:text-[#b8941f] text-sm font-semibold"
+                  className="text-[#D4AF37] hover:text-[#b8941f] text-sm font-semibold flex items-center space-x-1"
                 >
-                  Edit
+                  <span>Edit</span>
                 </button>
               </div>
 
               {/* Package */}
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="font-semibold text-gray-900">Package</div>
+                  <div className="font-semibold text-gray-900 flex items-center space-x-2">
+                    <Package className="w-4 h-4" />
+                    <span>Package</span>
+                  </div>
                   <div className="text-sm text-gray-600">
                     {formData.package?.name} • {formData.package?.photos} photos • {formData.package?.outfits} outfits
                   </div>
-                  <div className="text-sm text-[#D4AF37] font-semibold">
-                    Delivery: {formData.package?.deliveryTime}
+                  <div className="text-sm text-[#D4AF37] font-semibold flex items-center space-x-1">
+                    <Clock className="w-3 h-3" />
+                    <span>Delivery: {formData.package?.deliveryTime}</span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -199,7 +204,10 @@ const handleBack = () => {
               {formData.outfits && formData.outfits.length > 0 && (
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-semibold text-gray-900">Selected Outfits</div>
+                    <div className="font-semibold text-gray-900 flex items-center space-x-2">
+                      <Shirt className="w-4 h-4" />
+                      <span>Selected Outfits</span>
+                    </div>
                     <div className="text-sm text-gray-600">
                       {formData.outfits.slice(0, 2).map((outfit: any) => outfit.name).join(', ')}
                       {formData.outfits.length > 2 && ` and ${formData.outfits.length - 2} more`}
@@ -218,7 +226,10 @@ const handleBack = () => {
               {formData.style && !formData.style.skipped && (
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-semibold text-gray-900">Style Preferences</div>
+                    <div className="font-semibold text-gray-900 flex items-center space-x-2">
+                      <Settings className="w-4 h-4" />
+                      <span>Style Preferences</span>
+                    </div>
                     <div className="text-sm text-gray-600">
                       {Object.entries(formData.style).map(([key, value]: [string, any]) => (
                         value.selectedOption && (
@@ -247,85 +258,15 @@ const handleBack = () => {
               </div>
             </div>
           </div>
-
-          {/* WhatsApp Information */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <span className="mr-2">📱</span>
-              Where Should We Send Your Photos?
-            </h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  WhatsApp Number *
-                </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    value={whatsappNumber}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder="+233 00 000 0000"
-                    className={`
-                      w-full border rounded-xl p-4 pr-12 text-lg font-mono
-                      transition-all duration-300
-                      ${isValidNumber 
-                        ? 'border-green-500 bg-green-50 focus:ring-2 focus:ring-green-500/20' 
-                        : whatsappNumber 
-                        ? 'border-red-500 bg-red-50 focus:ring-2 focus:ring-red-500/20'
-                        : 'border-gray-300 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20'
-                      }
-                    `}
-                  />
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    {isValidNumber ? (
-                      <span className="text-green-500 text-2xl">✓</span>
-                    ) : whatsappNumber ? (
-                      <span className="text-red-500 text-2xl">✗</span>
-                    ) : (
-                      <span className="text-gray-400 text-2xl">💬</span>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-2 text-sm text-gray-600">
-                  {isValidNumber ? (
-                    <span className="text-green-600">✓ Perfect! We'll send results to this number</span>
-                  ) : whatsappNumber ? (
-                    <span className="text-red-600">Please use a valid Ghana number (+233XXXXXXXXX)</span>
-                  ) : (
-                    <span>Enter your WhatsApp number in Ghana format</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Special Requests */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Special Requests (Optional)
-                </label>
-                <textarea
-                  value={specialRequests}
-                  onChange={(e) => setSpecialRequests(e.target.value)}
-                  placeholder="Any specific poses, colors, or style preferences? (e.g., 'I prefer natural lighting', 'Please include some smiling shots', 'Focus on my right side')"
-                  className="w-full h-32 border border-gray-300 rounded-xl p-4 text-sm resize-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
-                  maxLength={500}
-                />
-                <div className="flex justify-between text-sm text-gray-500 mt-2">
-                  <span>💡 Help us understand your vision better</span>
-                  <span>{specialRequests.length}/500</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right Column - Add-ons & Final Total */}
         <div className="space-y-6">
           {/* Add-ons Card */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-              <span className="mr-2">✨</span>
-              Enhance Your Photoshoot (Optional)
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <Plus className="w-6 h-6 text-[#D4AF37]" />
+              <span>Enhance Your Photoshoot (Optional)</span>
             </h2>
             <p className="text-gray-600 mb-4 text-sm">
               Add these premium features to make your photos even more amazing
@@ -353,7 +294,7 @@ const handleBack = () => {
                           w-5 h-5 rounded-full border-2 flex items-center justify-center
                           ${isSelected ? 'bg-[#D4AF37] border-[#D4AF37]' : 'border-gray-300'}
                         `}>
-                          {isSelected && <span className="text-white text-xs">✓</span>}
+                          {isSelected && <CheckCircle className="w-3 h-3 text-white" />}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
@@ -418,14 +359,15 @@ const handleBack = () => {
               {/* Delivery Info */}
               <div className="bg-white/20 rounded-xl p-3 mt-4">
                 <div className="flex items-center space-x-2 text-sm">
-                  <span>🚀</span>
+                  <Zap className="w-4 h-4" />
                   <span>
                     <strong>Delivery:</strong> {selectedAddOns.includes('rush-delivery') ? '1 HOUR' : formData.package?.deliveryTime} via WhatsApp
                   </span>
                 </div>
                 {selectedAddOns.includes('rush-delivery') && (
-                  <div className="text-xs opacity-90 mt-1">
-                    ⚡ Rush delivery selected - your photos will be prioritized!
+                  <div className="text-xs opacity-90 mt-1 flex items-center space-x-1">
+                    <Zap className="w-3 h-3" />
+                    <span>Rush delivery selected - your photos will be prioritized!</span>
                   </div>
                 )}
               </div>
@@ -437,22 +379,30 @@ const handleBack = () => {
             <h3 className="font-bold text-gray-900 mb-3 text-center">Why Choose Radikal?</h3>
             <div className="grid grid-cols-2 gap-4 text-center text-sm">
               <div className="space-y-1">
-                <div className="text-2xl">⚡</div>
+                <div className="flex justify-center">
+                  <Zap className="w-6 h-6 text-[#D4AF37]" />
+                </div>
                 <div className="font-semibold text-gray-900">Fast Delivery</div>
                 <div className="text-gray-600">1-3 hours</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl">⭐</div>
+                <div className="flex justify-center">
+                  <CheckCircle className="w-6 h-6 text-[#D4AF37]" />
+                </div>
                 <div className="font-semibold text-gray-900">4.9/5 Rating</div>
                 <div className="text-gray-600">500+ clients</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl">💬</div>
+                <div className="flex justify-center">
+                  <MessageCircle className="w-6 h-6 text-[#D4AF37]" />
+                </div>
                 <div className="font-semibold text-gray-900">24/7 Support</div>
                 <div className="text-gray-600">WhatsApp chat</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl">🎯</div>
+                <div className="flex justify-center">
+                  <Users className="w-6 h-6 text-[#D4AF37]" />
+                </div>
                 <div className="font-semibold text-gray-900">Ghana Based</div>
                 <div className="text-gray-600">Local experts</div>
               </div>
@@ -475,7 +425,7 @@ const handleBack = () => {
             flex items-center space-x-2
           "
         >
-          <span>←</span>
+          <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
         
@@ -494,24 +444,12 @@ const handleBack = () => {
             "
           >
             <span>Proceed to Payment</span>
-            <span className="text-lg animate-bounce">→</span>
+            <ArrowRight className="w-5 h-5 animate-bounce" />
           </button>
         )}
       </div>
 
-      {/* WhatsApp Validation Helper */}
-      {!isValidNumber && whatsappNumber && (
-        <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-20 hidden lg:block">
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 max-w-xs">
-            <h4 className="font-bold text-red-800 mb-2 text-sm">📱 Ghana Number Format</h4>
-            <div className="text-red-700 text-sm space-y-1">
-              <div>✓ Start with +233</div>
-              <div>✓ Follow with 9 digits</div>
-              <div>✓ Example: +233501234567</div>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 }

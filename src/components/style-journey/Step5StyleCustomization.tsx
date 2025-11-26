@@ -1,7 +1,8 @@
-// components/style-journey/Step5StyleCustomization.tsx
+// src/components/style-journey/Step5StyleCustomization.tsx - WITH LUCIDE ICONS
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
+import { Scissors, Palette, Image as ImageIcon, ArrowRight, ArrowLeft, SkipForward, Check, Sparkles, Settings } from 'lucide-react';
 
 interface Step5StyleCustomizationProps {
   formData: any;
@@ -200,7 +201,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
   setTimeout(() => {
     setCurrentStep(6);
   }, 200);
-};;
+};
 
   return (
     <div 
@@ -210,7 +211,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
       {/* Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <span className="text-2xl">💄</span>
+          <Settings className="w-8 h-8 text-[#D4AF37]" />
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
             CUSTOMIZE YOUR LOOK
           </h1>
@@ -221,8 +222,9 @@ export default function Step5StyleCustomization({ formData, setFormData, current
         
         {/* Optional Notice */}
         <div className="mt-4 flex justify-center">
-          <div className="bg-blue-50 text-blue-700 rounded-full px-4 py-2 text-sm font-semibold border border-blue-200">
-            🎯 Optional Step - Your photos will look amazing either way!
+          <div className="bg-blue-50 text-blue-700 rounded-full px-4 py-2 text-sm font-semibold border border-blue-200 flex items-center space-x-2">
+            <Sparkles className="w-4 h-4" />
+            <span>Optional Step - Your photos will look amazing either way!</span>
           </div>
         </div>
       </div>
@@ -234,7 +236,11 @@ export default function Step5StyleCustomization({ formData, setFormData, current
             {/* Category Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <div className="text-3xl">{category.icon}</div>
+                <div className="text-3xl">
+                  {category.id === 'hairstyle' && <Scissors className="w-8 h-8 text-blue-500" />}
+                  {category.id === 'makeup' && <Palette className="w-8 h-8 text-pink-500" />}
+                  {category.id === 'background' && <ImageIcon className="w-8 h-8 text-green-500" />}
+                </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">{category.name}</h3>
                   <p className="text-gray-600">{category.description}</p>
@@ -244,9 +250,9 @@ export default function Step5StyleCustomization({ formData, setFormData, current
               {(category.selectedOption || category.customDescription) && (
                 <button
                   onClick={() => handleClearSelection(category.id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-semibold"
+                  className="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center space-x-1"
                 >
-                  Clear
+                  <span>Clear</span>
                 </button>
               )}
             </div>
@@ -280,8 +286,9 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                       {/* Selection Indicator */}
                       {isSelected && (
                         <div className="mt-3">
-                          <div className="bg-white/20 rounded-full px-3 py-1 text-xs font-semibold inline-block">
-                            ✓ Selected
+                          <div className="bg-white/20 rounded-full px-3 py-1 text-xs font-semibold inline-flex items-center space-x-1">
+                            <Check className="w-3 h-3" />
+                            <span>Selected</span>
                           </div>
                         </div>
                       )}
@@ -315,9 +322,13 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                     className="w-full h-24 border border-gray-300 rounded-xl p-4 text-sm resize-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
                   />
                   <div className="flex justify-between items-center mt-2 text-sm text-gray-500">
-                    <span>💡 Be specific for best results</span>
-                    <span className={category.customDescription.length > 0 ? 'text-green-600' : 'text-gray-400'}>
-                      {category.customDescription.length > 0 ? '✓ Custom description saved' : 'Optional'}
+                    <span className="flex items-center space-x-1">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Be specific for best results</span>
+                    </span>
+                    <span className={category.customDescription.length > 0 ? 'text-green-600 flex items-center space-x-1' : 'text-gray-400 flex items-center space-x-1'}>
+                      {category.customDescription.length > 0 ? <Check className="w-4 h-4" /> : <span>•</span>}
+                      <span>{category.customDescription.length > 0 ? 'Custom description saved' : 'Optional'}</span>
                     </span>
                   </div>
                 </div>
@@ -330,9 +341,9 @@ export default function Step5StyleCustomization({ formData, setFormData, current
       {/* Selected Style Summary */}
       {getSelectedSummary().length > 0 && (
         <div className="max-w-4xl mx-auto mt-8 bg-gradient-to-r from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl p-6 border border-[#D4AF37]/20">
-          <h3 className="text-lg font-bold text-center mb-4 flex items-center justify-center">
-            <span className="mr-2">✅</span>
-            Your Style Selections
+          <h3 className="text-lg font-bold text-center mb-4 flex items-center justify-center space-x-2">
+            <Check className="w-5 h-5 text-green-500" />
+            <span>Your Style Selections</span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {getSelectedSummary().map((item, index) => (
@@ -348,27 +359,51 @@ export default function Step5StyleCustomization({ formData, setFormData, current
 
       {/* Style Inspiration */}
       <div className="max-w-4xl mx-auto mt-8 bg-purple-50 rounded-2xl p-6 border border-purple-200">
-        <h3 className="font-bold text-purple-900 mb-4 flex items-center">
-          <span className="mr-2">💡</span>
-          Style Inspiration & Tips
+        <h3 className="font-bold text-purple-900 mb-4 flex items-center space-x-2">
+          <Sparkles className="w-5 h-5" />
+          <span>Style Inspiration & Tips</span>
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div>
             <h4 className="font-semibold text-purple-800 mb-2">For Professional Shoots:</h4>
             <ul className="space-y-1 text-purple-700">
-              <li>• Clean, groomed hairstyles</li>
-              <li>• Natural or professional makeup</li>
-              <li>• Studio or office backgrounds</li>
-              <li>• Neutral colors work best</li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Clean, groomed hairstyles</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Natural or professional makeup</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Studio or office backgrounds</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Neutral colors work best</span>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold text-purple-800 mb-2">For Creative Shoots:</h4>
             <ul className="space-y-1 text-purple-700">
-              <li>• Expressive, artistic hairstyles</li>
-              <li>• Bold or glam makeup choices</li>
-              <li>• Outdoor or luxury backgrounds</li>
-              <li>• Don't be afraid to experiment!</li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Expressive, artistic hairstyles</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Bold or glam makeup choices</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Outdoor or luxury backgrounds</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Check className="w-4 h-4 text-green-500" />
+                <span>Don't be afraid to experiment!</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -388,7 +423,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
             flex items-center space-x-2
           "
         >
-          <span>←</span>
+          <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
 
@@ -404,7 +439,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
             flex items-center space-x-2
           "
         >
-          <span>⏭️</span>
+          <SkipForward className="w-5 h-5" />
           <span>Skip All Styling</span>
         </button>
         
@@ -423,7 +458,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
             "
           >
             <span>Review Order</span>
-            <span className="text-lg animate-bounce">→</span>
+            <ArrowRight className="w-5 h-5 animate-bounce" />
           </button>
         )}
       </div>
@@ -441,9 +476,10 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                   customDescription: ''
                 })));
               }}
-              className="w-full bg-blue-500 text-white text-xs px-3 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+              className="w-full bg-blue-500 text-white text-xs px-3 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors flex items-center space-x-2"
             >
-              Professional Look
+              <Check className="w-3 h-3" />
+              <span>Professional Look</span>
             </button>
             <button
               onClick={() => {
@@ -453,9 +489,10 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                   customDescription: ''
                 })));
               }}
-              className="w-full bg-purple-500 text-white text-xs px-3 py-2 rounded-lg font-semibold hover:bg-purple-600 transition-colors"
+              className="w-full bg-purple-500 text-white text-xs px-3 py-2 rounded-lg font-semibold hover:bg-purple-600 transition-colors flex items-center space-x-2"
             >
-              Creative Look
+              <Check className="w-3 h-3" />
+              <span>Creative Look</span>
             </button>
             <button
               onClick={() => {
@@ -465,9 +502,10 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                   customDescription: ''
                 })));
               }}
-              className="w-full bg-green-500 text-white text-xs px-3 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors"
+              className="w-full bg-green-500 text-white text-xs px-3 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center space-x-2"
             >
-              Natural Look
+              <Check className="w-3 h-3" />
+              <span>Natural Look</span>
             </button>
           </div>
         </div>
