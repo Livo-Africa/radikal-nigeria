@@ -1,52 +1,8 @@
-// components/style-journey/Step1ShootType.tsx
+// src/components/style-journey/Step1ShootType.tsx
 'use client';
-import { useState, useRef, useEffect } from 'react';
-import { Camera, Users, GraduationCap, Cake, User, Briefcase, ArrowRight } from 'lucide-react';
-
-const shootTypes = [
-  {
-    id: 'profile',
-    name: 'Profile',
-    description: 'LinkedIn & professional',
-    icon: User,
-    color: 'from-blue-500 to-blue-600'
-  },
-  {
-    id: 'social',
-    name: 'Social',
-    description: 'Instagram & social media',
-    icon: Camera,
-    color: 'from-purple-500 to-pink-500'
-  },
-  {
-    id: 'graduation',
-    name: 'Graduation',
-    description: 'Celebrate achievement',
-    icon: GraduationCap,
-    color: 'from-green-500 to-emerald-600'
-  },
-  {
-    id: 'birthday',
-    name: 'Birthday',
-    description: 'Special celebrations',
-    icon: Cake,
-    color: 'from-red-500 to-orange-500'
-  },
-  {
-    id: 'group',
-    name: 'Group',
-    description: 'Friends & family',
-    icon: Users,
-    color: 'from-indigo-500 to-purple-600'
-  },
-  {
-    id: 'portfolio',
-    name: 'Portfolio',
-    description: 'Professional work',
-    icon: Briefcase,
-    color: 'from-gray-700 to-gray-900'
-  }
-];
+import { useState, useEffect, useRef } from 'react';
+import { User, Users, Briefcase, Camera, Heart, Star, ArrowRight, Check } from 'lucide-react';
+import MobileStepHeader from '@/components/mobile/MobileStepHeader';
 
 interface Step1ShootTypeProps {
   formData: any;
@@ -56,141 +12,154 @@ interface Step1ShootTypeProps {
 }
 
 export default function Step1ShootType({ formData, setFormData, currentStep, setCurrentStep }: Step1ShootTypeProps) {
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [showNextButton, setShowNextButton] = useState(false);
+  const [selectedType, setSelectedType] = useState<string | null>(formData.shootType);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const shootTypes = [
+    {
+      id: 'profile',
+      name: 'Profile',
+      description: 'LinkedIn & professional',
+      icon: User,
+      color: 'from-blue-500 to-blue-600',
+      popular: true
+    },
+    {
+      id: 'social',
+      name: 'Social Media',
+      description: 'Instagram & content',
+      icon: Camera,
+      color: 'from-purple-500 to-pink-500',
+      popular: true
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      description: 'Brand & corporate',
+      icon: Briefcase,
+      color: 'from-gray-700 to-gray-900',
+      popular: false
+    },
+    {
+      id: 'couples',
+      name: 'Couples',
+      description: 'Love & engagement',
+      icon: Heart,
+      color: 'from-red-500 to-pink-600',
+      popular: false
+    },
+    {
+      id: 'group',
+      name: 'Group',
+      description: 'Friends & family',
+      icon: Users,
+      color: 'from-green-500 to-teal-600',
+      popular: false
+    },
+    {
+      id: 'creative',
+      name: 'Creative',
+      description: 'Artistic & editorial',
+      icon: Star,
+      color: 'from-orange-500 to-yellow-600',
+      popular: false
+    },
+  ];
 
   const handleSelectShootType = (type: typeof shootTypes[0]) => {
-    if (isSelecting) return;
-    
-    setIsSelecting(true);
     setSelectedType(type.id);
-    
+    setFormData((prev: any) => ({
+      ...prev,
+      shootType: type.id,
+      shootTypeName: type.name
+    }));
+
+    // Smooth transition effect
+    if (containerRef.current) {
+      containerRef.current.style.opacity = '0.9';
+      containerRef.current.style.transform = 'scale(0.98)';
+    }
+
+    // Auto-advance after short delay
     setTimeout(() => {
-      setFormData((prev: any) => ({ 
-        ...prev, 
-        shootType: type.id,
-        shootTypeName: type.name 
-      }));
-      
-      setShowNextButton(true);
-      setIsSelecting(false);
+      setCurrentStep(2);
     }, 300);
   };
 
-  const handleContinue = () => {
-    if (!selectedType) return;
-    setCurrentStep(2);
-  };
-
   return (
-    <div className="min-h-[70vh] pt-4 lg:pt-0">
-      {/* Header - Minimal on Mobile */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <Camera className="w-6 h-6 text-[#D4AF37]" />
-          <h1 className="text-xl lg:text-3xl font-bold text-gray-900">
-            Choose Your Shoot
-          </h1>
-        </div>
-        <p className="text-gray-600 hidden lg:block">
-          Select the type of photoshoot you need
+    <div
+      ref={containerRef}
+      className="min-h-[70vh] transition-all duration-300 ease-out pb-20"
+    >
+      {/* Desktop Header */}
+      <div className="hidden lg:block text-center mb-10 pt-8">
+        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent mb-4">
+          WHAT ARE WE SHOOTING?
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Select the type of photoshoot you're looking for
         </p>
       </div>
 
-      {/* Shoot Type Grid - Mobile Optimized */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6 max-w-6xl mx-auto px-2">
+      {/* Grid of Options */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
         {shootTypes.map((type) => {
           const Icon = type.icon;
           const isSelected = selectedType === type.id;
-          
+
           return (
-            <div
+            <button
               key={type.id}
               onClick={() => handleSelectShootType(type)}
               className={`
-                relative group cursor-pointer transition-all duration-300 transform
-                ${isSelected ? 'scale-105' : 'hover:scale-102'}
-                ${isSelecting ? 'pointer-events-none' : ''}
+                relative group overflow-hidden rounded-2xl p-4 md:p-6 text-left transition-all duration-300
+                border-2 flex flex-col items-center justify-center h-40 md:h-48
+                ${isSelected
+                  ? 'border-[#D4AF37] bg-gradient-to-br from-gray-50 to-white shadow-xl scale-105'
+                  : 'border-gray-100 bg-white hover:border-[#D4AF37]/50 hover:shadow-lg hover:scale-102'
+                }
               `}
             >
-              {/* Card */}
+              {/* Icon Circle */}
               <div className={`
-                bg-white rounded-xl lg:rounded-2xl p-4 border-2 min-h-[120px] lg:min-h-[180px] flex flex-col justify-between
-                transition-all duration-300
-                ${isSelected 
-                  ? 'border-[#D4AF37] bg-gradient-to-br from-[#D4AF37]/10 to-transparent' 
-                  : 'border-gray-200 hover:border-[#D4AF37]/50'
-                }
+                w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-3 transition-all duration-300
+                bg-gradient-to-br ${type.color} text-white shadow-md group-hover:shadow-lg group-hover:scale-110
               `}>
-                
-                {/* Icon with Gradient */}
-                <div className={`
-                  w-12 h-12 lg:w-16 lg:h-16 rounded-xl flex items-center justify-center text-white
-                  bg-gradient-to-br ${type.color} mx-auto mb-3 lg:mb-4
-                  transform transition-transform duration-300
-                  ${isSelected ? 'scale-110 rotate-6' : 'group-hover:scale-105'}
-                `}>
-                  <Icon className="w-6 h-6 lg:w-8 lg:h-8" />
-                </div>
-                
-                {/* Content */}
-                <div className="text-center">
-                  <h3 className="font-bold text-gray-900 text-sm lg:text-lg mb-1">
-                    {type.name}
-                  </h3>
-                  <p className="text-gray-600 text-xs lg:text-sm hidden lg:block">
-                    {type.description}
-                  </p>
-                </div>
-                
-                {/* Selection Indicator */}
-                <div className="mt-2 flex justify-center">
-                  <div className={`
-                    px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-300
-                    ${isSelected
-                      ? 'bg-[#D4AF37] text-black'
-                      : 'bg-gray-100 text-gray-700'
-                    }
-                  `}>
-                    {isSelected ? 'Selected' : 'Choose'}
-                  </div>
-                </div>
+                <Icon className="w-6 h-6 md:w-7 md:h-7" />
               </div>
-            </div>
+
+              {/* Text Content */}
+              <div className="text-center">
+                <h3 className="font-bold text-gray-900 text-sm md:text-lg mb-1">
+                  {type.name}
+                </h3>
+                <p className="text-xs text-gray-500 hidden md:block">
+                  {type.description}
+                </p>
+              </div>
+
+              {/* Selection Indicator */}
+              {isSelected && (
+                <div className="absolute top-3 right-3 bg-[#D4AF37] text-white rounded-full p-1 shadow-sm animate-scaleIn">
+                  <Check className="w-3 h-3" />
+                </div>
+              )}
+
+              {/* Popular Tag */}
+              {type.popular && !isSelected && (
+                <div className="absolute top-3 right-3 bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  HOT
+                </div>
+              )}
+            </button>
           );
         })}
       </div>
 
-      {/* Next Button */}
-      {showNextButton && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30">
-          <button
-            onClick={handleContinue}
-            className="
-              bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] 
-              text-white font-bold py-4 px-8 
-              rounded-2xl shadow-2xl 
-              transform transition-all duration-300 
-              hover:scale-105 hover:shadow-3xl
-              active:scale-95
-              flex items-center space-x-3
-            "
-          >
-            <span className="text-sm lg:text-base">Continue</span>
-            <ArrowRight className="w-5 h-5 animate-bounce" />
-          </button>
-        </div>
-      )}
-
-      {/* Help Text */}
-      {!selectedType && (
-        <div className="text-center mt-8 animate-pulse">
-          <p className="text-gray-500 text-sm">
-            Tap any option to continue
-          </p>
-        </div>
-      )}
+      {/* Helper Text */}
+      <div className="text-center mt-8 text-sm text-gray-400">
+        Tap any option to continue
+      </div>
     </div>
   );
 }

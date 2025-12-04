@@ -1,9 +1,10 @@
-// src/components/style-journey/Step6Review.tsx - COMPLETE UPDATED FILE
+// src/components/style-journey/Step6Review.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 import MobileStepHeader from '@/components/mobile/MobileStepHeader';
-import { Check, Edit, MessageCircle, FileText, Package, Shirt, Palette, CreditCard, Shield, Clock, Star, MapPin } from 'lucide-react';
+import { Check, Edit, MessageCircle, FileText, Package, Shirt, Palette, CreditCard, Shield, Clock, Star, MapPin, ArrowLeft } from 'lucide-react';
+import StickyActionButtons from '../shared/StickyActionButtons';
 
 interface Step6ReviewProps {
   formData: any;
@@ -46,7 +47,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
 
   // Handle add-on selection
   const handleAddOnToggle = (addOnId: string) => {
-    setSelectedAddOns(prev => 
+    setSelectedAddOns(prev =>
       prev.includes(addOnId)
         ? prev.filter(id => id !== addOnId)
         : [...prev, addOnId]
@@ -55,19 +56,19 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
 
   const handleContinue = () => {
     // Save all data to form
-    setFormData((prev: any) => ({ 
-      ...prev, 
+    setFormData((prev: any) => ({
+      ...prev,
       specialRequests,
       addOns: selectedAddOns,
       finalTotal
     }));
-    
+
     // Smooth transition
     if (containerRef.current) {
       containerRef.current.style.opacity = '0.9';
       containerRef.current.style.transform = 'scale(0.98)';
     }
-    
+
     setTimeout(() => {
       setCurrentStep(7);
     }, 200);
@@ -78,12 +79,12 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
     if (hasPhoneNumber) {
       trackAbandonment('back_button_step_6');
     }
-    
+
     if (containerRef.current) {
       containerRef.current.style.opacity = '0.9';
       containerRef.current.style.transform = 'scale(0.98)';
     }
-    
+
     setTimeout(() => {
       setCurrentStep(5);
     }, 200);
@@ -95,18 +96,10 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out"
+      className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out pb-32"
     >
-      {/* Mobile Header */}
-      <MobileStepHeader 
-        title="Review Order"
-        currentStep={currentStep}
-        totalSteps={7}
-        onBack={handleBack}
-      />
-
       {/* Desktop Header */}
       <div className="hidden lg:block text-center mb-8 pt-8">
         <div className="flex items-center justify-center space-x-2 mb-4">
@@ -129,7 +122,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
               <FileText className="w-5 h-5" />
               <span>Order Summary</span>
             </h2>
-            
+
             <div className="space-y-4">
               {/* Shoot Type */}
               <div className="flex justify-between items-start">
@@ -137,7 +130,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
                   <div className="font-semibold text-gray-900">Shoot Type</div>
                   <div className="text-sm text-gray-600">{formData.shootTypeName}</div>
                 </div>
-                <button 
+                <button
                   onClick={() => setCurrentStep(1)}
                   className="text-[#D4AF37] hover:text-[#b8941f] text-sm font-semibold flex items-center space-x-1"
                 >
@@ -159,7 +152,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-gray-900">₵{formData.package?.price}</div>
-                  <button 
+                  <button
                     onClick={() => setCurrentStep(2)}
                     className="text-[#D4AF37] hover:text-[#b8941f] text-sm font-semibold flex items-center space-x-1 justify-end"
                   >
@@ -179,7 +172,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
                       {formData.outfits.length > 2 && ` and ${formData.outfits.length - 2} more`}
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setCurrentStep(4)}
                     className="text-[#D4AF37] hover:text-[#b8941f] text-sm font-semibold flex items-center space-x-1"
                   >
@@ -204,7 +197,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
                       ))}
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setCurrentStep(5)}
                     className="text-[#D4AF37] hover:text-[#b8941f] text-sm font-semibold flex items-center space-x-1"
                   >
@@ -230,7 +223,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
               <MessageCircle className="w-5 h-5 text-green-600" />
               <span>Delivery Information</span>
             </h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -285,26 +278,24 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
             <p className="text-gray-600 mb-4 text-sm">
               Add these premium features to make your photos even more amazing
             </p>
-            
+
             <div className="space-y-3">
               {addOns.map((addOn) => {
                 const isSelected = selectedAddOns.includes(addOn.id);
-                
+
                 return (
                   <div
                     key={addOn.id}
                     onClick={() => handleAddOnToggle(addOn.id)}
-                    className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 ${
-                      isSelected
-                        ? 'border-[#D4AF37] bg-gradient-to-br from-[#D4AF37]/10 to-transparent'
-                        : 'border-gray-200 hover:border-[#D4AF37]/50'
-                    }`}
+                    className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 ${isSelected
+                      ? 'border-[#D4AF37] bg-gradient-to-br from-[#D4AF37]/10 to-transparent'
+                      : 'border-gray-200 hover:border-[#D4AF37]/50'
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? 'bg-[#D4AF37] border-[#D4AF37]' : 'border-gray-300'
-                        }`}>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-[#D4AF37] border-[#D4AF37]' : 'border-gray-300'
+                          }`}>
                           {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
                         <div className="flex-1">
@@ -335,7 +326,7 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
               <CreditCard className="w-5 h-5" />
               <span>Final Total</span>
             </h2>
-            
+
             <div className="space-y-3">
               {/* Base Package */}
               <div className="flex justify-between">
@@ -421,25 +412,11 @@ export default function Step6Review({ formData, setFormData, currentStep, setCur
       </div>
 
       {/* Navigation Buttons */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 flex space-x-4 px-4 w-full max-w-md lg:max-w-none">
-        {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="bg-gray-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 flex items-center space-x-2 flex-1 justify-center lg:flex-none"
-        >
-          <span>←</span>
-          <span className="hidden sm:block">Back</span>
-        </button>
-        
-        {/* Next Button */}
-        <button
-          onClick={handleContinue}
-          className="bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 px-8 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl active:scale-95 flex items-center space-x-3 flex-1 justify-center lg:flex-none"
-        >
-          <span>Proceed to Payment</span>
-          <span className="text-lg animate-bounce">→</span>
-        </button>
-      </div>
+      <StickyActionButtons
+        onBack={handleBack}
+        onNext={handleContinue}
+        nextLabel="Proceed to Payment"
+      />
     </div>
   );
 }

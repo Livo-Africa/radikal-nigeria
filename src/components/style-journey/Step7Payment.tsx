@@ -1,4 +1,4 @@
-// src/components/style-journey/Step7Payment.tsx - COMPLETE UPDATED FILE
+// src/components/style-journey/Step7Payment.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import MobileStepHeader from '@/components/mobile/MobileStepHeader';
@@ -51,7 +51,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
       });
 
       const sheetsResult = await sheetsResponse.json();
-      
+
       if (!sheetsResult.success) {
         throw new Error('Failed to save order to Google Sheets');
       }
@@ -59,31 +59,63 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
       console.log('✅ Order saved to Google Sheets:', sheetsResult);
 
       // 2. Send Telegram notification to team
+      // Create FormData for Telegram API
+      const telegramFormData = new FormData();
+      telegramFormData.append('shootTypeName', formData.shootTypeName || '');
+      telegramFormData.append('packageName', formData.package?.name || '');
+      telegramFormData.append('price', formData.finalTotal?.toString() || '0');
+      telegramFormData.append('whatsappNumber', formData.whatsappNumber || '');
+      telegramFormData.append('vibe', formData.style?.vibe?.selectedName || '');
+      telegramFormData.append('editingStyle', formData.style?.editing?.selectedName || '');
+      telegramFormData.append('outfitDescription', formData.style?.outfit?.customDescription || '');
+      telegramFormData.append('specialRequests', formData.specialRequests || '');
+      telegramFormData.append('addOns', JSON.stringify(formData.addOns || []));
+      telegramFormData.append('musicGenre', JSON.stringify(formData.style?.music?.selectedName ? [formData.style.music.selectedName] : []));
+
+      // Append outfits images (from Browse option)
+      if (formData.outfits && formData.outfits.length > 0) {
+        formData.outfits.forEach((outfit: any, index: number) => {
+          if (outfit.file) {
+            telegramFormData.append(`outfit_${index + 1}`, outfit.file);
+          } else if (outfit.image) {
+            telegramFormData.append(`outfit_${index + 1}_url`, outfit.image);
+          }
+        });
+      }
+
+      // Append uploaded outfits (from Upload option)
+      if (formData.uploadedOutfits && formData.uploadedOutfits.length > 0) {
+        formData.uploadedOutfits.forEach((outfit: any, index: number) => {
+          if (outfit.file) {
+            telegramFormData.append(`outfit_upload_${index + 1}`, outfit.file);
+          }
+        });
+      }
+
+      // Append user photos (Selfies)
+      if (formData.photos && formData.photos.length > 0) {
+        formData.photos.forEach((photo: any, index: number) => {
+          if (photo.file) {
+            telegramFormData.append(`user_photo_${index + 1}`, photo.file);
+          }
+        });
+      }
+
       await fetch('/api/telegram/notify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          customer: formData.whatsappNumber,
-          package: formData.package?.name,
-          amount: formData.finalTotal,
-          urgent: formData.addOns?.includes('rush-delivery'),
-          shootType: formData.shootTypeName,
-          outfitsCount: formData.outfits?.length || 0,
-          specialRequests: formData.specialRequests,
-        })
+        body: telegramFormData
       });
 
       console.log('🎉 All backend systems notified!');
 
     } catch (error) {
       console.error('Error sending to backend:', error);
-      
+
       // Even if other services fail, if Google Sheets worked, we consider it a success
       if (!sheetsResponse?.ok) {
         throw error; // Re-throw if Google Sheets failed
       }
-      
+
       // If Google Sheets worked but other services failed, we can still proceed
       console.warn('Google Sheets saved but other services failed');
     }
@@ -92,16 +124,16 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
   // Simulate Paystack payment integration
   const handlePayment = async () => {
     if (!selectedMethod) return;
-    
+
     setPaymentStatus('processing');
-    
+
     try {
       // Simulate API call to Paystack
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       // Simulate successful payment
       const paymentSuccess = Math.random() > 0.1; // 90% success rate for demo
-      
+
       if (paymentSuccess) {
         // Send order to backend systems
         await sendOrderToBackend();
@@ -120,7 +152,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
       containerRef.current.style.opacity = '0.9';
       containerRef.current.style.transform = 'scale(0.98)';
     }
-    
+
     setTimeout(() => {
       setCurrentStep(6);
     }, 200);
@@ -159,7 +191,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
           <p className="text-gray-600 mb-6">
             Please wait while we securely process your payment with Paystack...
           </p>
-          
+
           <div className="bg-blue-50 rounded-2xl p-4 mb-6">
             <div className="flex items-center justify-between text-sm text-blue-800">
               <span className="flex items-center space-x-2">
@@ -169,7 +201,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
               <span>PCI Compliant</span>
             </div>
           </div>
-          
+
           <div className="space-y-3 text-sm text-gray-500">
             <div className="flex items-center justify-center space-x-2">
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
@@ -196,12 +228,12 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
         <div className="bg-white rounded-2xl p-8 shadow-2xl border border-green-200 max-w-md w-full text-center">
           {/* Success Animation */}
           <div className="text-6xl mb-4 animate-bounce">🎉</div>
-          
+
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Payment Successful!</h1>
           <p className="text-gray-600 mb-6">
             Thank you for your order! We're already working on your amazing photos.
           </p>
-          
+
           {/* Order Summary */}
           <div className="bg-green-50 rounded-xl p-4 mb-6 text-left">
             <div className="font-semibold text-gray-900 mb-2 flex items-center space-x-2">
@@ -263,7 +295,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
               Start New Photoshoot
             </button>
             <div className="text-center">
-              <a 
+              <a
                 href={`https://wa.me/233207472307?text=Hi! I have a question about my order ${orderId}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -289,7 +321,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
           <p className="text-gray-600 mb-6">
             We couldn't process your payment. This might be due to network issues or insufficient funds.
           </p>
-          
+
           <div className="bg-red-50 rounded-xl p-4 mb-6">
             <div className="text-sm text-red-800 flex items-center space-x-2">
               <X className="w-5 h-5" />
@@ -313,7 +345,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
               <span>Back to Order Review</span>
             </button>
             <div className="text-center">
-              <a 
+              <a
                 href="https://wa.me/233207472307?text=Hi! I need help with my payment"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -331,12 +363,12 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
 
   // Main Payment Selection Screen
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out"
+      className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out pb-32"
     >
       {/* Mobile Header */}
-      <MobileStepHeader 
+      <MobileStepHeader
         title="Complete Payment"
         currentStep={currentStep}
         totalSteps={7}
@@ -354,7 +386,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
         <p className="text-gray-600 text-lg">
           Secure payment processed by Paystack - Ghana's leading payment platform
         </p>
-        
+
         {/* Order ID Display */}
         <div className="mt-4 flex justify-center">
           <div className="bg-gray-100 text-gray-700 rounded-full px-4 py-2 text-sm font-mono flex items-center space-x-2">
@@ -367,7 +399,62 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
       <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 px-4 lg:px-0">
         {/* Left Column - Payment Methods */}
         <div className="space-y-6">
-          {/* Order Summary */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+              <CreditCard className="w-5 h-5" />
+              <span>Select Payment Method</span>
+            </h2>
+
+            <div className="space-y-3">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method.id}
+                  onClick={() => setSelectedMethod(method.id)}
+                  className={`w-full border-2 rounded-xl p-4 flex items-center space-x-4 transition-all duration-300 ${selectedMethod === method.id
+                    ? 'border-[#D4AF37] bg-gradient-to-r from-[#D4AF37]/10 to-transparent'
+                    : 'border-gray-200 hover:border-[#D4AF37]/50'
+                    }`}
+                >
+                  <div className="text-2xl">{method.icon}</div>
+                  <div className="text-left flex-1">
+                    <div className="font-bold text-gray-900">{method.name}</div>
+                    <div className="text-xs text-gray-500">{method.description}</div>
+                  </div>
+                  {selectedMethod === method.id && (
+                    <div className="bg-[#D4AF37] text-white rounded-full p-1">
+                      <Check className="w-3 h-3" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Support Information */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+            <h3 className="font-bold text-gray-900 mb-4 text-center flex items-center justify-center space-x-2">
+              <MessageCircle className="w-5 h-5" />
+              <span>Need Help?</span>
+            </h3>
+            <div className="space-y-3 text-center">
+              <a
+                href="https://wa.me/233207472307"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Chat on WhatsApp</span>
+              </a>
+              <div className="text-sm text-gray-600">
+                Our team is available 24/7 to assist you
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Order Summary */}
+        <div className="space-y-6">
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
               <CreditCard className="w-5 h-5" />
@@ -382,167 +469,38 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
                 <span className="text-gray-600">Base Price</span>
                 <span>₵{formData.package?.price}</span>
               </div>
-              
-              {/* Add-ons */}
               {formData.addOns && formData.addOns.length > 0 && (
-                <div className="border-t border-gray-200 pt-3">
-                  <div className="text-gray-600 mb-2">Add-ons:</div>
-                  {formData.addOns.map((addOnId: string) => {
-                    const addOnNames: Record<string, string> = {
-                      'extra-image': '+1 Extra Image',
-                      'advanced-retouching': 'Advanced Retouching',
-                      'body-enhancement': 'Body Enhancement',
-                      'additional-outfit': 'Additional Outfit',
-                      'rush-delivery': 'Rush Delivery',
-                      'premium-backgrounds': 'Premium Backgrounds'
-                    };
-                    return (
-                      <div key={addOnId} className="flex justify-between text-sm">
-                        <span className="text-gray-600">• {addOnNames[addOnId]}</span>
-                        <span>+₵{/* Add price here */}</span>
-                      </div>
-                    );
-                  })}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Add-ons ({formData.addOns.length})</span>
+                  <span>+₵{formData.finalTotal - (formData.package?.price || 0)}</span>
                 </div>
               )}
-              
-              <div className="border-t border-gray-200 pt-3">
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total Amount</span>
-                  <span>₵{formData.finalTotal}</span>
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="flex justify-between text-lg font-bold">
+                  <span>Total to Pay</span>
+                  <span className="text-[#D4AF37]">₵{formData.finalTotal}</span>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Payment Methods */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
-              <CreditCard className="w-5 h-5" />
-              <span>Choose Payment Method</span>
-            </h2>
-            
-            <div className="space-y-4">
-              {paymentMethods.map((method) => (
-                <div
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method.id)}
-                  className={`border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 ${
-                    selectedMethod === method.id
-                      ? `border-[#D4AF37] bg-gradient-to-br ${method.color} text-white transform scale-105`
-                      : 'border-gray-200 hover:border-[#D4AF37]/50 hover:scale-102'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-2xl">{method.icon}</div>
-                      <div>
-                        <div className={`font-semibold ${selectedMethod === method.id ? 'text-white' : 'text-gray-900'}`}>
-                          {method.name}
-                        </div>
-                        <div className={`text-sm ${selectedMethod === method.id ? 'text-white/90' : 'text-gray-600'}`}>
-                          {method.description}
-                        </div>
-                      </div>
-                    </div>
-                    {selectedMethod === method.id && (
-                      <Check className="w-6 h-6 text-white" />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Paystack Security Badge */}
-            <div className="mt-6 p-4 bg-green-50 rounded-xl border border-green-200">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-2 text-green-800">
-                  <Shield className="w-4 h-4" />
-                  <span>Secured by Paystack</span>
-                </div>
-                <div className="text-green-700 font-semibold">PCI DSS Compliant</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column - Trust & Security */}
-        <div className="space-y-6">
-          {/* Trust Indicators */}
-          <div className="bg-gradient-to-br from-[#D4AF37] to-[#B91C1C] rounded-2xl p-6 text-white">
-            <h2 className="text-xl font-bold mb-4 flex items-center space-x-2">
-              <Shield className="w-5 h-5" />
-              <span>Your Order is Secure</span>
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Shield className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold">Bank-Level Security</div>
-                  <div className="text-white/80 text-sm">256-bit SSL encryption</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <Clock className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold">Instant Processing</div>
-                  <div className="text-white/80 text-sm">Real-time payment verification</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <Check className="w-6 h-6" />
-                <div>
-                  <div className="font-semibold">Money-Back Guarantee</div>
-                  <div className="text-white/80 text-sm">100% satisfaction or your money back</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Support Information */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <h3 className="font-bold text-gray-900 mb-4 text-center flex items-center justify-center space-x-2">
-              <MessageCircle className="w-5 h-5" />
-              <span>Need Help?</span>
-            </h3>
-            <div className="space-y-3 text-center">
-              <a 
-                href="https://wa.me/233207472307"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors flex items-center justify-center space-x-2"
+              {/* Payment Button */}
+              <button
+                onClick={handlePayment}
+                disabled={!selectedMethod}
+                className="w-full mt-4 bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3"
               >
-                <MessageCircle className="w-5 h-5" />
-                <span>Chat on WhatsApp</span>
-              </a>
-              <div className="text-sm text-gray-600">
-                Our team is available 24/7 to assist you
-              </div>
+                <CreditCard className="w-5 h-5" />
+                <span>Pay ₵{formData.finalTotal} Now</span>
+              </button>
             </div>
           </div>
-
-          {/* Payment Button */}
-          {selectedMethod && (
-            <button
-              onClick={handlePayment}
-              disabled={!selectedMethod}
-              className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-3"
-            >
-              <CreditCard className="w-5 h-5" />
-              <span>Pay ₵{formData.finalTotal} with Paystack</span>
-            </button>
-          )}
         </div>
       </div>
 
-      {/* Navigation Buttons */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 px-4 w-full max-w-md lg:max-w-none">
+      {/* Navigation Buttons (Mobile Only) */}
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 px-4 w-full max-w-md lg:hidden">
         <button
           onClick={handleBack}
-          className="bg-gray-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 flex items-center space-x-2 w-full justify-center lg:w-auto"
+          className="bg-gray-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 flex items-center space-x-2 w-full justify-center"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Review</span>

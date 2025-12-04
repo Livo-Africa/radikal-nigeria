@@ -1,10 +1,10 @@
-// src/components/style-journey/Step3PhotoUpload.tsx - UPDATED FILE
+// src/components/style-journey/Step3PhotoUpload.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
-import PhoneInput from '@/components/shared/PhoneInput';
 import MobileStepHeader from '@/components/mobile/MobileStepHeader';
 import { Camera, Upload, Check, X, AlertCircle, ArrowLeft, MessageCircle } from 'lucide-react';
+import StickyActionButtons from '../shared/StickyActionButtons';
 
 interface Step3PhotoUploadProps {
   formData: any;
@@ -22,7 +22,7 @@ interface UploadedPhoto {
 }
 
 export default function Step3PhotoUpload({ formData, setFormData, currentStep, setCurrentStep }: Step3PhotoUploadProps) {
-  const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>([]);
+  const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>(formData.photos || []);
   const [isUploading, setIsUploading] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState(formData.whatsappNumber || '');
@@ -34,18 +34,19 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   // Required photos based on package
   const requiredPhotos = [
     { type: 'face' as const, label: 'Clear Face Selfie', description: 'Front-facing, good lighting, neutral expression', icon: '👤' },
-    { type: 'body' as const, label: 'Full Body Photo', description: 'Stand straight, fitted clothes, simple background', icon: '👤' }
+    { type: 'body' as const, label: 'Full Body Photo', description: 'Stand straight, fitted clothes, simple background', icon: '🧍' }
   ];
 
   // Handle phone number change
-  const handlePhoneChange = (number: string) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const number = e.target.value.replace(/[^0-9+]/g, '');
     setWhatsappNumber(number);
-    
+
     // Save to form data when valid (basic validation)
-    if (number.length >= 8) {
-      setFormData((prev: any) => ({ 
-        ...prev, 
-        whatsappNumber: number 
+    if (number.length >= 10) {
+      setFormData((prev: any) => ({
+        ...prev,
+        whatsappNumber: number
       }));
     }
   };
@@ -54,9 +55,9 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   useEffect(() => {
     const facePhoto = uploadedPhotos.find(photo => photo.type === 'face' && photo.status === 'success');
     const bodyPhoto = uploadedPhotos.find(photo => photo.type === 'body' && photo.status === 'success');
-    
-    const allValid = facePhoto && bodyPhoto && whatsappNumber.length >= 8;
-    setShowNextButton(!!allValid);
+
+    const allValid = !!(facePhoto && bodyPhoto && whatsappNumber.length >= 10);
+    setShowNextButton(allValid);
   }, [uploadedPhotos, whatsappNumber]);
 
   // Handle file selection
@@ -86,15 +87,20 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
       status: 'uploading'
     };
 
-    setUploadedPhotos(prev => [...prev, newPhoto]);
+    setUploadedPhotos(prev => {
+      // Remove existing photo of same type if any
+      const filtered = prev.filter(p => p.type !== type);
+      return [...filtered, newPhoto];
+    });
+
     setIsUploading(true);
 
     // Simulate upload process
     setTimeout(() => {
-      setUploadedPhotos(prev => 
-        prev.map(photo => 
-          photo.id === photoId 
-            ? { ...photo, status: 'success' } 
+      setUploadedPhotos(prev =>
+        prev.map(photo =>
+          photo.id === photoId
+            ? { ...photo, status: 'success' }
             : photo
         )
       );
@@ -118,12 +124,16 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     if (cameraInputRef.current) {
       cameraInputRef.current.setAttribute('capture', 'environment');
       cameraInputRef.current.accept = 'image/*';
-      cameraInputRef.current.onchange = (e) => {
+
+      const handleCameraChange = (e: Event) => {
         const files = (e.target as HTMLInputElement).files;
         if (files && files.length > 0) {
           processAndUploadFile(files[0], type);
         }
+        cameraInputRef.current?.removeEventListener('change', handleCameraChange);
       };
+
+      cameraInputRef.current.addEventListener('change', handleCameraChange);
       cameraInputRef.current.click();
     }
   };
@@ -132,31 +142,36 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   const handleOpenFilePicker = (type: 'face' | 'body') => {
     if (fileInputRef.current) {
       fileInputRef.current.accept = 'image/*';
-      fileInputRef.current.onchange = (e) => {
+
+      const handleFileChange = (e: Event) => {
         const files = (e.target as HTMLInputElement).files;
         if (files && files.length > 0) {
           processAndUploadFile(files[0], type);
         }
+        fileInputRef.current?.removeEventListener('change', handleFileChange);
       };
+
+      fileInputRef.current.addEventListener('change', handleFileChange);
       fileInputRef.current.click();
     }
   };
 
   const handleContinue = () => {
     if (!showNextButton) return;
-    
+
     // Save photos to form data
-    setFormData((prev: any) => ({ 
-      ...prev, 
-      photos: uploadedPhotos 
+    setFormData((prev: any) => ({
+      ...prev,
+      photos: uploadedPhotos,
+      whatsappNumber
     }));
-    
+
     // Smooth transition
     if (containerRef.current) {
       containerRef.current.style.opacity = '0.9';
       containerRef.current.style.transform = 'scale(0.98)';
     }
-    
+
     setTimeout(() => {
       setCurrentStep(4);
     }, 200);
@@ -166,12 +181,12 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     if (hasPhoneNumber) {
       trackAbandonment('back_button_step_3');
     }
-    
+
     if (containerRef.current) {
       containerRef.current.style.opacity = '0.9';
       containerRef.current.style.transform = 'scale(0.98)';
     }
-    
+
     setTimeout(() => {
       setCurrentStep(2);
     }, 200);
@@ -183,25 +198,16 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out"
+      className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out pb-32"
     >
-      {/* Mobile Header */}
-      <MobileStepHeader 
-        title="Upload Photos"
-        currentStep={currentStep}
-        totalSteps={7}
-        onBack={handleBack}
-      />
-
       {/* Hidden file inputs */}
       <input
         type="file"
         ref={fileInputRef}
         className="hidden"
         accept="image/*"
-        multiple
       />
       <input
         type="file"
@@ -220,216 +226,111 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
           </h1>
         </div>
         <p className="text-gray-600 text-lg">
-          We need these photos to create your perfect look
+          We need a current photo to help us style you perfectly
         </p>
-        
-        {/* Progress */}
-        <div className="mt-4 flex justify-center">
-          <div className="bg-gray-100 rounded-full px-4 py-2 text-sm flex items-center space-x-2">
-            <Camera className="w-4 h-4" />
-            <span>{uploadedPhotos.filter(p => p.status === 'success').length} of {requiredPhotos.length} photos uploaded</span>
-          </div>
-        </div>
       </div>
 
-      {/* WhatsApp Delivery Section */}
-      <div className="max-w-2xl mx-auto mb-8 px-4 lg:px-0">
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border-2 border-green-200">
-          <div className="flex items-start space-x-4">
-            <MessageCircle className="w-8 h-8 text-green-600 flex-shrink-0 mt-1" />
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Get Instant Delivery & Expert Feedback
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Enter your WhatsApp number to receive your photos instantly and get personalized styling tips from our experts
-              </p>
-              
-              <PhoneInput
-                value={whatsappNumber}
-                onChange={handlePhoneChange}
-                placeholder="Enter your phone number"
-                required={true}
-              />
-            </div>
-          </div>
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Phone Number Section */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+            <MessageCircle className="w-5 h-5 text-[#D4AF37]" />
+            <span>Your WhatsApp Number</span>
+          </h2>
+          <p className="text-gray-600 mb-4 text-sm">
+            We'll send your edited photos here. Make sure it's correct!
+          </p>
+          <input
+            type="tel"
+            value={whatsappNumber}
+            onChange={handlePhoneChange}
+            placeholder="e.g., +233 20 123 4567"
+            className="w-full text-lg p-4 border-2 border-gray-300 rounded-xl focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all"
+          />
         </div>
-      </div>
 
-      {/* Upload Sections */}
-      <div className="max-w-4xl mx-auto space-y-6 px-4 lg:px-0">
-        {requiredPhotos.map((reqPhoto, index) => {
-          const uploadedPhoto = getUploadedPhoto(reqPhoto.type);
-          const isUploaded = !!uploadedPhoto;
+        {/* Photo Upload Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {requiredPhotos.map((req) => {
+            const uploaded = getUploadedPhoto(req.type);
 
-          return (
-            <div key={reqPhoto.type} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              {/* Section Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                    isUploaded ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {isUploaded ? <Check className="w-4 h-4" /> : index + 1}
+            return (
+              <div key={req.type} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl">{req.icon}</span>
+                    <h3 className="font-bold text-gray-900">{req.label}</h3>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900">
-                      {reqPhoto.label}
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      {reqPhoto.description}
-                    </p>
-                  </div>
+                  {uploaded && (
+                    <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
+                      <Check className="w-3 h-3" />
+                      <span>UPLOADED</span>
+                    </div>
+                  )}
                 </div>
-                
-                {isUploaded && (
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-green-600 flex items-center space-x-1">
-                      <Check className="w-4 h-4" />
-                      <span>Uploaded</span>
+
+                <p className="text-gray-500 text-sm mb-4">{req.description}</p>
+
+                {uploaded ? (
+                  <div className="relative rounded-xl overflow-hidden aspect-[3/4] group">
+                    <img src={uploaded.preview} alt={req.label} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        onClick={() => handleRemovePhoto(uploaded.id)}
+                        className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Content Area */}
-              {!isUploaded ? (
-                /* Upload Interface */
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#D4AF37] transition-colors">
-                  <div className="text-4xl mb-4">{reqPhoto.icon}</div>
-                  <h4 className="font-bold text-gray-900 mb-2">
-                    Upload your {reqPhoto.type === 'face' ? 'face selfie' : 'full body photo'}
-                  </h4>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    {reqPhoto.type === 'face' 
-                      ? 'Clear front-facing photo with good lighting'
-                      : 'Full body shot with simple background'
-                    }
-                  </p>
-                  
-                  {/* Upload Methods */}
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                ) : (
+                  <div className="space-y-3">
                     <button
-                      onClick={() => handleOpenCamera(reqPhoto.type)}
-                      className="flex items-center justify-center space-x-2 bg-[#D4AF37] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#b8941f] transition-colors"
+                      onClick={() => handleOpenCamera(req.type)}
+                      className="w-full bg-[#D4AF37] text-white font-bold py-3 rounded-xl hover:bg-[#b8941f] transition-colors flex items-center justify-center space-x-2"
                     >
                       <Camera className="w-5 h-5" />
                       <span>Take Photo</span>
                     </button>
-                    
                     <button
-                      onClick={() => handleOpenFilePicker(reqPhoto.type)}
-                      className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                      onClick={() => handleOpenFilePicker(req.type)}
+                      className="w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2"
                     >
                       <Upload className="w-5 h-5" />
-                      <span>Choose from Gallery</span>
+                      <span>Upload from Gallery</span>
                     </button>
                   </div>
-                  
-                  <p className="text-sm text-gray-500 mt-4">
-                    Supported: JPG, PNG, WebP • Max 10MB
-                  </p>
-                </div>
-              ) : (
-                /* Uploaded Preview */
-                <div className="border-2 border-green-200 bg-green-50 rounded-xl p-6">
-                  <div className="flex flex-col md:flex-row gap-6 items-start">
-                    {/* Image Preview */}
-                    <div className="flex-shrink-0">
-                      <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-green-300">
-                        <img 
-                          src={uploadedPhoto.preview} 
-                          alt="Uploaded preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Success Message */}
-                    <div className="flex-1">
-                      <div className="mb-4">
-                        <h4 className="font-bold text-green-800 mb-2 flex items-center space-x-2">
-                          <Check className="w-5 h-5" />
-                          <span>Photo Uploaded Successfully!</span>
-                        </h4>
-                        <p className="text-green-700 text-sm">
-                          Your {reqPhoto.type === 'face' ? 'face selfie' : 'full body photo'} has been received and is ready for processing.
-                        </p>
-                      </div>
-                      
-                      {/* Action Buttons */}
-                      <div className="flex space-x-3">
-                        <button
-                          onClick={() => handleRemovePhoto(uploadedPhoto.id)}
-                          className="text-red-600 hover:text-red-800 font-semibold text-sm flex items-center space-x-1"
-                        >
-                          <X className="w-4 h-4" />
-                          <span>Remove Photo</span>
-                        </button>
-                        <button
-                          onClick={() => handleOpenFilePicker(reqPhoto.type)}
-                          className="text-[#D4AF37] hover:text-[#b8941f] font-semibold text-sm flex items-center space-x-1"
-                        >
-                          <Upload className="w-4 h-4" />
-                          <span>Replace Photo</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-      {/* Photo Tips */}
-      <div className="max-w-4xl mx-auto mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200 mx-4 lg:mx-auto">
-        <h3 className="font-bold text-blue-900 mb-3 flex items-center space-x-2">
-          <AlertCircle className="w-5 h-5" />
-          <span>Photo Tips for Best Results</span>
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-          <div className="flex items-start space-x-2">
-            <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>Front-facing, good natural lighting</span>
-          </div>
-          <div className="flex items-start space-x-2">
-            <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>Neutral expression, face clearly visible</span>
-          </div>
-          <div className="flex items-start space-x-2">
-            <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>Simple, uncluttered background</span>
-          </div>
-          <div className="flex items-start space-x-2">
-            <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-            <span>No sunglasses, hats, or heavy filters</span>
+        {/* Photo Tips */}
+        <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+          <h3 className="font-bold text-blue-900 mb-3 flex items-center space-x-2">
+            <AlertCircle className="w-5 h-5" />
+            <span>Photo Tips for Best Results</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+            <div className="flex items-start space-x-2">
+              <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <span>Front-facing, good natural lighting</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <span>Neutral expression, face clearly visible</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <span>Simple, uncluttered background</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <span>No sunglasses, hats, or heavy filters</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Navigation Buttons */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 flex space-x-4 px-4 w-full max-w-md lg:max-w-none">
-        {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="bg-gray-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95 flex items-center space-x-2 flex-1 justify-center lg:flex-none"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="hidden sm:block">Back</span>
-        </button>
-        
-        {/* Next Button */}
-        {showNextButton && (
-          <button
-            onClick={handleContinue}
-            className="bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 px-8 rounded-2xl shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl active:scale-95 flex items-center space-x-3 flex-1 justify-center lg:flex-none"
-          >
-            <span>Continue to Outfits</span>
-            <span className="text-lg animate-bounce">→</span>
-          </button>
-        )}
       </div>
 
       {/* Uploading Overlay */}
@@ -442,6 +343,30 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
           </div>
         </div>
       )}
+
+      {/* Navigation Buttons */}
+      <StickyActionButtons
+        onBack={handleBack}
+        onNext={handleContinue}
+        nextLabel="Continue to Outfits"
+        showNext={showNextButton}
+      />
+
+      {/* Debug Button for Testing - ALWAYS VISIBLE FOR NOW */}
+      <div className="fixed top-20 right-4 z-50">
+        <button
+          onClick={() => {
+            setWhatsappNumber('0201234567');
+            setUploadedPhotos([
+              { id: '1', file: new File([], 'face.jpg'), preview: 'https://via.placeholder.com/150', type: 'face', status: 'success' },
+              { id: '2', file: new File([], 'body.jpg'), preview: 'https://via.placeholder.com/150', type: 'body', status: 'success' }
+            ]);
+          }}
+          className="bg-red-500 text-white text-xs px-2 py-1 rounded shadow"
+        >
+          Debug: Fill Data
+        </button>
+      </div>
     </div>
   );
 }

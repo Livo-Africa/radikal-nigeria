@@ -1,8 +1,9 @@
-// src/components/style-journey/Step5StyleCustomization.tsx - WITH LUCIDE ICONS
+// src/components/style-journey/Step5StyleCustomization.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 import { Scissors, Palette, Image as ImageIcon, ArrowRight, ArrowLeft, SkipForward, Check, Sparkles, Settings } from 'lucide-react';
+import StickyActionButtons from '../shared/StickyActionButtons';
 
 interface Step5StyleCustomizationProps {
   formData: any;
@@ -82,20 +83,20 @@ export default function Step5StyleCustomization({ formData, setFormData, current
 
   // Check if user has made any selections or can skip
   useEffect(() => {
-    const hasSelections = styleCategories.some(category => 
+    const hasSelections = styleCategories.some(category =>
       category.selectedOption || category.customDescription.trim().length > 0
     );
-    
+
     // User can proceed if they've made selections OR skip entirely
     setShowNextButton(true); // Always allow proceeding since it's optional
   }, [styleCategories]);
 
   // Handle option selection
   const handleSelectOption = (categoryId: string, optionId: string) => {
-    setStyleCategories(prev => 
-      prev.map(category => 
-        category.id === categoryId 
-          ? { ...category, selectedOption: optionId } 
+    setStyleCategories(prev =>
+      prev.map(category =>
+        category.id === categoryId
+          ? { ...category, selectedOption: optionId }
           : category
       )
     );
@@ -103,10 +104,10 @@ export default function Step5StyleCustomization({ formData, setFormData, current
 
   // Handle custom description change
   const handleCustomDescriptionChange = (categoryId: string, description: string) => {
-    setStyleCategories(prev => 
-      prev.map(category => 
-        category.id === categoryId 
-          ? { ...category, customDescription: description } 
+    setStyleCategories(prev =>
+      prev.map(category =>
+        category.id === categoryId
+          ? { ...category, customDescription: description }
           : category
       )
     );
@@ -114,10 +115,10 @@ export default function Step5StyleCustomization({ formData, setFormData, current
 
   // Clear selection for a category
   const handleClearSelection = (categoryId: string) => {
-    setStyleCategories(prev => 
-      prev.map(category => 
-        category.id === categoryId 
-          ? { ...category, selectedOption: null, customDescription: '' } 
+    setStyleCategories(prev =>
+      prev.map(category =>
+        category.id === categoryId
+          ? { ...category, selectedOption: null, customDescription: '' }
           : category
       )
     );
@@ -143,70 +144,70 @@ export default function Step5StyleCustomization({ formData, setFormData, current
       acc[category.id] = {
         selectedOption: category.selectedOption,
         customDescription: category.customDescription,
-        selectedName: category.selectedOption 
-          ? category.options.find(opt => opt.id === category.selectedOption)?.name 
+        selectedName: category.selectedOption
+          ? category.options.find(opt => opt.id === category.selectedOption)?.name
           : null
       };
       return acc;
     }, {} as any);
 
-    setFormData((prev: any) => ({ 
-      ...prev, 
+    setFormData((prev: any) => ({
+      ...prev,
       style: styleSelections
     }));
-    
+
     // Smooth transition
     if (containerRef.current) {
       containerRef.current.style.opacity = '0.9';
       containerRef.current.style.transform = 'scale(0.98)';
     }
-    
+
     setTimeout(() => {
       setCurrentStep(6);
     }, 200);
   };
 
- const handleBack = () => {
-  // Track abandonment if user has provided phone number
-  if (hasPhoneNumber) {
-    trackAbandonment('navigated_back_from_step_5');
-  }
-  
-  if (containerRef.current) {
-    containerRef.current.style.opacity = '0.9';
-    containerRef.current.style.transform = 'scale(0.98)';
-  }
-  
-  setTimeout(() => {
-    setCurrentStep(4);
-  }, 200);
-};
+  const handleBack = () => {
+    // Track abandonment if user has provided phone number
+    if (hasPhoneNumber) {
+      trackAbandonment('navigated_back_from_step_5');
+    }
 
- const handleSkipAll = () => {
-  // Track abandonment if user skips styling after providing phone
-  if (hasPhoneNumber) {
-    trackAbandonment('skipped_styling_step');
-  }
-  
-  setFormData((prev: any) => ({ 
-    ...prev, 
-    style: { skipped: true }
-  }));
-  
-  if (containerRef.current) {
-    containerRef.current.style.opacity = '0.9';
-    containerRef.current.style.transform = 'scale(0.98)';
-  }
-  
-  setTimeout(() => {
-    setCurrentStep(6);
-  }, 200);
-};
+    if (containerRef.current) {
+      containerRef.current.style.opacity = '0.9';
+      containerRef.current.style.transform = 'scale(0.98)';
+    }
+
+    setTimeout(() => {
+      setCurrentStep(4);
+    }, 200);
+  };
+
+  const handleSkipAll = () => {
+    // Track abandonment if user skips styling after providing phone
+    if (hasPhoneNumber) {
+      trackAbandonment('skipped_styling_step');
+    }
+
+    setFormData((prev: any) => ({
+      ...prev,
+      style: { skipped: true }
+    }));
+
+    if (containerRef.current) {
+      containerRef.current.style.opacity = '0.9';
+      containerRef.current.style.transform = 'scale(0.98)';
+    }
+
+    setTimeout(() => {
+      setCurrentStep(6);
+    }, 200);
+  };
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="min-h-[70vh] transition-all duration-300 ease-out"
+      className="min-h-[70vh] transition-all duration-300 ease-out pb-32"
     >
       {/* Header */}
       <div className="text-center mb-8">
@@ -219,7 +220,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
         <p className="text-gray-600 text-lg">
           Add the finishing touches - or skip and we'll create magic for you
         </p>
-        
+
         {/* Optional Notice */}
         <div className="mt-4 flex justify-center">
           <div className="bg-blue-50 text-blue-700 rounded-full px-4 py-2 text-sm font-semibold border border-blue-200 flex items-center space-x-2">
@@ -246,7 +247,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                   <p className="text-gray-600">{category.description}</p>
                 </div>
               </div>
-              
+
               {(category.selectedOption || category.customDescription) && (
                 <button
                   onClick={() => handleClearSelection(category.id)}
@@ -261,7 +262,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {category.options.map((option) => {
                 const isSelected = category.selectedOption === option.id;
-                
+
                 return (
                   <div
                     key={option.id}
@@ -282,7 +283,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                       <p className={`text-sm ${isSelected ? 'text-white/90' : 'text-gray-600'}`}>
                         {option.description}
                       </p>
-                      
+
                       {/* Selection Indicator */}
                       {isSelected && (
                         <div className="mt-3">
@@ -300,7 +301,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
 
             {/* Custom Description */}
             <div className="border-t border-gray-200 pt-6">
-              <div 
+              <div
                 className="flex items-center justify-between cursor-pointer mb-3"
                 onClick={() => setActiveDescription(activeDescription === category.id ? null : category.id)}
               >
@@ -312,7 +313,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                   {activeDescription === category.id ? '▲' : '▼'}
                 </span>
               </div>
-              
+
               {activeDescription === category.id && (
                 <div className="animate-fadeIn">
                   <textarea
@@ -410,58 +411,16 @@ export default function Step5StyleCustomization({ formData, setFormData, current
       </div>
 
       {/* Navigation Buttons */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 flex space-x-4">
-        {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="
-            bg-gray-600 text-white font-bold py-4 px-6 
-            rounded-2xl shadow-xl 
-            transform transition-all duration-300 
-            hover:scale-105 hover:shadow-2xl
-            active:scale-95
-            flex items-center space-x-2
-          "
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back</span>
-        </button>
-
-        {/* Skip All Button */}
-        <button
-          onClick={handleSkipAll}
-          className="
-            bg-gray-500 text-white font-bold py-4 px-6 
-            rounded-2xl shadow-xl 
-            transform transition-all duration-300 
-            hover:scale-105 hover:shadow-2xl
-            active:scale-95
-            flex items-center space-x-2
-          "
-        >
-          <SkipForward className="w-5 h-5" />
-          <span>Skip All Styling</span>
-        </button>
-        
-        {/* Next Button */}
-        {showNextButton && (
-          <button
-            onClick={handleContinue}
-            className="
-              bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] 
-              text-white font-bold py-4 px-8 
-              rounded-2xl shadow-2xl 
-              transform transition-all duration-300 
-              hover:scale-105 hover:shadow-3xl
-              active:scale-95
-              flex items-center space-x-3
-            "
-          >
-            <span>Review Order</span>
-            <ArrowRight className="w-5 h-5 animate-bounce" />
-          </button>
-        )}
-      </div>
+      <StickyActionButtons
+        onBack={handleBack}
+        onNext={handleContinue}
+        nextLabel="Review Order"
+        showNext={showNextButton}
+        secondaryAction={{
+          label: "Skip All Styling",
+          onClick: handleSkipAll
+        }}
+      />
 
       {/* Quick Selection Helper */}
       <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-20 hidden lg:block">

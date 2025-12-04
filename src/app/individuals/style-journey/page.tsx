@@ -13,6 +13,7 @@ import Step6Review from '@/components/style-journey/Step6Review';
 import Step7Payment from '@/components/style-journey/Step7Payment';
 import SessionRecovery from '@/components/style-journey/SessionRecovery';
 import MobileStepHeader from '@/components/mobile/MobileStepHeader';
+import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
 export default function StyleJourney() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -30,6 +31,9 @@ export default function StyleJourney() {
     finalTotal: 0
   });
 
+  // Initialize abandonment tracking globally
+  useAbandonmentTracking(formData, currentStep);
+
   const steps = [
     { number: 1, title: 'Shoot Type', component: Step1ShootType },
     { number: 2, title: 'Package', component: Step2Package },
@@ -45,7 +49,7 @@ export default function StyleJourney() {
   // Step titles for mobile header
   const stepTitles = [
     'Choose Shoot Type',
-    'Select Package', 
+    'Select Package',
     'Upload Photos',
     'Choose Outfits',
     'Customize Style',
@@ -56,17 +60,17 @@ export default function StyleJourney() {
   return (
     <>
       <Navigation />
-      
+
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-20 lg:pt-0 pb-32">
-        <SessionRecovery 
+        <SessionRecovery
           formData={formData}
           setFormData={setFormData}
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
         />
-        
+
         {/* Mobile Header - Shows on all steps */}
-        <MobileStepHeader 
+        <MobileStepHeader
           title={stepTitles[currentStep - 1]}
           currentStep={currentStep}
           totalSteps={steps.length}
@@ -85,9 +89,9 @@ export default function StyleJourney() {
                 {Math.round((currentStep / steps.length) * 100)}% Complete
               </span>
             </div>
-            
+
             <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
+              <div
                 className="bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] h-3 rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${(currentStep / steps.length) * 100}%` }}
               ></div>

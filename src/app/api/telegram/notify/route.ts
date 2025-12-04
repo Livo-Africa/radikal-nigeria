@@ -1,133 +1,143 @@
-// src/app/api/telegram/notify/route.ts - UPDATED FILE
-import { NextRequest, NextResponse } from 'next/server';
+// src/app/api/telegram/notify/route.ts
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const {
-      orderId,
-      customer,
-      package: pkg,
-      amount,
-      urgent = false,
-      shootType,
-      outfitsCount = 0,
-      specialRequests = '',
-      addOns = [],
-      stylePreferences = {}
-    } = body;
-
-    console.log('📢 Sending enhanced Telegram notification for order:', orderId);
-
-    // Telegram Bot Configuration
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
+    // Check for environment variables
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-      console.error('❌ Telegram environment variables not set');
+      console.error('Telegram environment variables missing');
       return NextResponse.json(
-        { success: false, error: 'Telegram configuration missing' },
+        { error: 'Server configuration error' },
         { status: 500 }
       );
     }
 
-    // Format add-ons for display
-    const addOnsList = Array.isArray(addOns) && addOns.length > 0 
-      ? addOns.map((addOn: string) => `• ${addOn}`).join('\n')
-      : 'None';
+    const formData = await request.formData();
 
-    // Format style preferences
-    const styleDetails = stylePreferences && Object.keys(stylePreferences).length > 0
-      ? Object.entries(stylePreferences)
-          .map(([key, value]: [string, any]) => 
-            value?.selectedName ? `• ${key}: ${value.selectedName}` : ''
-          )
-          .filter(Boolean)
-          .join('\n')
-      : 'Not specified';
+    // Extract basic fields
+    const shootTypeName = formData.get('shootTypeName') as string;
+    const packageName = formData.get('packageName') as string;
+    const price = formData.get('price') as string;
+    const whatsappNumber = formData.get('whatsappNumber') as string;
+    const vibe = formData.get('vibe') as string;
+    const editingStyle = formData.get('editingStyle') as string;
+    const outfitDescription = formData.get('outfitDescription') as string;
+    const specialRequests = formData.get('specialRequests') as string;
+    const orderId = formData.get('orderId') as string || 'N/A';
 
-    // Enhanced message format with all order details
-    const message = `
-🎉 *RADIKAL - NEW ORDER RECEIVED* 🎉
-
-*Order Details:*
-🆔 Order ID: \`${orderId}\`
-📞 Customer: \`${customer}\`
-🎯 Shoot Type: ${shootType || 'Not specified'}
-📦 Package: ${pkg}
-💰 Amount: ₵${amount}
-🚨 Priority: ${urgent ? '🚨 URGENT - RUSH DELIVERY' : '📦 Standard Delivery'}
-
-*Outfit Details:*
-👗 Outfits Selected: ${outfitsCount}
-
-*Style Preferences:*
-${styleDetails}
-
-*Add-ons Selected:*
-${addOnsList}
-
-*Special Requests:*
-${specialRequests || 'None'}
-
-*Order Timeline:*
-🕒 Ordered: ${new Date().toLocaleString('en-GH', { 
-  timeZone: 'Africa/Accra',
-  dateStyle: 'medium',
-  timeStyle: 'medium'
-})}
-⏱️ Expected Delivery: ${urgent ? '1 HOUR ⚡' : '1-3 hours'}
-
-${urgent ? '⚡ *PRIORITY PROCESSING REQUIRED - RUSH ORDER* ⚡' : ''}
-
-💬 *CUSTOMER IS WAITING FOR DELIVERY - PROCESS IMMEDIATELY* 💬
-    `.trim();
-
-    // Send message to Telegram
-    const telegramResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: 'Markdown',
-          disable_notification: false,
-        }),
-      }
-    );
-
-    const telegramResult = await telegramResponse.json();
-
-    if (!telegramResponse.ok || !telegramResult.ok) {
-      console.error('❌ Telegram API error:', telegramResult);
-      throw new Error(telegramResult.description || 'Telegram API error');
+    // Parse JSON fields safely
+    let addOns: string[] = [];
+    try {
+      addOns = JSON.parse(formData.get('addOns') as string || '[]');
+    } catch (e) {
+      console.error('Error parsing addOns:', e);
     }
 
-    console.log('✅ Enhanced Telegram notification sent successfully');
-    console.log('📝 Message ID:', telegramResult.result.message_id);
+    let musicGenre: string[] = [];
+    try {
+      musicGenre = JSON.parse(formData.get('musicGenre') as string || '[]');
+    } catch (e) {
+      console.error('Error parsing musicGenre:', e);
+    }
 
-    return NextResponse.json(
-      { 
-        success: true, 
-        message: 'Enhanced Telegram notification sent',
-        messageId: telegramResult.result.message_id
-      },
-      { status: 200 }
+    // Construct Message
+    let message = `📸 *NEW BOOKING RECEIVED*\n`;
+    message += `🆔 *Order ID:* \`${orderId}\`\n\n`;
+    message += `👤 *Customer:* \`${whatsappNumber}\`\n`;
+    message += `📷 *Shoot:* ${shootTypeName}\n`;
+    message += `📦 *Package:* ${packageName} (₵${price})\n\n`;
+
+    message += `🎨 *Style Preferences*\n`;
+    if (vibe) message += `• Vibe: ${vibe}\n`;
+    if (editingStyle) message += `• Edit: ${editingStyle}\n`;
+    if (musicGenre.length) message += `• Music: ${musicGenre.join(', ')}\n`;
+
+    if (outfitDescription) {
+      message += `\n👗 *Outfit Notes:*\n${outfitDescription}\n`;
+    }
+
+    if (addOns.length > 0) {
+      message += `\n➕ *Add-ons:*\n${addOns.join(', ')}\n`;
+    }
+
+    if (specialRequests) {
+      message += `\n📝 *Special Requests:*\n${specialRequests}\n`;
+    }
+
+    // 1. Send Text Message
+    const textRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown',
+      }),
+    });
+
+    if (!textRes.ok) {
+      const errorText = await textRes.text();
+      console.error('Telegram Text Error:', errorText);
+
+      // Fallback to HTML if Markdown fails
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message.replace(/\*/g, '').replace(/`/g, ''), // Strip markdown chars
+        }),
+      });
+    }
+
+    // 2. Send Images (Outfits & User Photos)
+    const imageKeys = Array.from(formData.keys()).filter(key =>
+      key.startsWith('outfit_') || key.startsWith('user_photo_')
     );
 
+    for (const key of imageKeys) {
+      const file = formData.get(key);
+
+      try {
+        if (file instanceof File) {
+          const imageFormData = new FormData();
+          imageFormData.append('chat_id', TELEGRAM_CHAT_ID);
+          imageFormData.append('photo', file);
+          imageFormData.append('caption', `📎 ${key.replace(/_/g, ' ').toUpperCase()}`);
+
+          const imgRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: imageFormData,
+          });
+
+          if (!imgRes.ok) console.error(`Failed to send image ${key}:`, await imgRes.text());
+
+        } else if (typeof file === 'string' && file.startsWith('http')) {
+          // Handle URL images (if any)
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: TELEGRAM_CHAT_ID,
+              photo: file,
+              caption: `📎 ${key.replace(/_/g, ' ').toUpperCase()}`
+            }),
+          });
+        }
+      } catch (imgError) {
+        console.error(`Error processing image ${key}:`, imgError);
+      }
+    }
+
+    return NextResponse.json({ success: true });
+
   } catch (error) {
-    console.error('❌ Error sending enhanced Telegram notification:', error);
-    
+    console.error('Telegram Notification Error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to send Telegram notification',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to send notification' },
       { status: 500 }
     );
   }
@@ -136,9 +146,6 @@ ${urgent ? '⚡ *PRIORITY PROCESSING REQUIRED - RUSH ORDER* ⚡' : ''}
 // Optional: Test endpoint (GET)
 export async function GET() {
   try {
-    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
       return NextResponse.json(
         { error: 'Telegram environment variables not set' },
@@ -146,7 +153,6 @@ export async function GET() {
       );
     }
 
-    // Test bot connection by getting bot info
     const botInfoResponse = await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`
     );
