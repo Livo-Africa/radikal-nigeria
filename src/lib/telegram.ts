@@ -32,7 +32,7 @@ export async function sendTelegramMessage(text: string) {
     }
 }
 
-export async function sendTelegramPhoto(photo: Blob | File, caption?: string) {
+export async function sendTelegramPhoto(photo: string | Blob | File, caption?: string) {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
         return false;
     }
@@ -40,11 +40,21 @@ export async function sendTelegramPhoto(photo: Blob | File, caption?: string) {
     try {
         const formData = new FormData();
         formData.append('chat_id', TELEGRAM_CHAT_ID);
+
         if (photo instanceof File) {
+            console.log(`📤 Sending File: ${photo.name} (${photo.size} bytes)`);
             formData.append('photo', photo, photo.name);
-        } else {
+        } else if (photo instanceof Blob) {
+            console.log(`📤 Sending Blob (${photo.size} bytes)`);
+            formData.append('photo', photo, 'blob_photo');
+        } else if (typeof photo === 'string') {
+            console.log(`📤 Sending URL: ${photo}`);
             formData.append('photo', photo);
+        } else {
+            console.error('❌ Invalid photo format passed to sendTelegramPhoto');
+            return false;
         }
+
         if (caption) {
             formData.append('caption', caption);
         }
@@ -55,6 +65,13 @@ export async function sendTelegramPhoto(photo: Blob | File, caption?: string) {
         });
 
         const data = await response.json();
+
+        if (!data.ok) {
+            console.error('❌ Telegram API Error:', data);
+        } else {
+            console.log('✅ Telegram Photo Sent Successfully');
+        }
+
         return data.ok;
     } catch (error) {
         console.error('❌ Failed to send Telegram photo:', error);

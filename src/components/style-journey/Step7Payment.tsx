@@ -51,18 +51,23 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
     // Append photos (Step 3 photos)
     if (formData.photos && Array.isArray(formData.photos)) {
       formData.photos.forEach((photo: any, index: number) => {
-        if (photo.file) {
+        if (photo.file && photo.file instanceof File) {
           submitFormData.append(`photo_${index}`, photo.file);
+          console.log(`📎 Attached Step 3 Photo ${index}: ${photo.file.name}`);
+        } else {
+          console.warn(`⚠️ Step 3 Photo ${index} missing valid File object.`, photo);
         }
       });
     }
 
-    // Append Uploaded Outfits (from Step 4 if any - though currently structure might be different based on implementation)
-    // Checking Step4 structure from memory/context: formData.uploadedOutfits?
+    // Append Uploaded Outfits
     if (formData.uploadedOutfits && Array.isArray(formData.uploadedOutfits)) {
       formData.uploadedOutfits.forEach((outfit: any, index: number) => {
-        if (outfit.file) {
+        if (outfit.file && outfit.file instanceof File) {
           submitFormData.append(`outfit_upload_${index}`, outfit.file);
+          console.log(`📎 Attached Outfit Upload ${index}: ${outfit.file.name}`);
+        } else {
+          console.warn(`⚠️ Outfit Upload ${index} missing valid File object.`, outfit);
         }
       });
     }
