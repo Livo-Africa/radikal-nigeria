@@ -2,7 +2,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
-import MobileStepHeader from '@/components/mobile/MobileStepHeader';
+
 import { Camera, Upload, Check, X, AlertCircle, ArrowLeft, MessageCircle } from 'lucide-react';
 import StickyActionButtons from '../shared/StickyActionButtons';
 

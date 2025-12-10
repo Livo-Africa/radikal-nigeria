@@ -15,16 +15,19 @@ const mockTransformations = [
   {
     beforeUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&h=600&fit=crop",
     afterUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=500&h=600&fit=crop",
+    service: "Personal Branding",
     visible: true
   },
   {
-    beforeUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=600&fit=crop", 
+    beforeUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=600&fit=crop",
     afterUrl: "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=500&h=600&fit=crop",
+    service: "Personal Branding",
     visible: true
   },
   {
     beforeUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&h=600&fit=crop",
     afterUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500&h=600&fit=crop",
+    service: "Personal Branding",
     visible: true
   }
 ];

@@ -2,7 +2,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { User, Users, Briefcase, Camera, Heart, Star, ArrowRight, Check } from 'lucide-react';
-import MobileStepHeader from '@/components/mobile/MobileStepHeader';
+
 
 interface Step1ShootTypeProps {
   formData: any;

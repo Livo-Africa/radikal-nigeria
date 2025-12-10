@@ -1,7 +1,7 @@
 // src/components/style-journey/Step7Payment.tsx
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import MobileStepHeader from '@/components/mobile/MobileStepHeader';
+
 import { CreditCard, Shield, Clock, Check, X, Home, MessageCircle, Loader, ArrowLeft } from 'lucide-react';
 
 interface Step7PaymentProps {
@@ -343,13 +343,7 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
       ref={containerRef}
       className="min-h-screen lg:min-h-[70vh] transition-all duration-300 ease-out pb-32"
     >
-      {/* Mobile Header */}
-      <MobileStepHeader
-        title="Complete Payment"
-        currentStep={currentStep}
-        totalSteps={7}
-        onBack={handleBack}
-      />
+
 
       {/* Desktop Header */}
       <div className="hidden lg:block text-center mb-8 pt-8">

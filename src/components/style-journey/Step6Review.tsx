@@ -2,7 +2,7 @@
 'use client';
 import { useState, useRef } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
-import MobileStepHeader from '@/components/mobile/MobileStepHeader';
+
 import { Check, Edit, MessageCircle, FileText, Package, CreditCard, Shield, Clock, Star, MapPin } from 'lucide-react';
 import StickyActionButtons from '../shared/StickyActionButtons';
 

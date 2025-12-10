@@ -1,4 +1,4 @@
-// src/components/homepage/Transformations.tsx - COMPLETELY REWRITTEN
+// src/components/homepage/Transformations.tsx - FILTERING & FLICKER FIX
 'use client';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
@@ -35,33 +35,39 @@ export default function Transformations({ transformations = [] }: { transformati
     { id: 'Video', name: 'Video', icon: Play }
   ];
 
-  const filteredTransformations = activeFilter === 'All' 
-    ? transformations 
-    : transformations.filter(t => {
-        const service = t.service?.toLowerCase() || '';
-        switch (activeFilter.toLowerCase()) {
-          case 'personal':
-            return service.includes('personal') || service.includes('individual');
-          case 'product':
-            return service.includes('product') || service.includes('ecommerce');
-          case 'brand':
-            return service.includes('brand') || service.includes('business') || service.includes('corporate');
-          case 'video':
-            return service.includes('video') || service.includes('motion') || service.includes('animation');
-          default:
-            return true;
-        }
-      }).filter(t => t.beforeUrl && t.afterUrl);
+  // FIX: Ensure 'All' filter also checks for valid URLs to avoid broken images
+  // FIX: Handle missing service or invalid data gracefully
+  const filteredTransformations = transformations.filter(t => {
+    // Must have images to be shown
+    if (!t.beforeUrl || !t.afterUrl) return false;
+
+    const service = t.service?.toLowerCase() || '';
+
+    if (activeFilter === 'All') return true;
+
+    switch (activeFilter.toLowerCase()) {
+      case 'personal':
+        return service.includes('personal') || service.includes('individual');
+      case 'product':
+        return service.includes('product') || service.includes('ecommerce');
+      case 'brand':
+        return service.includes('brand') || service.includes('business') || service.includes('corporate');
+      case 'video':
+        return service.includes('video') || service.includes('motion') || service.includes('animation');
+      default:
+        return true;
+    }
+  });
 
   // SIMPLIFIED Auto-advance - No complex state management
   useEffect(() => {
     if (!isMounted || filteredTransformations.length === 0 || !isPlaying) return;
-    
+
     const interval = setInterval(() => {
       // Simple toggle between before/after
       setShowAfter(prev => !prev);
-    }, 3000); // Reduced to 3 seconds for better UX
-    
+    }, 3000);
+
     return () => clearInterval(interval);
   }, [filteredTransformations.length, isMounted, isPlaying]);
 
@@ -80,10 +86,10 @@ export default function Transformations({ transformations = [] }: { transformati
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchStart) return;
-    
+
     const touchEnd = e.changedTouches[0].clientX;
     const distance = touchStart - touchEnd;
-    
+
     if (Math.abs(distance) > 50) { // Minimum swipe distance
       if (distance > 0) {
         // Swipe left - next
@@ -134,21 +140,6 @@ export default function Transformations({ transformations = [] }: { transformati
     );
   }
 
-  if (!transformations || transformations.length === 0) {
-    return (
-      <section className="py-12 md:py-20 bg-black text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 font-playfair">
-            The Radikal <span className="text-[#D4AF37]">Transformation</span>
-          </h2>
-          <p className="text-lg md:text-xl text-[#B91C1C] mb-6 md:mb-8">
-            No transformations available yet.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   const currentTransform = filteredTransformations[currentIndex];
 
   return (
@@ -176,11 +167,10 @@ export default function Transformations({ transformations = [] }: { transformati
                   setShowAfter(false);
                   setIsPlaying(true);
                 }}
-                className={`flex items-center space-x-2 px-4 py-2 md:px-6 md:py-3 rounded-full font-semibold transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
-                  activeFilter === filter.id
+                className={`flex items-center space-x-2 px-4 py-2 md:px-6 md:py-3 rounded-full font-semibold transition-all duration-300 whitespace-nowrap flex-shrink-0 ${activeFilter === filter.id
                     ? 'bg-[#D4AF37] text-black shadow-lg shadow-[#D4AF37]/30'
                     : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                }`}
+                  }`}
               >
                 <filter.icon className="w-4 h-4" />
                 <span className="text-sm md:text-base">{filter.name}</span>
@@ -199,7 +189,7 @@ export default function Transformations({ transformations = [] }: { transformati
               <p className="text-gray-300 mb-4 md:mb-6 text-sm md:text-base">
                 No transformations available for "{activeFilter}" category.
               </p>
-              <button 
+              <button
                 onClick={() => setActiveFilter('All')}
                 className="bg-[#D4AF37] hover:bg-[#b8941f] text-black px-6 py-3 rounded-lg font-semibold transition-colors text-sm md:text-base"
               >
@@ -212,47 +202,48 @@ export default function Transformations({ transformations = [] }: { transformati
         {/* Transformation Display */}
         {filteredTransformations.length > 0 && currentTransform && (
           <div className="max-w-4xl mx-auto">
-            {/* Image Container - SIMPLIFIED APPROACH */}
-            <div 
+            {/* Image Container - FLICKER FIX: Render both, toggle opacity */}
+            <div
               className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl md:rounded-3xl overflow-hidden border-2 md:border-4 border-gray-700 shadow-2xl mb-6 md:mb-8 cursor-pointer bg-gray-900"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
               onClick={handleToggleView}
             >
-              {/* SINGLE IMAGE AT A TIME - No opacity transitions */}
-              {showAfter ? (
-                // After Image
-                <div className="absolute inset-0">
-                  <img 
-                    src={currentTransform.afterUrl} 
-                    alt="After transformation"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/800x1000/666/fff?text=After+Image+Not+Found';
-                    }}
-                  />
-                  <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 bg-[#D4AF37] text-black px-3 md:px-4 py-1 md:py-2 rounded-lg font-semibold text-sm md:text-base">
-                    AFTER
-                  </div>
+              {/* Before Image - Always rendered, opacity handles visibility */}
+              <div
+                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${showAfter ? 'opacity-0' : 'opacity-100'}`}
+              >
+                <img
+                  src={currentTransform.beforeUrl}
+                  alt="Before transformation"
+                  className="w-full h-full object-cover"
+                  loading="eager" // Load eager to prevent delay
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/800x1000/333/fff?text=Before+Image+Not+Found';
+                  }}
+                />
+                <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 bg-black/80 text-white px-3 md:px-4 py-1 md:py-2 rounded-lg font-semibold text-sm md:text-base">
+                  BEFORE
                 </div>
-              ) : (
-                // Before Image
-                <div className="absolute inset-0">
-                  <img 
-                    src={currentTransform.beforeUrl} 
-                    alt="Before transformation"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/800x1000/333/fff?text=Before+Image+Not+Found';
-                    }}
-                  />
-                  <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 bg-black/80 text-white px-3 md:px-4 py-1 md:py-2 rounded-lg font-semibold text-sm md:text-base">
-                    BEFORE
-                  </div>
+              </div>
+
+              {/* After Image - Always rendered, opacity handles visibility */}
+              <div
+                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${showAfter ? 'opacity-100' : 'opacity-0'}`}
+              >
+                <img
+                  src={currentTransform.afterUrl}
+                  alt="After transformation"
+                  className="w-full h-full object-cover"
+                  loading="eager" // Load eager to prevent delay
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/800x1000/666/fff?text=After+Image+Not+Found';
+                  }}
+                />
+                <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 bg-[#D4AF37] text-black px-3 md:px-4 py-1 md:py-2 rounded-lg font-semibold text-sm md:text-base">
+                  AFTER
                 </div>
-              )}
+              </div>
 
               {/* Play/Pause Button */}
               <button
@@ -301,11 +292,10 @@ export default function Transformations({ transformations = [] }: { transformati
                   <button
                     key={index}
                     onClick={() => handleNavigation(index)}
-                    className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
-                      index === currentIndex 
-                        ? 'bg-[#D4AF37] scale-125 shadow-lg shadow-[#D4AF37]/50' 
+                    className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                        ? 'bg-[#D4AF37] scale-125 shadow-lg shadow-[#D4AF37]/50'
                         : 'bg-gray-600 hover:bg-gray-400 hover:scale-110'
-                    }`}
+                      }`}
                     aria-label={`Go to transformation ${index + 1}`}
                   />
                 ))}
@@ -317,7 +307,6 @@ export default function Transformations({ transformations = [] }: { transformati
               <h4 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-white">
                 {currentTransform.title}
               </h4>
-              {/* Only showing service type */}
               <div className="flex justify-center">
                 <span className="bg-[#D4AF37] text-black px-4 py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm md:text-base">
                   {currentTransform.service}
@@ -327,7 +316,7 @@ export default function Transformations({ transformations = [] }: { transformati
 
             {/* View More Button */}
             <div className="text-center">
-              <a 
+              <a
                 href="/transformations"
                 className="inline-flex items-center space-x-2 bg-transparent hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors border border-[#D4AF37] text-sm md:text-base group"
               >
