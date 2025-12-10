@@ -21,14 +21,14 @@ export async function GET(request: Request) {
 
   try {
     const sheets = initializeSheets();
-    
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: 'Outfits!A:F', // ID, Name, Category, Image_URL, Tags, Available
     });
 
     const rows = response.data.values;
-    
+
     if (!rows || rows.length === 0) {
       return NextResponse.json({ outfits: [] });
     }
@@ -41,6 +41,7 @@ export async function GET(request: Request) {
       imageUrl: row[3] || '',
       tags: (row[4] || '').split(',').map(tag => tag.trim()),
       available: (row[5] || '').toString().toUpperCase() === 'TRUE',
+      gender: (row[6] || 'Unisex').toString().trim(),
     })).filter(outfit => outfit.available && outfit.id);
 
     // Apply filters
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
 
     if (search) {
       const searchLower = search.toLowerCase();
-      outfits = outfits.filter(outfit => 
+      outfits = outfits.filter(outfit =>
         outfit.name.toLowerCase().includes(searchLower) ||
         outfit.tags.some(tag => tag.toLowerCase().includes(searchLower))
       );
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ outfits });
   } catch (error) {
     console.error('Error fetching outfits:', error);
-    
+
     // Fallback mock data for development
     const mockOutfits = [
       {
@@ -68,15 +69,17 @@ export async function GET(request: Request) {
         category: 'Professional',
         imageUrl: 'https://images.unsplash.com/photo-1594938373336-934c6ee549e3?w=400&h=500&fit=crop',
         tags: ['formal', 'business', 'professional'],
-        available: true
+        available: true,
+        gender: 'Male'
       },
       {
-        id: '2', 
+        id: '2',
         name: 'Grey Executive Suit',
         category: 'Professional',
         imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
         tags: ['formal', 'executive', 'professional'],
-        available: true
+        available: true,
+        gender: 'Male'
       },
       {
         id: '3',
@@ -84,7 +87,8 @@ export async function GET(request: Request) {
         category: 'Casual',
         imageUrl: 'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=400&h=500&fit=crop',
         tags: ['casual', 'smart-casual', 'modern'],
-        available: true
+        available: true,
+        gender: 'Unisex'
       },
       {
         id: '4',
@@ -92,15 +96,17 @@ export async function GET(request: Request) {
         category: 'Formal',
         imageUrl: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&h=500&fit=crop',
         tags: ['elegant', 'formal', 'dress'],
-        available: true
+        available: true,
+        gender: 'Female'
       },
       {
         id: '5',
         name: 'Trendy Streetwear Set',
-        category: 'Casual', 
+        category: 'Casual',
         imageUrl: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400&h=500&fit=crop',
         tags: ['casual', 'trendy', 'urban'],
-        available: true
+        available: true,
+        gender: 'Unisex'
       },
       {
         id: '6',
@@ -108,7 +114,8 @@ export async function GET(request: Request) {
         category: 'Cultural',
         imageUrl: 'https://images.unsplash.com/photo-1584917865447-5d7a7deaee7c?w=400&h=500&fit=crop',
         tags: ['cultural', 'traditional', 'colorful'],
-        available: true
+        available: true,
+        gender: 'Unisex'
       }
     ];
 
@@ -119,7 +126,7 @@ export async function GET(request: Request) {
     }
     if (search) {
       const searchLower = search.toLowerCase();
-      filteredOutfits = filteredOutfits.filter(outfit => 
+      filteredOutfits = filteredOutfits.filter(outfit =>
         outfit.name.toLowerCase().includes(searchLower) ||
         outfit.tags.some(tag => tag.toLowerCase().includes(searchLower))
       );

@@ -1,9 +1,9 @@
 // src/components/style-journey/Step6Review.tsx
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 import MobileStepHeader from '@/components/mobile/MobileStepHeader';
-import { Check, Edit, MessageCircle, FileText, Package, Shirt, Palette, CreditCard, Shield, Clock, Star, MapPin, ArrowLeft } from 'lucide-react';
+import { Check, Edit, MessageCircle, FileText, Package, CreditCard, Shield, Clock, Star, MapPin } from 'lucide-react';
 import StickyActionButtons from '../shared/StickyActionButtons';
 
 interface Step6ReviewProps {

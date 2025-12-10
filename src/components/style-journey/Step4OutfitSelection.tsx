@@ -33,6 +33,7 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
   const [uploadedOutfits, setUploadedOutfits] = useState<UploadedOutfit[]>([]);
   const [outfitDescription, setOutfitDescription] = useState('');
   const [showNextButton, setShowNextButton] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false); // New loading state
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
@@ -64,18 +65,22 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
   }, []);
 
   // Check if we can proceed
+  // Check if we can proceed
   useEffect(() => {
+    // Relaxed validation: Allow if at least 1 outfit selected/uploaded, or valid description
+    // User requested not to be forced to select ALL slots
     const canProceed =
-      (selectedOption === 'browse' && selectedOutfits.length >= outfitSlots) ||
+      (selectedOption === 'browse' && selectedOutfits.length > 0) || // Changed from >= outfitSlots
       (selectedOption === 'describe' && outfitDescription.trim().length > 10) ||
       (selectedOption === 'upload' && uploadedOutfits.length > 0) ||
       selectedOption === 'skip';
 
     setShowNextButton(!!canProceed);
-  }, [selectedOption, selectedOutfits, outfitDescription, uploadedOutfits, outfitSlots]);
+  }, [selectedOption, selectedOutfits, outfitDescription, uploadedOutfits]);
 
   // Navigate to wardrobe (for adding more outfits)
   const handleBrowseWardrobe = () => {
+    setIsNavigating(true); // Show loading
     // Save current progress
     const progressData = {
       sessionId: typeof window !== 'undefined' ? localStorage.getItem('radikal_session_id') : null,
@@ -395,11 +400,21 @@ export default function Step4OutfitSelection({ formData, setFormData, currentSte
           </p>
           <button
             onClick={handleBrowseWardrobe}
-            className="bg-[#D4AF37] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#b8941f] transition-colors flex items-center space-x-2 mx-auto"
+            disabled={isNavigating}
+            className="bg-[#D4AF37] text-black px-6 py-3 rounded-lg font-semibold hover:bg-[#b8941f] transition-colors flex items-center space-x-2 mx-auto disabled:opacity-70 disabled:cursor-wait"
           >
-            <Shirt className="w-5 h-5" />
-            <span>Open Virtual Wardrobe</span>
-            <ArrowRight className="w-5 h-5" />
+            {isNavigating ? (
+              <>
+                <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+                <span>Opening Wardrobe...</span>
+              </>
+            ) : (
+              <>
+                <Shirt className="w-5 h-5" />
+                <span>Open Virtual Wardrobe</span>
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
           </button>
         </div>
       )}

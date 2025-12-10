@@ -112,7 +112,7 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
     const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       const link = target.closest('a');
-      
+
       if (link && hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
         // Check if it's an external navigation (not within style journey)
         const href = link.getAttribute('href');
@@ -180,18 +180,18 @@ export const useAbandonmentTracking = (formData: any, currentStep: number) => {
     };
   }, [hasPhoneNumber, currentStep]);
 
-  // 5. Browser Back Button Detection - Less sensitive
-  useEffect(() => {
-    const handlePopState = (event: PopStateEvent) => {
-      if (hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
-        // Only track if going back multiple steps or to external page
-        trackAbandonment('browser_back_button');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [hasPhoneNumber, currentStep]);
+  // 5. Browser Back Button Detection - DISABLED per request
+  // useEffect(() => {
+  //   const handlePopState = (event: PopStateEvent) => {
+  //     if (hasPhoneNumber && currentStep >= 3 && currentStep < 7) {
+  //       // Only track if going back multiple steps or to external page
+  //       trackAbandonment('browser_back_button');
+  //     }
+  //   };
+  //
+  //   window.addEventListener('popstate', handlePopState);
+  //   return () => window.removeEventListener('popstate', handlePopState);
+  // }, [hasPhoneNumber, currentStep]);
 
   return {
     trackAbandonment,

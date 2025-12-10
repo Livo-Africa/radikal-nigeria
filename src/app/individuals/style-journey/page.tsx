@@ -1,6 +1,7 @@
 // In src/app/individuals/style-journey/page.tsx - ADD MobileStepHeader
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navigation from '@/components/shared/Navigation';
 import Footer from '@/components/shared/Footer';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
@@ -15,12 +16,13 @@ import SessionRecovery from '@/components/style-journey/SessionRecovery';
 import MobileStepHeader from '@/components/mobile/MobileStepHeader';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
-export default function StyleJourney() {
+function StyleJourneyContent() {
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    shootType: null,
-    shootTypeName: null,
-    package: null,
+    shootType: 'profile', // Default to avoid null issues
+    shootTypeName: 'Profile Shoot',
+    package: null as any,
     photos: [],
     outfits: [],
     style: {},
@@ -33,6 +35,57 @@ export default function StyleJourney() {
 
   // Initialize abandonment tracking globally
   useAbandonmentTracking(formData, currentStep);
+
+  // Handle Entry Points (URL Params)
+  useEffect(() => {
+    const fromWardrobe = searchParams.get('fromWardrobe');
+    const outfitCount = parseInt(searchParams.get('outfitCount') || '0');
+    const stepParam = searchParams.get('step');
+
+    // Case 1: Coming from Wardrobe
+    if (fromWardrobe === 'true') {
+      // Load selected outfits from localStorage
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('radikal_selected_outfits');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed.outfits && Array.isArray(parsed.outfits)) {
+
+              // Auto-select package based on outfit count (Simple logic)
+              // 1 outfit -> Basic, 2 outfits -> Standard, 3+ -> Premium
+              // Ideally we check shootType too using an effect map, but defaulting to Profile/Standard is safe
+              let autoPackageId = 'basic-profile';
+              if (outfitCount === 2) autoPackageId = 'professional-headshots';
+              if (outfitCount >= 3) autoPackageId = 'premium-portfolio';
+
+              // We need to fetch package details or just mock them for now since they are in Step2Package file
+              // For robustness, we might want to move package data to a shared constant file.
+              // For now, let's just set the outfits and skip to Step 3 (Photos)
+
+              setFormData(prev => ({
+                ...prev,
+                outfits: parsed.outfits,
+                // We leave package as null so Step 2 forces them to confirm or we auto-select if we had the data
+                // Better UX: Let them pick package in Step 2 but show "Recommended for X outfits"
+              }));
+
+              // If specific step requested, go there, else go to Step 2 (to pick package matching outfits) or Step 3
+              if (stepParam) {
+                setCurrentStep(parseInt(stepParam));
+              } else {
+                setCurrentStep(2); // Go to Package selection to confirm package
+              }
+            }
+          } catch (e) {
+            console.error('Error parsing saved outfits', e);
+          }
+        }
+      }
+    } else if (stepParam) {
+      setCurrentStep(parseInt(stepParam));
+    }
+  }, [searchParams]);
 
   const steps = [
     { number: 1, title: 'Shoot Type', component: Step1ShootType },
@@ -115,5 +168,17 @@ export default function StyleJourney() {
       <Footer />
       <WhatsAppFloat />
     </>
+  );
+}
+
+export default function StyleJourney() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse text-[#D4AF37] font-semibold">Loading Style Journey...</div>
+      </div>
+    }>
+      <StyleJourneyContent />
+    </Suspense>
   );
 }
