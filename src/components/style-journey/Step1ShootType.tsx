@@ -101,8 +101,8 @@ export default function Step1ShootType({ formData, setFormData, currentStep, set
         </p>
       </div>
 
-      {/* Grid of Options */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
+      {/* Grid of Options (Horizontal Scroll on Mobile, Grid on Desktop) */}
+      <div className="flex flex-row overflow-x-auto pb-6 -mx-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 lg:gap-6 md:max-w-5xl md:mx-auto md:overflow-visible md:pb-0 hide-scrollbar snap-x snap-mandatory">
         {shootTypes.map((type) => {
           const Icon = type.icon;
           const isSelected = selectedType === type.id;
@@ -112,8 +112,9 @@ export default function Step1ShootType({ formData, setFormData, currentStep, set
               key={type.id}
               onClick={() => handleSelectShootType(type)}
               className={`
+                min-w-[160px] w-[160px] md:w-auto flex-shrink-0 mr-4 md:mr-0 snap-center
                 relative group overflow-hidden rounded-2xl p-4 md:p-6 text-left transition-all duration-300
-                border-2 flex flex-col items-center justify-center h-40 md:h-48
+                border-2 flex flex-col items-center justify-center h-48 md:h-48
                 ${isSelected
                   ? 'border-[#D4AF37] bg-gradient-to-br from-gray-50 to-white shadow-xl scale-105'
                   : 'border-gray-100 bg-white hover:border-[#D4AF37]/50 hover:shadow-lg hover:scale-102'
@@ -157,7 +158,7 @@ export default function Step1ShootType({ formData, setFormData, currentStep, set
       </div>
 
       {/* Helper Text */}
-      <div className="text-center mt-8 text-sm text-gray-400">
+      <div className="text-center mt-6 text-sm text-gray-400">
         Tap any option to continue
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
-import { Camera, Upload, Check, X, AlertCircle, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Camera, Upload, Check, X, AlertCircle, ArrowLeft, MessageCircle, ChevronDown } from 'lucide-react';
 import StickyActionButtons from '../shared/StickyActionButtons';
 
 interface Step3PhotoUploadProps {
@@ -21,15 +21,46 @@ interface UploadedPhoto {
   status: 'uploading' | 'success' | 'error';
 }
 
+const countryCodes = [
+  { code: '+233', country: 'Ghana', flag: '🇬🇭' },
+  { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  { code: '+250', country: 'Rwanda', flag: '🇷🇼' },
+  { code: '+256', country: 'Uganda', flag: '🇺🇬' },
+  { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+  { code: '+1', country: 'United States', flag: '🇺🇸' },
+  { code: '+44', country: 'United Kingdom', flag: '🇬🇧' },
+];
+
 export default function Step3PhotoUpload({ formData, setFormData, currentStep, setCurrentStep }: Step3PhotoUploadProps) {
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhoto[]>(formData.photos || []);
   const [isUploading, setIsUploading] = useState(false);
   const [showNextButton, setShowNextButton] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState(formData.whatsappNumber || '');
+
+  // Split phone number into code and local part for UI
+  const [selectedCountryCode, setSelectedCountryCode] = useState(countryCodes[0].code);
+  const [localPhoneNumber, setLocalPhoneNumber] = useState('');
+
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { trackAbandonment, hasPhoneNumber } = useAbandonmentTracking(formData, currentStep);
+
+  // Initialize phone number from formData if exists
+  useEffect(() => {
+    if (formData.whatsappNumber) {
+      // Try to find matching country code
+      const match = countryCodes.find(c => formData.whatsappNumber.startsWith(c.code));
+      if (match) {
+        setSelectedCountryCode(match.code);
+        setLocalPhoneNumber(formData.whatsappNumber.replace(match.code, ''));
+      } else {
+        setLocalPhoneNumber(formData.whatsappNumber);
+      }
+    }
+  }, []); // Run once on mount
 
   // Required photos based on package
   const requiredPhotos = [
@@ -39,14 +70,26 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
 
   // Handle phone number change
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const number = e.target.value.replace(/[^0-9+]/g, '');
-    setWhatsappNumber(number);
+    // Only allow numbers
+    const number = e.target.value.replace(/[^0-9]/g, '');
+    setLocalPhoneNumber(number);
+    updateFormData(selectedCountryCode, number);
+  };
 
-    // Save to form data when valid (basic validation)
-    if (number.length >= 10) {
+  const handleCountrySelect = (code: string) => {
+    setSelectedCountryCode(code);
+    setIsCountryDropdownOpen(false);
+    updateFormData(code, localPhoneNumber);
+  };
+
+  const updateFormData = (code: string, number: string) => {
+    const fullNumber = code + number;
+
+    // Save to form data when valid (basic validation: code + at least 7 digits)
+    if (number.length >= 7) {
       setFormData((prev: any) => ({
         ...prev,
-        whatsappNumber: number
+        whatsappNumber: fullNumber
       }));
     }
   };
@@ -56,9 +99,9 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
     const facePhoto = uploadedPhotos.find(photo => photo.type === 'face' && photo.status === 'success');
     const bodyPhoto = uploadedPhotos.find(photo => photo.type === 'body' && photo.status === 'success');
 
-    const allValid = !!(facePhoto && bodyPhoto && whatsappNumber.length >= 10);
+    const allValid = !!(facePhoto && bodyPhoto && localPhoneNumber.length >= 7);
     setShowNextButton(allValid);
-  }, [uploadedPhotos, whatsappNumber]);
+  }, [uploadedPhotos, localPhoneNumber]);
 
   // Handle file selection
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, type: 'face' | 'body') => {
@@ -159,11 +202,11 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   const handleContinue = () => {
     if (!showNextButton) return;
 
-    // Save photos to form data
+    // Ensure final save of photos
     setFormData((prev: any) => ({
       ...prev,
       photos: uploadedPhotos,
-      whatsappNumber
+      whatsappNumber: selectedCountryCode + localPhoneNumber
     }));
 
     // Smooth transition
@@ -240,13 +283,47 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
           <p className="text-gray-600 mb-4 text-sm">
             We'll send your edited photos here. Make sure it's correct!
           </p>
-          <input
-            type="tel"
-            value={whatsappNumber}
-            onChange={handlePhoneChange}
-            placeholder="e.g., +233 20 123 4567"
-            className="w-full text-lg p-4 border-2 border-gray-300 rounded-xl focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all"
-          />
+
+          <div className="flex space-x-2">
+            {/* Country Code Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                className="h-full px-4 py-4 bg-gray-50 border-2 border-gray-300 rounded-xl flex items-center space-x-2 min-w-[100px] justify-between hover:border-[#D4AF37] transition-all"
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl">{countryCodes.find(c => c.code === selectedCountryCode)?.flag}</span>
+                  <span className="font-semibold text-gray-700">{selectedCountryCode}</span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {isCountryDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-64 overflow-y-auto">
+                  {countryCodes.map((country) => (
+                    <button
+                      key={country.code}
+                      onClick={() => handleCountrySelect(country.code)}
+                      className="w-full px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 text-left transition-colors border-b border-gray-50 last:border-0"
+                    >
+                      <span className="text-xl">{country.flag}</span>
+                      <span className="font-medium text-gray-900">{country.country}</span>
+                      <span className="text-sm text-gray-500 ml-auto">{country.code}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Local Number Input */}
+            <input
+              type="tel"
+              value={localPhoneNumber}
+              onChange={handlePhoneChange}
+              placeholder="20 123 4567"
+              className="flex-1 text-lg p-4 border-2 border-gray-300 rounded-xl focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 outline-none transition-all"
+            />
+          </div>
         </div>
 
         {/* Photo Upload Grid */}
@@ -351,22 +428,6 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
         nextLabel="Continue to Outfits"
         showNext={showNextButton}
       />
-
-      {/* Debug Button for Testing - ALWAYS VISIBLE FOR NOW */}
-      <div className="fixed top-20 right-4 z-50">
-        <button
-          onClick={() => {
-            setWhatsappNumber('0201234567');
-            setUploadedPhotos([
-              { id: '1', file: new File([], 'face.jpg'), preview: 'https://via.placeholder.com/150', type: 'face', status: 'success' },
-              { id: '2', file: new File([], 'body.jpg'), preview: 'https://via.placeholder.com/150', type: 'body', status: 'success' }
-            ]);
-          }}
-          className="bg-red-500 text-white text-xs px-2 py-1 rounded shadow"
-        >
-          Debug: Fill Data
-        </button>
-      </div>
     </div>
   );
 }

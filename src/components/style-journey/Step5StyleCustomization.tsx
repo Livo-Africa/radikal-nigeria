@@ -139,7 +139,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
   };
 
   const handleContinue = () => {
-    // Save style selections to form data
+    // Save style selection to form data
     const styleSelections = styleCategories.reduce((acc, category) => {
       acc[category.id] = {
         selectedOption: category.selectedOption,
@@ -221,12 +221,19 @@ export default function Step5StyleCustomization({ formData, setFormData, current
           Add the finishing touches - or skip and we'll create magic for you
         </p>
 
-        {/* Optional Notice */}
-        <div className="mt-4 flex justify-center">
+        {/* Optional Notice & Quick Skip */}
+        <div className="mt-4 flex flex-col items-center space-y-3">
           <div className="bg-blue-50 text-blue-700 rounded-full px-4 py-2 text-sm font-semibold border border-blue-200 flex items-center space-x-2">
             <Sparkles className="w-4 h-4" />
-            <span>Optional Step - Your photos will look amazing either way!</span>
+            <span>Optional Step - You can skip this!</span>
           </div>
+
+          <button
+            onClick={handleSkipAll}
+            className="text-gray-400 hover:text-gray-600 text-sm font-medium underline decoration-dotted underline-offset-4 lg:hidden"
+          >
+            Skip customization for now
+          </button>
         </div>
       </div>
 
@@ -258,8 +265,8 @@ export default function Step5StyleCustomization({ formData, setFormData, current
               )}
             </div>
 
-            {/* Options Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Options Grid/Carousel: Horizontal on mobile, Grid on desktop */}
+            <div className="flex flex-row overflow-x-auto pb-6 -mx-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-4 md:overflow-visible md:pb-0 hide-scrollbar snap-x snap-mandatory">
               {category.options.map((option) => {
                 const isSelected = category.selectedOption === option.id;
 
@@ -268,6 +275,7 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                     key={option.id}
                     onClick={() => handleSelectOption(category.id, option.id)}
                     className={`
+                      min-w-[160px] w-[160px] md:w-auto flex-shrink-0 mr-3 md:mr-0 snap-center
                       border-2 rounded-xl p-4 cursor-pointer transition-all duration-300 transform
                       ${isSelected
                         ? `border-[#D4AF37] bg-gradient-to-br ${option.color} text-white scale-105 shadow-lg`
@@ -277,17 +285,18 @@ export default function Step5StyleCustomization({ formData, setFormData, current
                   >
                     <div className="text-center">
                       <div className="text-3xl mb-3">{option.icon}</div>
-                      <h4 className={`font-bold mb-2 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                      <h4 className={`font-bold mb-2 text-sm ${isSelected ? 'text-white' : 'text-gray-900'}`}>
                         {option.name}
                       </h4>
-                      <p className={`text-sm ${isSelected ? 'text-white/90' : 'text-gray-600'}`}>
+                      {/* Hide description on mobile to save space, show only on desktop */}
+                      <p className={`text-xs hidden md:block ${isSelected ? 'text-white/90' : 'text-gray-600'}`}>
                         {option.description}
                       </p>
 
                       {/* Selection Indicator */}
                       {isSelected && (
                         <div className="mt-3">
-                          <div className="bg-white/20 rounded-full px-3 py-1 text-xs font-semibold inline-flex items-center space-x-1">
+                          <div className="bg-white/20 rounded-full px-2 py-1 text-[10px] font-semibold inline-flex items-center space-x-1">
                             <Check className="w-3 h-3" />
                             <span>Selected</span>
                           </div>

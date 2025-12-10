@@ -23,6 +23,16 @@ export default function SessionRecovery({ formData, setFormData, currentStep, se
     if (savedProgress) {
       try {
         const progress = JSON.parse(savedProgress);
+
+        // CHECK: If session is "completed" or at Step 7 (Payment), DO NOT RESTORE
+        // Instead, clear it so they start fresh
+        if (progress.currentStep >= 7 || progress.status === 'completed') {
+          console.log('🧹 Clearing completed/payment-stage session');
+          localStorage.removeItem('radikal_booking_progress');
+          localStorage.removeItem('radikal_session_id');
+          return;
+        }
+
         const lastUpdated = new Date(progress.lastUpdated);
         const now = new Date();
         const hoursDiff = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60);

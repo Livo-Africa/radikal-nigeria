@@ -168,8 +168,8 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
         </p>
       </div>
 
-      {/* Packages Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
+      {/* Packages Grid / Horizontal Scroll */}
+      <div className="flex flex-row overflow-x-auto pb-6 -mx-4 px-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:max-w-6xl md:mx-auto md:px-4 md:overflow-visible md:pb-0 hide-scrollbar snap-x snap-mandatory">
         {currentPackages.map((pkg) => {
           const isSelected = selectedPackage?.id === pkg.id;
 
@@ -178,6 +178,7 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
               key={pkg.id}
               onClick={() => handleSelectPackage(pkg)}
               className={`
+                min-w-[280px] w-[280px] md:w-auto flex-shrink-0 mr-4 md:mr-0 snap-center
                 relative overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer
                 border-2 flex flex-col
                 ${isSelected

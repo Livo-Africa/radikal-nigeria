@@ -196,6 +196,12 @@ export default function Step7Payment({ formData, setFormData, currentStep, setCu
 
   // Payment Success Screen
   if (paymentStatus === 'success') {
+    // Clear session storage on success
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('radikal_booking_progress');
+      localStorage.removeItem('radikal_session_id');
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 shadow-2xl border border-green-200 max-w-md w-full text-center">
