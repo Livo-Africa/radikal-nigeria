@@ -76,8 +76,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Send Wardrobe Selection Images (if from our wardrobe)
-    const wardrobeImages = outfits
-      .filter((o: any) => o.image && o.image.startsWith('http')) // Changed from o.imageUrl which might be wrong based on Outfit interface
+    // FIX: Ensure outfits is an array before filtering
+    const outfitsArray = Array.isArray(outfits) ? outfits : [];
+    const wardrobeImages = outfitsArray
+      .filter((o: any) => o.image && typeof o.image === 'string' && o.image.startsWith('http'))
       .map((o: any) => ({ url: o.image, name: o.name }));
 
     if (wardrobeImages.length > 0) {
@@ -98,10 +100,14 @@ export async function POST(request: NextRequest) {
         throw new Error('GOOGLE_SHEET_ID environment variable is missing');
       }
 
-      // Format outfits as string
-      const outfitsString = Array.isArray(outfits)
-        ? outfits.map((outfit: any) => outfit.name || 'Unnamed Outfit').join(', ')
-        : '';
+      // Format outfits as string - include image links for wardrobe selections
+      const outfitsString = outfitsArray.length > 0
+        ? outfitsArray.map((outfit: any) => {
+          const name = outfit.name || 'Unnamed Outfit';
+          const image = outfit.image || '';
+          return image ? `${name} (${image})` : name;
+        }).join(', ')
+        : 'None selected';
 
       // Extract style preferences
       const hairstyle = style?.hairstyle?.selectedName || style?.hairstyle?.customDescription || 'Not specified';

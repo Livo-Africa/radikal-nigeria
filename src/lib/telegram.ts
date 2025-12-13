@@ -85,30 +85,53 @@ export function formatOrderForTelegram(order: any) {
         orderId,
         whatsappNumber,
         shootTypeName,
+        shootType,
         package: pkg,
         finalTotal,
         outfits = [],
         style = {},
         specialRequests,
-        addOns = []
+        addOns = [],
+        groupSize
     } = order;
 
-    const outfitList = outfits.length > 0
-        ? outfits.map((o: any) => `- <b>${o.name}</b> (${o.category})`).join('\n')
-        : 'None selected';
+    // Handle outfits - could be wardrobe selections with urls, uploads, or auto-selected
+    let outfitList = 'None selected';
+    if (Array.isArray(outfits) && outfits.length > 0) {
+        outfitList = outfits.map((o: any) => {
+            if (o.uploaded) {
+                return `- 📤 ${o.name} (Uploaded)`;
+            } else if (o.autoSelected) {
+                return `- ✨ ${o.name}`;
+            } else if (o.image) {
+                // Wardrobe selection with link
+                return `- <b>${o.name}</b> (${o.category || 'Wardrobe'})\n   🔗 ${o.image}`;
+            } else {
+                return `- <b>${o.name || 'Unnamed'}</b>`;
+            }
+        }).join('\n');
+    }
 
     const addOnsList = addOns.length > 0
         ? addOns.join(', ')
         : 'None';
+
+    // Detect currency based on shoot type or use amount format
+    const isNigeria = shootType === 'professional' || shootType === 'graduation' ||
+        shootType === 'birthday' || shootType === 'group' || shootType === 'jersey';
+    const currency = isNigeria ? 'NGN' : 'GHS';
+
+    // Group size info
+    const groupInfo = groupSize ? `\n👥 <b>Group Size:</b> ${groupSize} people` : '';
 
     return `
 🆕 <b>NEW ORDER RECEIVED</b>
 
 🆔 <b>Order ID:</b> <code>${orderId}</code>
 📱 <b>Phone:</b> ${whatsappNumber}
-📸 <b>Shoot Type:</b> ${shootTypeName || 'Not specified'}
+📸 <b>Shoot Type:</b> ${shootTypeName || shootType || 'Not specified'}
 📦 <b>Package:</b> ${pkg?.name || 'Unknown'}
-💰 <b>Total:</b> GHS ${finalTotal}
+💰 <b>Total:</b> ${currency} ${finalTotal?.toLocaleString() || 0}${groupInfo}
 
 👗 <b>Outfits Selected:</b>
 ${outfitList}

@@ -14,180 +14,328 @@ import {
     HelperSystem,
     SuccessScreen
 } from '@/components/booking-nigeria';
-import { useBookingState } from '@/hooks/useBookingState';
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
-import { Package, generateOrderId, calculateGroupPrice } from '@/utils/bookingDataNigeria';
+import { Package, generateOrderId, calculateGroupPrice, ADD_ONS } from '@/utils/bookingDataNigeria';
+
+// Types
+interface Outfit {
+    id: string;
+    name: string;
+    category: string;
+    imageUrl: string;
+    tags: string[];
+    available: boolean;
+    gender?: string;
+}
+
+interface StylingOptions {
+    makeup: boolean;
+    hairstyle: string;
+    background: string;
+}
+
+type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
+type OutfitMethod = 'upload' | 'wardrobe' | 'skip' | null;
+type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
 
 export default function NigeriaBookingPage() {
-    const { state, actions, validation } = useBookingState();
+    // Phone validation (multi-country)
     const phoneValidation = usePhoneValidation('+234');
+
+    // Core booking state
+    const [category, setCategory] = useState<string | null>(null);
+    const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+    const [groupSize, setGroupSize] = useState(2);
+
+    // Photo state
+    const [facePhoto, setFacePhoto] = useState<{ file: File | null; url: string; state: PhotoState }>({ file: null, url: '', state: 'empty' });
+    const [bodyPhoto, setBodyPhoto] = useState<{ file: File | null; url: string; state: PhotoState }>({ file: null, url: '', state: 'empty' });
+
+    // Outfit state
+    const [outfitMethod, setOutfitMethod] = useState<OutfitMethod>(null);
+    const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
+    const [uploadedOutfitFiles, setUploadedOutfitFiles] = useState<File[]>([]);
+
+    // Styling state
+    const [styling, setStyling] = useState<StylingOptions>({ makeup: false, hairstyle: '', background: '' });
+
+    // Add-ons
+    const [addOns, setAddOns] = useState<string[]>([]);
+
+    // Payment
+    const [orderId, setOrderId] = useState<string | null>(null);
+    const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
+
+    // Preloaded outfits
+    const [preloadedOutfits, setPreloadedOutfits] = useState<Outfit[]>([]);
+    const [outfitsLoading, setOutfitsLoading] = useState(false);
 
     // Refs for auto-scrolling
     const packageRef = useRef<HTMLDivElement>(null);
     const photoRef = useRef<HTMLDivElement>(null);
     const outfitRef = useRef<HTMLDivElement>(null);
 
-    // Local states for photo management
-    const [faceImage, setFaceImage] = useState<string>('');
-    const [bodyImage, setBodyImage] = useState<string>('');
-
-    // Sync phone validation with booking state
+    // Preload outfits when page loads
     useEffect(() => {
-        actions.setContact(phoneValidation.countryCode, phoneValidation.localNumber);
-    }, [phoneValidation.countryCode, phoneValidation.localNumber]);
+        fetchOutfits();
+    }, []);
 
-    // Auto-scroll to next section when category is selected
+    const fetchOutfits = async () => {
+        try {
+            setOutfitsLoading(true);
+            const response = await fetch('/api/outfits');
+            const data = await response.json();
+            if (data.outfits) {
+                setPreloadedOutfits(data.outfits);
+            }
+        } catch (error) {
+            console.error('Failed to load outfits:', error);
+        } finally {
+            setOutfitsLoading(false);
+        }
+    };
+
+    // Calculate total
+    const calculateTotal = useCallback(() => {
+        if (!selectedPackage) return 0;
+
+        let total = category === 'group' && selectedPackage.basePrice
+            ? calculateGroupPrice(selectedPackage, groupSize)
+            : selectedPackage.price;
+
+        // Add add-ons
+        addOns.forEach(addOnId => {
+            const addOn = ADD_ONS.find(a => a.id === addOnId);
+            if (addOn) total += addOn.price;
+        });
+
+        return total;
+    }, [selectedPackage, category, groupSize, addOns]);
+
+    // Auto-scroll when category is selected
     useEffect(() => {
-        if (state.category && packageRef.current) {
+        if (category && packageRef.current) {
             setTimeout(() => {
                 packageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
         }
-    }, [state.category]);
+    }, [category]);
 
     // Auto-scroll when package is selected
     useEffect(() => {
-        if (state.package && photoRef.current) {
+        if (selectedPackage && photoRef.current) {
             setTimeout(() => {
                 photoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
         }
-    }, [state.package]);
+    }, [selectedPackage]);
 
     // Handle category selection
     const handleCategorySelect = useCallback((categoryId: string) => {
-        actions.setCategory(categoryId);
-    }, [actions]);
+        setCategory(categoryId);
+        setSelectedPackage(null); // Reset package when category changes
+    }, []);
 
     // Handle package selection
     const handlePackageSelect = useCallback((pkg: Package) => {
-        actions.setPackage(pkg);
-    }, [actions]);
+        setSelectedPackage(pkg);
+        // Reset outfit selections when package changes
+        setSelectedOutfits([]);
+        setUploadedOutfitFiles([]);
+    }, []);
 
     // Handle face photo upload
-    const handleFaceUpload = useCallback(async (file: File) => {
-        // Set uploading state
-        actions.setFacePhoto(file, '', 'uploading');
+    const handleFaceUpload = useCallback((file: File) => {
+        setFacePhoto({ file: null, url: '', state: 'uploading' });
 
-        // Create preview URL
         const url = URL.createObjectURL(file);
-        setFaceImage(url);
 
-        // Simulate AI processing animation
         setTimeout(() => {
-            actions.setFacePhoto(file, url, 'processing');
+            setFacePhoto({ file, url, state: 'processing' });
         }, 800);
 
-        // Complete after AI scan animation
         setTimeout(() => {
-            actions.setFacePhoto(file, url, 'complete');
+            setFacePhoto({ file, url, state: 'complete' });
         }, 2300);
-    }, [actions]);
+    }, []);
 
     // Handle body photo upload
-    const handleBodyUpload = useCallback(async (file: File) => {
-        actions.setBodyPhoto(null, '', 'uploading');
+    const handleBodyUpload = useCallback((file: File) => {
+        setBodyPhoto({ file: null, url: '', state: 'uploading' });
 
         const url = URL.createObjectURL(file);
-        setBodyImage(url);
 
         setTimeout(() => {
-            actions.setBodyPhoto(file, url, 'complete');
+            setBodyPhoto({ file, url, state: 'complete' });
         }, 1000);
-    }, [actions]);
+    }, []);
+
+    // Handle outfit toggle
+    const handleOutfitToggle = useCallback((outfit: Outfit) => {
+        setSelectedOutfits(prev => {
+            const exists = prev.some(o => o.id === outfit.id);
+            if (exists) {
+                return prev.filter(o => o.id !== outfit.id);
+            }
+            return [...prev, outfit];
+        });
+    }, []);
+
+    // Handle add-on toggle
+    const handleAddOnToggle = useCallback((addOnId: string) => {
+        setAddOns(prev =>
+            prev.includes(addOnId)
+                ? prev.filter(id => id !== addOnId)
+                : [...prev, addOnId]
+        );
+    }, []);
 
     // Handle payment
     const handlePayment = useCallback(async () => {
-        if (!validation.canProceedToPayment) return;
+        if (!selectedPackage) return;
 
-        actions.setPaymentStatus('processing');
+        setPaymentStatus('processing');
 
-        // Generate order ID
-        const orderId = generateOrderId();
-        actions.setOrderId(orderId);
+        const newOrderId = generateOrderId();
+        setOrderId(newOrderId);
 
         try {
             // TODO: Integrate real Paystack SDK here
-            // For now, simulate payment
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Submit order to backend
-            const formData = new FormData();
-            formData.append('orderData', JSON.stringify({
-                orderId,
-                category: state.category,
-                package: state.package,
-                groupSize: state.groupSize,
+            // Prepare order data - FIX: Send outfits as array with proper structure
+            const orderData = {
+                orderId: newOrderId,
+                shootType: category,
+                shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
+                package: {
+                    id: selectedPackage.id,
+                    name: selectedPackage.name,
+                    price: selectedPackage.price,
+                    images: selectedPackage.images,
+                    outfits: selectedPackage.outfits
+                },
+                groupSize: category === 'group' ? groupSize : undefined,
+                // FIX: Send outfits as proper array
+                outfits: outfitMethod === 'wardrobe'
+                    ? selectedOutfits.map(o => ({
+                        id: o.id,
+                        name: o.name,
+                        image: o.imageUrl, // For telegram to send
+                        category: o.category
+                    }))
+                    : outfitMethod === 'upload'
+                        ? uploadedOutfitFiles.map((_, i) => ({ name: `Uploaded Outfit ${i + 1}`, uploaded: true }))
+                        : [{ name: 'Stylist Choice', autoSelected: true }],
+                style: {
+                    makeup: { selectedName: styling.makeup ? 'Yes' : 'No' },
+                    hairstyle: { customDescription: styling.hairstyle || 'Not specified' },
+                    background: { customDescription: styling.background || 'Not specified' }
+                },
                 whatsappNumber: phoneValidation.fullNumber,
-                styling: state.styling,
-                outfits: state.outfits,
-                addOns: state.addOns,
-                total: state.total,
+                specialRequests: '',
+                addOns: addOns,
+                finalTotal: calculateTotal(),
                 timestamp: new Date().toISOString()
-            }));
+            };
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('orderData', JSON.stringify(orderData));
 
             // Append photos
-            if (state.photos.face.file) {
-                formData.append('photo_face', state.photos.face.file);
+            if (facePhoto.file) {
+                formData.append('photo_face', facePhoto.file);
             }
-            if (state.photos.body.file) {
-                formData.append('photo_body', state.photos.body.file);
+            if (bodyPhoto.file) {
+                formData.append('photo_body', bodyPhoto.file);
             }
 
             // Append outfit uploads
-            state.outfits.uploadedFiles.forEach((file, index) => {
-                formData.append(`outfit_${index}`, file);
+            uploadedOutfitFiles.forEach((file, index) => {
+                formData.append(`outfit_upload_${index}`, file);
             });
 
+            // Submit to API
             const response = await fetch('/api/orders', {
                 method: 'POST',
                 body: formData
             });
 
-            // Simulate payment success
-            actions.setPaymentStatus('success');
+            const result = await response.json();
+
+            if (result.success) {
+                setPaymentStatus('success');
+            } else {
+                console.error('Order submission failed:', result.error);
+                setPaymentStatus('failed');
+            }
 
         } catch (error) {
             console.error('Payment error:', error);
-            actions.setPaymentStatus('failed');
+            setPaymentStatus('failed');
         }
-    }, [state, actions, validation, phoneValidation.fullNumber]);
+    }, [
+        selectedPackage, category, groupSize, outfitMethod, selectedOutfits,
+        uploadedOutfitFiles, styling, phoneValidation.fullNumber, addOns,
+        calculateTotal, facePhoto.file, bodyPhoto.file
+    ]);
 
     // Handle new booking from success screen
     const handleNewBooking = useCallback(() => {
-        actions.resetBooking();
-        setFaceImage('');
-        setBodyImage('');
+        setCategory(null);
+        setSelectedPackage(null);
+        setGroupSize(2);
+        setFacePhoto({ file: null, url: '', state: 'empty' });
+        setBodyPhoto({ file: null, url: '', state: 'empty' });
+        setOutfitMethod(null);
+        setSelectedOutfits([]);
+        setUploadedOutfitFiles([]);
+        setStyling({ makeup: false, hairstyle: '', background: '' });
+        setAddOns([]);
+        setOrderId(null);
+        setPaymentStatus('idle');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [actions]);
+    }, []);
 
-    // Show success screen if payment succeeded
-    if (state.paymentStatus === 'success' && state.orderId) {
+    // Show success screen
+    if (paymentStatus === 'success' && orderId) {
         return (
             <SuccessScreen
-                orderId={state.orderId}
-                packageName={state.package?.name || 'Photoshoot Package'}
-                amount={state.total}
+                orderId={orderId}
+                packageName={selectedPackage?.name || 'Photoshoot Package'}
+                amount={calculateTotal()}
                 whatsappNumber={phoneValidation.fullNumber}
                 onNewBooking={handleNewBooking}
             />
         );
     }
 
-    // Calculate if payment bar should show
-    const showPaymentBar = validation.canProceedToPayment;
+    // Check if can proceed to payment
+    const photosComplete = facePhoto.state === 'complete' && bodyPhoto.state === 'complete';
+    const phoneValid = phoneValidation.isValid;
+    const outfitsSelected = outfitMethod === 'skip' ||
+        (outfitMethod === 'upload' && uploadedOutfitFiles.length > 0) ||
+        (outfitMethod === 'wardrobe' && selectedOutfits.length > 0);
+
+    // Check mandatory background for certain packages
+    const mandatoryBackgroundCategories = ['birthday', 'professional', 'graduation'];
+    const needsBackground = mandatoryBackgroundCategories.includes(category || '');
+    const backgroundValid = !needsBackground || styling.background.trim().length > 0;
+
+    const canPay = selectedPackage && photosComplete && phoneValid && outfitsSelected && backgroundValid;
 
     return (
         <>
             <Navigation />
 
-            <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-20 pb-40">
+            <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-20 pb-48">
                 {/* Progress Indicator */}
                 <div className="sticky top-16 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-100 py-3 px-4">
                     <div className="max-w-lg mx-auto">
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-600">Book Your Photoshoot</span>
-                            <span className="text-xs text-gray-400">Nigeria</span>
+                            <span className="text-sm font-bold text-gray-900">Book Your Photoshoot</span>
+                            <span className="text-xs text-gray-400 bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">🇳🇬 Nigeria</span>
                         </div>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4].map((step) => {
@@ -195,24 +343,24 @@ export default function NigeriaBookingPage() {
                                 let isActive = false;
 
                                 if (step === 1) {
-                                    isComplete = !!state.category;
-                                    isActive = !state.category;
+                                    isComplete = !!selectedPackage;
+                                    isActive = !selectedPackage;
                                 } else if (step === 2) {
-                                    isComplete = !!state.package;
-                                    isActive = !!state.category && !state.package;
+                                    isComplete = photosComplete && phoneValid;
+                                    isActive = !!selectedPackage && !(photosComplete && phoneValid);
                                 } else if (step === 3) {
-                                    isComplete = state.photos.face.state === 'complete' && state.photos.body.state === 'complete' && phoneValidation.isValid;
-                                    isActive = !!state.package && !isComplete;
+                                    isComplete = outfitsSelected && backgroundValid;
+                                    isActive = photosComplete && phoneValid && !(outfitsSelected && backgroundValid);
                                 } else if (step === 4) {
-                                    isComplete = !!state.outfits.method;
-                                    isActive = isComplete || (state.photos.face.state === 'complete' && phoneValidation.isValid);
+                                    isComplete = paymentStatus === 'success';
+                                    isActive = canPay;
                                 }
 
                                 return (
                                     <div
                                         key={step}
                                         className={`
-                      h-1 flex-1 rounded-full transition-all
+                      h-1.5 flex-1 rounded-full transition-all
                       ${isComplete ? 'bg-[#D4AF37]' : isActive ? 'bg-[#D4AF37]/50' : 'bg-gray-200'}
                     `}
                                     />
@@ -222,39 +370,39 @@ export default function NigeriaBookingPage() {
                     </div>
                 </div>
 
-                {/* Section 1: Category Selection */}
+                {/* Section 1: Category + Package Selection */}
                 <section className="py-8 px-4">
                     <div className="max-w-lg mx-auto relative">
                         <div className="absolute top-0 right-0">
                             <HelperSystem section="category" />
                         </div>
                         <CategoryGrid
-                            selectedId={state.category}
+                            selectedId={category}
                             onSelect={handleCategorySelect}
                         />
                     </div>
                 </section>
 
                 {/* Section 2: Package Selection */}
-                {state.category && (
+                {category && (
                     <section ref={packageRef} className="py-8 border-t border-gray-100">
                         <div className="max-w-lg mx-auto relative">
                             <div className="absolute top-0 right-4">
                                 <HelperSystem section="package" />
                             </div>
                             <PackageCarousel
-                                category={state.category}
-                                selectedId={state.package?.id || null}
+                                category={category}
+                                selectedId={selectedPackage?.id || null}
                                 onSelect={handlePackageSelect}
-                                groupSize={state.groupSize}
-                                onGroupSizeChange={actions.setGroupSize}
+                                groupSize={groupSize}
+                                onGroupSizeChange={setGroupSize}
                             />
                         </div>
                     </section>
                 )}
 
                 {/* Section 3: Photos & Contact */}
-                {state.package && (
+                {selectedPackage && (
                     <section ref={photoRef} className="py-8 border-t border-gray-100">
                         <div className="max-w-lg mx-auto space-y-8">
                             {/* Photo Upload */}
@@ -263,16 +411,16 @@ export default function NigeriaBookingPage() {
                                     <HelperSystem section="photos" />
                                 </div>
                                 <PhotoUpload
-                                    faceState={state.photos.face.state}
-                                    bodyState={state.photos.body.state}
-                                    faceImage={faceImage}
-                                    bodyImage={bodyImage}
+                                    faceState={facePhoto.state}
+                                    bodyState={bodyPhoto.state}
+                                    faceImage={facePhoto.url}
+                                    bodyImage={bodyPhoto.url}
                                     onFaceUpload={handleFaceUpload}
                                     onBodyUpload={handleBodyUpload}
                                 />
                             </div>
 
-                            {/* Contact & Styling */}
+                            {/* Contact */}
                             <div className="relative">
                                 <div className="absolute top-0 right-4">
                                     <HelperSystem section="phone" />
@@ -284,8 +432,6 @@ export default function NigeriaBookingPage() {
                                         phoneValidation.setCountryCode(code);
                                         phoneValidation.setLocalNumber(number);
                                     }}
-                                    styling={state.styling}
-                                    onStylingChange={actions.setStyling}
                                     isPhoneValid={phoneValidation.isValid}
                                     phoneError={phoneValidation.error}
                                 />
@@ -294,22 +440,27 @@ export default function NigeriaBookingPage() {
                     </section>
                 )}
 
-                {/* Section 4: Outfit Selection */}
-                {state.photos.face.state === 'complete' && state.photos.body.state === 'complete' && phoneValidation.isValid && (
+                {/* Section 4: Outfits & Styling */}
+                {photosComplete && phoneValid && (
                     <section ref={outfitRef} className="py-8 border-t border-gray-100">
                         <div className="max-w-lg mx-auto relative">
                             <div className="absolute top-0 right-4">
                                 <HelperSystem section="outfits" />
                             </div>
                             <OutfitSelection
-                                packageOutfits={state.package?.outfits || 1}
-                                method={state.outfits.method}
-                                onMethodSelect={actions.setOutfitMethod}
-                                selectedOutfits={state.outfits.selectedIds}
-                                onOutfitToggle={actions.toggleOutfit}
-                                uploadedFiles={state.outfits.uploadedFiles}
-                                onUploadOutfits={actions.setUploadedOutfits}
-                                autoStyle={state.outfits.autoStyle}
+                                packageOutfits={selectedPackage?.outfits || 1}
+                                packageName={selectedPackage?.name || ''}
+                                category={category || ''}
+                                method={outfitMethod}
+                                onMethodSelect={setOutfitMethod}
+                                selectedOutfits={selectedOutfits}
+                                onOutfitToggle={handleOutfitToggle}
+                                uploadedFiles={uploadedOutfitFiles}
+                                onUploadOutfits={setUploadedOutfitFiles}
+                                styling={styling}
+                                onStylingChange={(updates) => setStyling(prev => ({ ...prev, ...updates }))}
+                                preloadedOutfits={preloadedOutfits}
+                                outfitsLoading={outfitsLoading}
                             />
                         </div>
                     </section>
@@ -318,14 +469,14 @@ export default function NigeriaBookingPage() {
 
             {/* Sticky Payment Bar */}
             <StickyPaymentBar
-                package={state.package}
-                groupSize={state.groupSize}
-                selectedAddOns={state.addOns}
-                onToggleAddOn={actions.toggleAddOn}
-                total={state.total}
-                isEnabled={showPaymentBar}
+                package={selectedPackage}
+                groupSize={groupSize}
+                selectedAddOns={addOns}
+                onToggleAddOn={handleAddOnToggle}
+                total={calculateTotal()}
+                isEnabled={canPay || false}
                 onPay={handlePayment}
-                isLoading={state.paymentStatus === 'processing'}
+                isLoading={paymentStatus === 'processing'}
             />
         </>
     );
