@@ -56,13 +56,13 @@ export default function PackageCarousel({
 
     return (
         <div className="w-full relative">
-            {/* Section Header */}
+            {/* Section Header - BIGGER AND MORE READABLE */}
             <div className="text-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Choose Package
                 </h2>
-                <p className="text-gray-500 text-sm">
-                    Swipe to explore options
+                <p className="text-base text-gray-600">
+                    Swipe to explore your options
                 </p>
             </div>
 

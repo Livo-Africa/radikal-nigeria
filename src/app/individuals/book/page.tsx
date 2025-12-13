@@ -26,17 +26,29 @@ interface Outfit {
     tags: string[];
     available: boolean;
     gender?: string;
+    isUploaded?: boolean;
+    file?: File;
+    previewUrl?: string;
 }
 
 interface StylingOptions {
     makeup: boolean;
-    hairstyle: string;
-    background: string;
+    makeupType: 'light' | 'heavy' | 'glam' | null;
+    hairstyle: boolean;
+    hairstyleText: string;
+    background: boolean;
+    backgroundText: string;
 }
 
 type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
-type OutfitMethod = 'upload' | 'wardrobe' | 'skip' | null;
 type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
+
+// Mandatory backgrounds for certain packages
+const MANDATORY_BACKGROUNDS: Record<string, string> = {
+    'birthday': 'Studio with balloons',
+    'graduation': 'Academic backdrop',
+    'professional': 'Professional office/studio'
+};
 
 export default function NigeriaBookingPage() {
     // Phone validation (multi-country)
@@ -51,13 +63,18 @@ export default function NigeriaBookingPage() {
     const [facePhoto, setFacePhoto] = useState<{ file: File | null; url: string; state: PhotoState }>({ file: null, url: '', state: 'empty' });
     const [bodyPhoto, setBodyPhoto] = useState<{ file: File | null; url: string; state: PhotoState }>({ file: null, url: '', state: 'empty' });
 
-    // Outfit state
-    const [outfitMethod, setOutfitMethod] = useState<OutfitMethod>(null);
+    // Unified outfit state
     const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
-    const [uploadedOutfitFiles, setUploadedOutfitFiles] = useState<File[]>([]);
 
-    // Styling state
-    const [styling, setStyling] = useState<StylingOptions>({ makeup: false, hairstyle: '', background: '' });
+    // Styling state (new structure)
+    const [styling, setStyling] = useState<StylingOptions>({
+        makeup: false,
+        makeupType: null,
+        hairstyle: false,
+        hairstyleText: '',
+        background: false,
+        backgroundText: ''
+    });
 
     // Add-ons
     const [addOns, setAddOns] = useState<string[]>([]);
@@ -133,15 +150,13 @@ export default function NigeriaBookingPage() {
     // Handle category selection
     const handleCategorySelect = useCallback((categoryId: string) => {
         setCategory(categoryId);
-        setSelectedPackage(null); // Reset package when category changes
+        setSelectedPackage(null);
     }, []);
 
     // Handle package selection
     const handlePackageSelect = useCallback((pkg: Package) => {
         setSelectedPackage(pkg);
-        // Reset outfit selections when package changes
-        setSelectedOutfits([]);
-        setUploadedOutfitFiles([]);
+        setSelectedOutfits([]); // Reset outfits when package changes
     }, []);
 
     // Handle face photo upload
@@ -170,17 +185,6 @@ export default function NigeriaBookingPage() {
         }, 1000);
     }, []);
 
-    // Handle outfit toggle
-    const handleOutfitToggle = useCallback((outfit: Outfit) => {
-        setSelectedOutfits(prev => {
-            const exists = prev.some(o => o.id === outfit.id);
-            if (exists) {
-                return prev.filter(o => o.id !== outfit.id);
-            }
-            return [...prev, outfit];
-        });
-    }, []);
-
     // Handle add-on toggle
     const handleAddOnToggle = useCallback((addOnId: string) => {
         setAddOns(prev =>
@@ -203,7 +207,10 @@ export default function NigeriaBookingPage() {
             // TODO: Integrate real Paystack SDK here
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Prepare order data - FIX: Send outfits as array with proper structure
+            // Get background text (mandatory or user-entered)
+            const backgroundText = MANDATORY_BACKGROUNDS[category || ''] || styling.backgroundText;
+
+            // Prepare order data
             const orderData = {
                 orderId: newOrderId,
                 shootType: category,
@@ -216,21 +223,24 @@ export default function NigeriaBookingPage() {
                     outfits: selectedPackage.outfits
                 },
                 groupSize: category === 'group' ? groupSize : undefined,
-                // FIX: Send outfits as proper array
-                outfits: outfitMethod === 'wardrobe'
-                    ? selectedOutfits.map(o => ({
-                        id: o.id,
-                        name: o.name,
-                        image: o.imageUrl, // For telegram to send
-                        category: o.category
-                    }))
-                    : outfitMethod === 'upload'
-                        ? uploadedOutfitFiles.map((_, i) => ({ name: `Uploaded Outfit ${i + 1}`, uploaded: true }))
-                        : [{ name: 'Stylist Choice', autoSelected: true }],
+                // Send outfits as proper array
+                outfits: selectedOutfits.map(o => ({
+                    id: o.id,
+                    name: o.name,
+                    image: o.imageUrl || o.previewUrl,
+                    category: o.category,
+                    uploaded: o.isUploaded || false
+                })),
                 style: {
-                    makeup: { selectedName: styling.makeup ? 'Yes' : 'No' },
-                    hairstyle: { customDescription: styling.hairstyle || 'Not specified' },
-                    background: { customDescription: styling.background || 'Not specified' }
+                    makeup: {
+                        selectedName: styling.makeup
+                            ? (styling.makeupType === 'light' ? 'Light Makeup' :
+                                styling.makeupType === 'heavy' ? 'Heavy Makeup' :
+                                    styling.makeupType === 'glam' ? 'Glam Makeup' : 'Yes')
+                            : 'No'
+                    },
+                    hairstyle: { customDescription: styling.hairstyle ? styling.hairstyleText : 'Not specified' },
+                    background: { customDescription: backgroundText || 'Not specified' }
                 },
                 whatsappNumber: phoneValidation.fullNumber,
                 specialRequests: '',
@@ -251,9 +261,11 @@ export default function NigeriaBookingPage() {
                 formData.append('photo_body', bodyPhoto.file);
             }
 
-            // Append outfit uploads
-            uploadedOutfitFiles.forEach((file, index) => {
-                formData.append(`outfit_upload_${index}`, file);
+            // Append uploaded outfit files
+            selectedOutfits.forEach((outfit, index) => {
+                if (outfit.isUploaded && outfit.file) {
+                    formData.append(`outfit_upload_${index}`, outfit.file);
+                }
             });
 
             // Submit to API
@@ -276,8 +288,8 @@ export default function NigeriaBookingPage() {
             setPaymentStatus('failed');
         }
     }, [
-        selectedPackage, category, groupSize, outfitMethod, selectedOutfits,
-        uploadedOutfitFiles, styling, phoneValidation.fullNumber, addOns,
+        selectedPackage, category, groupSize, selectedOutfits,
+        styling, phoneValidation.fullNumber, addOns,
         calculateTotal, facePhoto.file, bodyPhoto.file
     ]);
 
@@ -288,10 +300,15 @@ export default function NigeriaBookingPage() {
         setGroupSize(2);
         setFacePhoto({ file: null, url: '', state: 'empty' });
         setBodyPhoto({ file: null, url: '', state: 'empty' });
-        setOutfitMethod(null);
         setSelectedOutfits([]);
-        setUploadedOutfitFiles([]);
-        setStyling({ makeup: false, hairstyle: '', background: '' });
+        setStyling({
+            makeup: false,
+            makeupType: null,
+            hairstyle: false,
+            hairstyleText: '',
+            background: false,
+            backgroundText: ''
+        });
         setAddOns([]);
         setOrderId(null);
         setPaymentStatus('idle');
@@ -314,16 +331,13 @@ export default function NigeriaBookingPage() {
     // Check if can proceed to payment
     const photosComplete = facePhoto.state === 'complete' && bodyPhoto.state === 'complete';
     const phoneValid = phoneValidation.isValid;
-    const outfitsSelected = outfitMethod === 'skip' ||
-        (outfitMethod === 'upload' && uploadedOutfitFiles.length > 0) ||
-        (outfitMethod === 'wardrobe' && selectedOutfits.length > 0);
 
-    // Check mandatory background for certain packages
-    const mandatoryBackgroundCategories = ['birthday', 'professional', 'graduation'];
-    const needsBackground = mandatoryBackgroundCategories.includes(category || '');
-    const backgroundValid = !needsBackground || styling.background.trim().length > 0;
+    // Outfits: either selected some OR skipped (empty but method is skip)
+    const outfitsValid = selectedOutfits.length > 0 ||
+        // Check if styling section has been interacted with (implied skip)
+        (styling.makeup || styling.hairstyle || styling.background);
 
-    const canPay = selectedPackage && photosComplete && phoneValid && outfitsSelected && backgroundValid;
+    const canPay = selectedPackage && photosComplete && phoneValid;
 
     return (
         <>
@@ -335,7 +349,7 @@ export default function NigeriaBookingPage() {
                     <div className="max-w-lg mx-auto">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-bold text-gray-900">Book Your Photoshoot</span>
-                            <span className="text-xs text-gray-400 bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">🇳🇬 Nigeria</span>
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">🇳🇬 Nigeria</span>
                         </div>
                         <div className="flex gap-1">
                             {[1, 2, 3, 4].map((step) => {
@@ -349,8 +363,8 @@ export default function NigeriaBookingPage() {
                                     isComplete = photosComplete && phoneValid;
                                     isActive = !!selectedPackage && !(photosComplete && phoneValid);
                                 } else if (step === 3) {
-                                    isComplete = outfitsSelected && backgroundValid;
-                                    isActive = photosComplete && phoneValid && !(outfitsSelected && backgroundValid);
+                                    isComplete = outfitsValid;
+                                    isActive = photosComplete && phoneValid && !outfitsValid;
                                 } else if (step === 4) {
                                     isComplete = paymentStatus === 'success';
                                     isActive = canPay;
@@ -370,7 +384,7 @@ export default function NigeriaBookingPage() {
                     </div>
                 </div>
 
-                {/* Section 1: Category + Package Selection */}
+                {/* Section 1: Category Selection */}
                 <section className="py-8 px-4">
                     <div className="max-w-lg mx-auto relative">
                         <div className="absolute top-0 right-0">
@@ -451,12 +465,8 @@ export default function NigeriaBookingPage() {
                                 packageOutfits={selectedPackage?.outfits || 1}
                                 packageName={selectedPackage?.name || ''}
                                 category={category || ''}
-                                method={outfitMethod}
-                                onMethodSelect={setOutfitMethod}
                                 selectedOutfits={selectedOutfits}
-                                onOutfitToggle={handleOutfitToggle}
-                                uploadedFiles={uploadedOutfitFiles}
-                                onUploadOutfits={setUploadedOutfitFiles}
+                                onOutfitsChange={setSelectedOutfits}
                                 styling={styling}
                                 onStylingChange={(updates) => setStyling(prev => ({ ...prev, ...updates }))}
                                 preloadedOutfits={preloadedOutfits}

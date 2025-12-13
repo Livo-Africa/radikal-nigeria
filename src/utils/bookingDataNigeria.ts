@@ -257,12 +257,17 @@ export function generateOrderId(): string {
     return `RAD-${timestamp}`;
 }
 
-// WhatsApp deep link generator
-export function generateWhatsAppLink(orderId: string, packageName: string, amount: number, businessNumber: string = '2348000000000'): string {
-    const message = `Order ${orderId} - ${packageName} (₦${amount.toLocaleString()})
-• Your photoshoot is confirmed
-• We'll notify you when ready
-• Thank you for choosing Radikal!`;
+// WhatsApp deep link generator - Message FROM client TO team
+export function generateWhatsAppLink(orderId: string, packageName: string, amount: number, businessNumber: string = '233207472307'): string {
+    const message = `Hi Radikal Team! 👋
+
+I just booked a photoshoot and would like to track my order.
+
+📌 Order ID: ${orderId}
+📦 Package: ${packageName}
+💰 Amount: ₦${amount.toLocaleString()}
+
+Please let me know the status of my order. Thank you!`;
 
     const encoded = encodeURIComponent(message);
     return `https://wa.me/${businessNumber}?text=${encoded}`;

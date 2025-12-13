@@ -2,7 +2,6 @@
 // Category selection grid - 5 categories in 2-column layout
 
 'use client';
-import { useState } from 'react';
 import { CATEGORIES, Category } from '@/utils/bookingDataNigeria';
 
 interface CategoryGridProps {
@@ -17,12 +16,12 @@ export default function CategoryGrid({ selectedId, onSelect }: CategoryGridProps
 
     return (
         <div className="w-full">
-            {/* Section Header */}
+            {/* Section Header - BIGGER AND MORE READABLE */}
             <div className="text-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Select Purpose
                 </h2>
-                <p className="text-gray-500 text-sm">
+                <p className="text-base text-gray-600">
                     What type of photoshoot do you need?
                 </p>
             </div>

@@ -1,8 +1,9 @@
 // src/components/booking-nigeria/PhotoUpload.tsx
-// Photo upload component with AI scan animation for face photo
+// Photo upload component with AI scan animation - supports camera, files, gallery
 
 'use client';
 import { useRef, useState } from 'react';
+import { Camera, Upload, Image } from 'lucide-react';
 
 type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
 
@@ -25,6 +26,7 @@ export default function PhotoUpload({
 }: PhotoUploadProps) {
     const faceInputRef = useRef<HTMLInputElement>(null);
     const bodyInputRef = useRef<HTMLInputElement>(null);
+    const [showSourcePicker, setShowSourcePicker] = useState<'face' | 'body' | null>(null);
 
     const handleFileChange = (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -51,8 +53,23 @@ export default function PhotoUpload({
             onBodyUpload(file);
         }
 
-        // Reset input
+        // Reset input and close picker
         event.target.value = '';
+        setShowSourcePicker(null);
+    };
+
+    const openFilePicker = (type: 'face' | 'body', source: 'camera' | 'gallery') => {
+        const inputRef = type === 'face' ? faceInputRef : bodyInputRef;
+        if (inputRef.current) {
+            // Set capture attribute based on source
+            if (source === 'camera') {
+                inputRef.current.setAttribute('capture', type === 'face' ? 'user' : 'environment');
+            } else {
+                inputRef.current.removeAttribute('capture');
+            }
+            inputRef.current.click();
+        }
+        setShowSourcePicker(null);
     };
 
     const renderPhotoBox = (
@@ -73,13 +90,19 @@ export default function PhotoUpload({
                     ref={inputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    capture={type === 'face' ? 'user' : 'environment'}
                     onChange={(e) => handleFileChange(e, type)}
                     className="hidden"
                 />
 
                 <button
-                    onClick={() => inputRef?.current?.click()}
+                    onClick={() => {
+                        if (state === 'complete') {
+                            // If already has image, open source picker to replace
+                            setShowSourcePicker(type);
+                        } else {
+                            setShowSourcePicker(type);
+                        }
+                    }}
                     disabled={state === 'uploading' || state === 'processing'}
                     className={`
             w-full aspect-square rounded-2xl border-2 border-dashed
@@ -165,13 +188,13 @@ export default function PhotoUpload({
 
     return (
         <div className="w-full">
-            {/* Section Header */}
-            <div className="text-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">
+            {/* Section Header - BIGGER AND MORE READABLE */}
+            <div className="text-center mb-6 px-4">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Upload Your Photos
                 </h2>
-                <p className="text-gray-500 text-sm">
-                    We need these to create your photoshoot
+                <p className="text-base text-gray-600">
+                    We need clear photos to create your amazing look
                 </p>
             </div>
 
@@ -190,6 +213,45 @@ export default function PhotoUpload({
                     <li>• Simple background works best</li>
                 </ul>
             </div>
+
+            {/* Source Picker Modal */}
+            {showSourcePicker && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center"
+                    onClick={() => setShowSourcePicker(null)}
+                >
+                    <div
+                        className="bg-white rounded-t-3xl w-full max-w-md p-6 pb-10"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-bold text-center mb-4">
+                            Choose Photo Source
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={() => openFilePicker(showSourcePicker, 'camera')}
+                                className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-2xl hover:bg-[#D4AF37]/10 transition-colors"
+                            >
+                                <Camera className="w-10 h-10 text-[#D4AF37]" />
+                                <span className="font-medium text-gray-900">Camera</span>
+                            </button>
+                            <button
+                                onClick={() => openFilePicker(showSourcePicker, 'gallery')}
+                                className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-2xl hover:bg-[#D4AF37]/10 transition-colors"
+                            >
+                                <Image className="w-10 h-10 text-[#D4AF37]" />
+                                <span className="font-medium text-gray-900">Gallery</span>
+                            </button>
+                        </div>
+                        <button
+                            onClick={() => setShowSourcePicker(null)}
+                            className="w-full mt-4 py-3 text-gray-500 font-medium"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <style jsx>{`
         @keyframes scan {

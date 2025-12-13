@@ -1,9 +1,10 @@
 // src/components/booking-nigeria/ContactStyling.tsx
-// Contact info with multi-country phone validation
+// Contact info with multi-country phone validation - simpler validation message
 
 'use client';
 import { useState } from 'react';
 import { formatPhoneForDisplay, COUNTRY_CONFIGS } from '@/hooks/usePhoneValidation';
+import { Check } from 'lucide-react';
 
 interface ContactStylingProps {
     countryCode: string;
@@ -44,13 +45,13 @@ export default function ContactStyling({
 
     return (
         <div className="w-full px-4">
-            {/* Section Header */}
+            {/* Section Header - BIGGER AND MORE READABLE */}
             <div className="text-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Contact Details
                 </h2>
-                <p className="text-gray-500 text-sm">
-                    We'll deliver your photos via WhatsApp
+                <p className="text-base text-gray-600">
+                    We'll deliver your amazing photos via WhatsApp
                 </p>
             </div>
 
@@ -96,9 +97,7 @@ export default function ContactStyling({
                                             <span className="font-medium text-gray-900 text-sm flex-1">{country.country}</span>
                                             <span className="text-sm text-gray-500">{country.code}</span>
                                             {country.code === countryCode && (
-                                                <svg className="w-4 h-4 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                </svg>
+                                                <Check className="w-4 h-4 text-[#D4AF37]" />
                                             )}
                                         </button>
                                     ))}
@@ -118,20 +117,18 @@ export default function ContactStyling({
                     />
                 </div>
 
-                {/* Validation Feedback */}
+                {/* Validation Feedback - SIMPLIFIED */}
                 <div className="mt-2 flex items-center gap-2">
                     {phoneNumber.length > 0 && (
                         <>
                             {isPhoneValid ? (
                                 <span className="text-green-600 text-sm font-medium flex items-center gap-1">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Valid {selectedCountry.country} number
+                                    <Check className="w-4 h-4" />
+                                    Valid phone number
                                 </span>
                             ) : (
                                 <span className="text-red-500 text-sm">
-                                    {phoneError || `Please enter a valid ${selectedCountry.country} number`}
+                                    {phoneError || 'Please check the number'}
                                 </span>
                             )}
                         </>
