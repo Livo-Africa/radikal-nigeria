@@ -4,21 +4,23 @@
 'use client';
 import { CATEGORIES, Category } from '@/utils/bookingDataGhana';
 import {
-    Briefcase,
-    GraduationCap,
-    PartyPopper,
+    Star,
+    Cake,
+    User,
     Users,
-    Trophy,
+    Smartphone,
+    Briefcase,
     LucideIcon
 } from 'lucide-react';
 
 // Map icon names to Lucide components
 const ICON_MAP: Record<string, LucideIcon> = {
-    'Briefcase': Briefcase,
-    'GraduationCap': GraduationCap,
-    'PartyPopper': PartyPopper,
+    'Star': Star,
+    'Cake': Cake,
+    'User': User,
     'Users': Users,
-    'Trophy': Trophy
+    'Smartphone': Smartphone,
+    'Briefcase': Briefcase
 };
 
 interface CategoryGridProps {

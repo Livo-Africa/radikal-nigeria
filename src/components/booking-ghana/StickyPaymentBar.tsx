@@ -3,7 +3,10 @@
 
 'use client';
 import { useState } from 'react';
-import { Plus, Lock, ChevronUp, ChevronDown, Gift, Zap, Image, Scissors, Sparkles, X } from 'lucide-react';
+import {
+    Plus, Lock, ChevronUp, ChevronDown, Gift, Zap, Image, Scissors, Sparkles, X,
+    ImagePlus, Shirt, Wand2, LucideIcon
+} from 'lucide-react';
 import { Package, ADD_ONS, AddOn, formatCurrency } from '@/utils/bookingDataGhana';
 
 interface StickyPaymentBarProps {
@@ -18,12 +21,14 @@ interface StickyPaymentBarProps {
 }
 
 // Add-on icons mapping
-const ADD_ON_ICONS: Record<string, any> = {
-    'extra-image': Image,
-    'extra-outfit': Gift,
-    'advanced-retouch': Scissors,
-    'body-restructuring': Sparkles,
-    'rush-delivery': Zap
+const ICON_MAP: Record<string, LucideIcon> = {
+    'ImagePlus': ImagePlus,
+    'Image': Image,
+    'Shirt': Shirt,
+    'Sparkles': Sparkles,
+    'Wand2': Wand2,
+    'Zap': Zap,
+    'Gift': Gift
 };
 
 export default function StickyPaymentBar({
@@ -83,7 +88,7 @@ export default function StickyPaymentBar({
                             <div className="space-y-3 pb-4">
                                 {ADD_ONS.map(addOn => {
                                     const isSelected = selectedAddOns.includes(addOn.id);
-                                    const IconComponent = ADD_ON_ICONS[addOn.id] || Gift;
+                                    const IconComponent = (addOn.iconName && ICON_MAP[addOn.iconName]) || Gift;
 
                                     return (
                                         <button

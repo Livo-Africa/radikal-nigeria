@@ -23,19 +23,21 @@ export default function SuccessScreen({
     whatsappNumber,
     onNewBooking
 }: SuccessScreenProps) {
+    const [isClient, setIsClient] = useState(false);
     const [showConfetti, setShowConfetti] = useState(true);
 
     useEffect(() => {
+        setIsClient(true);
         const timer = setTimeout(() => setShowConfetti(false), 3000);
         return () => clearTimeout(timer);
     }, []);
 
-    const whatsappLink = generateWhatsAppLink(orderId, packageName, amount, BUSINESS_WHATSAPP);
+    const whatsappLink = generateWhatsAppLink(orderId, packageName, amount || 0, BUSINESS_WHATSAPP);
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-b from-green-50 to-white relative overflow-hidden">
-            {/* Confetti Animation */}
-            {showConfetti && (
+            {/* Confetti Animation - Client Only */}
+            {isClient && showConfetti && (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
                     {[...Array(30)].map((_, i) => (
                         <div

@@ -3,7 +3,7 @@
 // Using icon names for Lucide icon rendering
 
 export interface Category {
-    id: 'profile' | 'social' | 'business' | 'couples' | 'group' | 'creative';
+    id: 'specialty' | 'birthday' | 'solo' | 'group' | 'digital';
     iconName: string; // Lucide icon name
     label: string;
     priceRange: string;
@@ -15,7 +15,7 @@ export interface Package {
     price: number;
     basePrice?: number;
     images: number;
-    outfits: number;
+    outfits: number; // 0 for digital services if applicable
     popular?: boolean;
     description: string;
     addOns?: Record<string, number>;
@@ -35,187 +35,230 @@ export interface AddOn {
 // Category data - using Lucide icon names
 export const CATEGORIES: Category[] = [
     {
-        id: 'profile',
-        iconName: 'User',
-        label: 'Profile',
-        priceRange: '₵30+'
+        id: 'specialty',
+        iconName: 'Star',
+        label: 'Specialty & Themed',
+        priceRange: '₵20+'
     },
     {
-        id: 'social',
-        iconName: 'Camera',
-        label: 'Social Media',
+        id: 'birthday',
+        iconName: 'Cake',
+        label: 'Birthday',
         priceRange: '₵40+'
     },
     {
-        id: 'business',
-        iconName: 'Briefcase',
-        label: 'Business',
+        id: 'solo',
+        iconName: 'User',
+        label: 'General Solo',
         priceRange: '₵50+'
-    },
-    {
-        id: 'couples',
-        iconName: 'Heart',
-        label: 'Couples',
-        priceRange: '₵80+'
     },
     {
         id: 'group',
         iconName: 'Users',
-        label: 'Group',
-        priceRange: '₵100+'
+        label: 'Group & Duo',
+        priceRange: '₵80+'
     },
     {
-        id: 'creative',
-        iconName: 'Star',
-        label: 'Creative',
-        priceRange: '₵120+'
+        id: 'digital',
+        iconName: 'Smartphone',
+        label: 'Digital Services',
+        priceRange: '₵10+'
     }
 ];
 
 // Package data by category
 export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
-    profile: [
+    specialty: [
         {
-            id: 'basic-profile',
-            name: 'Basic Profile',
+            id: 'profile-headshots',
+            name: 'Profile Headshots',
             price: 30,
-            originalPrice: 50,
-            images: 2,
+            images: 3,
             outfits: 1,
-            deliveryTime: '1-3 hours',
-            description: 'Clean professional shots'
+            description: 'Social media profiles or ID cards. 1 Headshot, 1 Medium, 1 Full.'
         },
         {
-            id: 'professional-headshots',
-            name: 'Professional Headshots',
-            price: 50,
-            originalPrice: 80,
+            id: 'jersey-shoot',
+            name: 'Jersey Shoot',
+            price: 20,
             images: 3,
-            outfits: 2,
-            deliveryTime: '1-3 hours',
-            popular: true,
-            description: '3 professional poses, enhanced styling'
+            outfits: 1, // Assumed 1 outfit (the jersey)
+            description: 'Sports fans. Customized name on jersey + Studio theme.'
         },
         {
-            id: 'premium-portfolio',
-            name: 'Premium Portfolio',
+            id: 'occupation-shots',
+            name: 'Occupation Shots',
+            price: 50,
+            images: 3,
+            outfits: 1,
+            description: 'CVs, LinkedIn. Professional outfit theme + Studio background.'
+        },
+        {
+            id: 'graduation-shots',
+            name: 'Graduation Shots',
             price: 70,
-            originalPrice: 120,
-            images: 5,
-            outfits: 3,
-            deliveryTime: '1-2 hours',
-            description: '5 versatile shots, premium backgrounds'
-        }
-    ],
-    social: [
-        {
-            id: 'social-essential',
-            name: 'Social Essential',
-            price: 40,
-            originalPrice: 60,
-            images: 5,
-            outfits: 2,
-            deliveryTime: '1-3 hours',
-            popular: true,
-            description: '5 social-ready photos, platform optimization'
-        },
-        {
-            id: 'social-pro',
-            name: 'Social Pro',
-            price: 80,
-            originalPrice: 120,
-            images: 10,
-            outfits: 3,
-            deliveryTime: '1-2 hours',
-            description: '10 curated photos, multiple styles'
-        }
-    ],
-    // Default fallback packages for other categories
-    business: [
-        {
-            id: 'business-standard',
-            name: 'Standard Business',
-            price: 50,
             images: 3,
-            outfits: 2,
-            description: 'Standard business portraits'
-        },
-        {
-            id: 'business-pro',
-            name: 'Pro Business',
-            price: 90,
-            images: 6,
-            outfits: 3,
-            popular: true,
-            description: 'Complete business branding set'
+            outfits: 1, // Gown
+            description: 'Celebrating finishing school. Custom gown & sash.'
         }
     ],
-    couples: [
+    birthday: [
         {
-            id: 'couples-standard',
-            name: 'Couples Standard',
-            price: 80,
-            images: 5,
-            outfits: 2,
-            description: 'Romantic couple poses'
+            id: 'birthday-basic',
+            name: 'Birthday Basic',
+            price: 40,
+            images: 4,
+            outfits: 1,
+            description: 'Simple birthday layout. Mandatory custom birthday-themed background.'
         },
         {
-            id: 'couples-deluxe',
-            name: 'Couples Deluxe',
-            price: 150,
+            id: 'birthday-deluxe',
+            name: 'Birthday Deluxe',
+            price: 70,
+            images: 6,
+            outfits: 2,
+            description: 'Enhanced birthday layout.'
+        },
+        {
+            id: 'birthday-royal',
+            name: 'Birthday Royal',
+            price: 100,
             images: 10,
             outfits: 3,
+            description: 'Luxury birthday layout.'
+        }
+    ],
+    solo: [
+        {
+            id: 'solo-standard',
+            name: 'Solo Standard',
+            price: 50,
+            images: 4,
+            outfits: 1,
+            description: 'Multiple poses. Great photos just for you.'
+        },
+        {
+            id: 'solo-medium',
+            name: 'Solo Medium',
+            price: 90,
+            images: 8,
+            outfits: 2,
+            description: 'Multiple poses per outfit.'
+        },
+        {
+            id: 'solo-supreme',
+            name: 'Solo Supreme',
+            price: 130,
+            images: 15,
+            outfits: 3,
             popular: true,
-            description: 'Extended couple session'
+            description: 'Wide pose variety & Premium lighting look.'
         }
     ],
     group: [
         {
             id: 'group-standard',
             name: 'Group Standard',
-            basePrice: 100,
-            price: 100,
-            images: 5,
-            outfits: 2,
-            description: 'Standard group session'
+            basePrice: 80,
+            price: 80,
+            images: 4,
+            outfits: 2, // "Outfit themes"
+            description: 'Studio group layout. Max 2 people base price.'
+        },
+        {
+            id: 'group-deluxe',
+            name: 'Group Deluxe',
+            basePrice: 130,
+            price: 130,
+            images: 6,
+            outfits: 3,
+            description: 'Creative group poses.'
+        },
+        {
+            id: 'group-supreme',
+            name: 'Group Supreme',
+            basePrice: 200,
+            price: 200,
+            images: 10,
+            outfits: 5,
+            description: 'Premium group concept.'
         }
     ],
-    creative: [
+    digital: [
         {
-            id: 'creative-standard',
-            name: 'Creative Standard',
-            price: 120,
-            images: 5,
-            outfits: 2,
-            description: 'Artistic creative direction'
+            id: 'background-replacement',
+            name: 'Background Replacement',
+            price: 10,
+            images: 1,
+            outfits: 0,
+            description: 'Swap to studio, outdoor, etc. No package required.'
+        },
+        {
+            id: 'hairstyle-change',
+            name: 'Hairstyle Change',
+            price: 15,
+            images: 1,
+            outfits: 0,
+            description: 'Braids, curls, straight, etc.'
+        },
+        {
+            id: 'digital-advanced-retouch',
+            name: 'Advanced Retouch',
+            price: 15,
+            images: 1,
+            outfits: 0,
+            description: 'Professional editing.'
+        },
+        {
+            id: 'outfit-change',
+            name: 'Outfit Change',
+            price: 20,
+            images: 1,
+            outfits: 0,
+            description: 'Replace clothing digitally.'
+        },
+        {
+            id: 'makeup',
+            name: 'Makeup',
+            price: 45,
+            images: 1,
+            outfits: 0,
+            description: 'Professional eyes, lips, skin glow.'
+        },
+        {
+            id: 'digital-body-restructuring',
+            name: 'Body Restructuring',
+            price: 60,
+            images: 1,
+            outfits: 0,
+            description: 'Shape adjustment or slimming.'
         }
     ]
 };
 
 // Add-ons with Lucide icon names
 export const ADD_ONS: AddOn[] = [
-    { id: 'extra-image', name: '+1 Extra Image', price: 10, description: 'One additional edited photo', iconName: 'ImagePlus', popular: true },
-    { id: 'advanced-retouching', name: 'Advanced Retouching', price: 15, description: 'Professional skin smoothing', iconName: 'Sparkles' },
-    { id: 'body-enhancement', name: 'Body Enhancement', price: 50, description: 'Subtle body shaping', iconName: 'Wand2' },
-    { id: 'additional-outfit', name: 'Additional Outfit', price: 40, description: 'Add one more outfit', iconName: 'Shirt', popular: true },
-    { id: 'rush-delivery', name: 'Rush Delivery', price: 30, description: 'Get photos in 1 hour', iconName: 'Zap' },
-    { id: 'premium-backgrounds', name: 'Premium Backgrounds', price: 25, description: 'Exclusive background options', iconName: 'Image' }
+    { id: 'extra-image', name: 'Extra Image', price: 5, description: '+1 additional edited photo', iconName: 'ImagePlus' },
+    { id: 'background-pose-change', name: 'Background/Pose Change', price: 5, description: 'Change scenery or pose', iconName: 'Image' },
+    { id: 'extra-outfit', name: 'Extra Outfit', price: 10, description: 'Add one more outfit', iconName: 'Shirt', popular: true },
+    { id: 'advanced-retouch', name: 'Advanced Retouch', price: 15, description: 'Professional skin smoothing', iconName: 'Sparkles' },
+    { id: 'body-restructuring', name: 'Body Restructuring', price: 30, description: 'Pregnancy, weight, height adjustment', iconName: 'Wand2' }
 ];
 
 // Helper tips for each section
 export const HELPER_TIPS: Record<string, string[]> = {
     category: [
-        "Profile: Perfect for LinkedIn and CVs",
-        "Social: Trendy shots for Instagram/TikTok",
-        "Business: Corporate branding and headshots",
-        "Couples: Romantic shots with your partner",
-        "Creative: Artistic concepts and editorial looks"
+        "Specialty: Role-based & event shoots",
+        "Birthday: Celebrate your day in style (Mandatory background)",
+        "Solo: Just for you, multiple outfits",
+        "Group: For couples, friends, siblings",
+        "Digital: Quick edits for existing photos"
     ],
     package: [
-        "More photos = more variety for your feed",
-        "Social Pro offers the best value per photo",
-        "Premium packages include faster delivery",
-        "Select based on your outfit needs"
+        "Select based on how many outfits you have",
+        "More images = more variety",
+        "Supreme/Royal packages offer the best value",
+        "Digital services require no booking visit"
     ],
     photos: [
         "Face photo: Clear selfie improves auto-styling",
@@ -242,19 +285,20 @@ export const HELPER_TIPS: Record<string, string[]> = {
         "Bring backup options just in case"
     ],
     payment: [
+        "Full payment required before work begins",
         "Secure mobile money payment",
-        "Pay with MTN, Vodafone, or AirtelTigo",
-        "Cards also accepted securely",
+        "No refunds once processing starts",
         "Immediate booking confirmation"
     ]
 };
 
-// Calculate group package price based on size (Placeholder implementation if needed)
+// Calculate group package price based on size
 export function calculateGroupPrice(pkg: Package, groupSize: number): number {
-    // Simple logic: base price + (size - 2) * 20 GHS per extra person
+    // Base price is for 2 people
+    // Add 1 extra person: +GH₵30
     const base = pkg.basePrice || pkg.price;
     if (groupSize <= 2) return base;
-    return base + (groupSize - 2) * 20;
+    return base + (groupSize - 2) * 30;
 }
 
 // Format Ghana currency
