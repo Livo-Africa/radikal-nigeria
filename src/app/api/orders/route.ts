@@ -59,37 +59,51 @@ export async function POST(request: NextRequest) {
       throw new Error('Missing required fields: orderId, whatsappNumber, or package name');
     }
 
-    // 1. Send Order Summary to Telegram
-    const telegramMessage = formatOrderForTelegram(orderData);
-    await sendTelegramMessage(telegramMessage);
-
-    // 2. Send Uploaded Photos (User Selfies & Uploaded Outfits) to Telegram
-    if (files.length > 0) {
-      await sendTelegramMessage(`📸 <b>Reference Photos & Uploads for Order ${orderId}:</b>`);
-
-      // Send photos sequentially to maintain order and respect constraints
-      for (const file of files) {
-        await sendTelegramPhoto(file);
-        // Small delay to prevent rate limiting issues
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    }
-
-    // 3. Send Wardrobe Selection Images (if from our wardrobe)
-    // FIX: Ensure outfits is an array before filtering
+    // FIX: Ensure outfits is an array for both Telegram and Sheets
     const outfitsArray = Array.isArray(outfits) ? outfits : [];
-    const wardrobeImages = outfitsArray
-      .filter((o: any) => o.image && typeof o.image === 'string' && o.image.startsWith('http'))
-      .map((o: any) => ({ url: o.image, name: o.name }));
 
-    if (wardrobeImages.length > 0) {
-      await sendTelegramMessage(`👗 <b>Selected Wardrobe Items for Order ${orderId}:</b>`);
+    // 1. Send Order Summary to Telegram
+    try {
+      const telegramMessage = formatOrderForTelegram(orderData);
+      await sendTelegramMessage(telegramMessage);
 
-      for (const item of wardrobeImages) {
-        // Send URL directly - Telegram will fetch it
-        await sendTelegramPhoto(item.url, `Selected: ${item.name}`);
-        await new Promise(resolve => setTimeout(resolve, 500));
+      // 2. Send Uploaded Photos (User Selfies & Uploaded Outfits) to Telegram
+      if (files.length > 0) {
+        await sendTelegramMessage(`📸 <b>Reference Photos & Uploads for Order ${orderId}:</b>`);
+
+        // Send photos sequentially to maintain order and respect constraints
+        for (const file of files) {
+          try {
+            await sendTelegramPhoto(file);
+            // Small delay to prevent rate limiting issues
+            await new Promise(resolve => setTimeout(resolve, 500));
+          } catch (photoError) {
+            console.error('Failed to send a photo to Telegram:', photoError);
+          }
+        }
       }
+
+      // 3. Send Wardrobe Selection Images (if from our wardrobe)
+      const wardrobeImages = outfitsArray
+        .filter((o: any) => o.image && typeof o.image === 'string' && o.image.startsWith('http'))
+        .map((o: any) => ({ url: o.image, name: o.name }));
+
+      if (wardrobeImages.length > 0) {
+        await sendTelegramMessage(`👗 <b>Selected Wardrobe Items for Order ${orderId}:</b>`);
+
+        for (const item of wardrobeImages) {
+          try {
+            // Send URL directly - Telegram will fetch it
+            await sendTelegramPhoto(item.url, `Selected: ${item.name}`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          } catch (itemError) {
+            console.error(`Failed to send wardrobe item ${item.name} to Telegram:`, itemError);
+          }
+        }
+      }
+    } catch (telegramError) {
+      console.error('❌ Telegram notification failed (non-blocking):', telegramError);
+      // Continue execution - do not fail the order
     }
 
     // 4. Log to Google Sheets

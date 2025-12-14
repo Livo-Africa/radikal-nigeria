@@ -351,29 +351,10 @@ export default function NigeriaBookingPage() {
         calculateTotal, facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking
     ]);
 
-    // Handle new booking
+    // Handle new booking - Hard reload to ensure completely fresh state
     const handleNewBooking = useCallback(() => {
-        setCategory(null);
-        setSelectedPackage(null);
-        setGroupSize(2);
-        setFacePhoto({ file: null, url: '', state: 'empty' });
-        setBodyPhoto({ file: null, url: '', state: 'empty' });
-        setGroupPhotos([]);
-        setSelectedOutfits([]);
-        setStyling({
-            makeup: false,
-            makeupType: null,
-            hairstyle: false,
-            hairstyleText: '',
-            background: false,
-            backgroundText: ''
-        });
-        setAddOns([]);
-        setOrderId(null);
-        setPaymentStatus('idle');
-        phoneValidation.reset();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [phoneValidation]);
+        window.location.reload();
+    }, []);
 
     // Show success screen
     if (paymentStatus === 'success' && orderId) {
