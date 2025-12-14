@@ -69,7 +69,7 @@ export default function SuccessScreen({
 
                 {/* Heading */}
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Booking Confirmed! 🎉
+                    Booking Confirmed!
                 </h1>
                 <p className="text-gray-600 mb-6">
                     Thank you! We're already working on your amazing photos.
@@ -140,7 +140,7 @@ export default function SuccessScreen({
                 {/* New Booking Button */}
                 <button
                     onClick={onNewBooking}
-                    className="text-[#D4AF37] font-medium text-sm hover:underline"
+                    className="text-[#D4AF37] font-bold text-sm hover:underline"
                 >
                     Start a new booking →
                 </button>

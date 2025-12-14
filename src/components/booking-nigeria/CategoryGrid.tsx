@@ -1,8 +1,25 @@
 // src/components/booking-nigeria/CategoryGrid.tsx
-// Category selection grid - 5 categories in 2-column layout
+// Category selection grid with Lucide icons
 
 'use client';
 import { CATEGORIES, Category } from '@/utils/bookingDataNigeria';
+import {
+    Briefcase,
+    GraduationCap,
+    PartyPopper,
+    Users,
+    Trophy,
+    LucideIcon
+} from 'lucide-react';
+
+// Map icon names to Lucide components
+const ICON_MAP: Record<string, LucideIcon> = {
+    'Briefcase': Briefcase,
+    'GraduationCap': GraduationCap,
+    'PartyPopper': PartyPopper,
+    'Users': Users,
+    'Trophy': Trophy
+};
 
 interface CategoryGridProps {
     selectedId: string | null;
@@ -16,7 +33,7 @@ export default function CategoryGrid({ selectedId, onSelect }: CategoryGridProps
 
     return (
         <div className="w-full">
-            {/* Section Header - BIGGER AND MORE READABLE */}
+            {/* Section Header */}
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Select Purpose
@@ -31,6 +48,7 @@ export default function CategoryGrid({ selectedId, onSelect }: CategoryGridProps
                 {CATEGORIES.map((category, index) => {
                     const isSelected = selectedId === category.id;
                     const isLastItem = index === CATEGORIES.length - 1;
+                    const IconComponent = ICON_MAP[category.iconName] || Briefcase;
 
                     return (
                         <button
@@ -48,7 +66,14 @@ export default function CategoryGrid({ selectedId, onSelect }: CategoryGridProps
               `}
                         >
                             {/* Icon */}
-                            <span className="text-5xl mb-3">{category.icon}</span>
+                            <div className={`
+                w-16 h-16 rounded-2xl flex items-center justify-center mb-3
+                ${isSelected ? 'bg-[#D4AF37]' : 'bg-gray-100'}
+              `}>
+                                <IconComponent
+                                    className={`w-8 h-8 ${isSelected ? 'text-black' : 'text-gray-700'}`}
+                                />
+                            </div>
 
                             {/* Label */}
                             <span className={`font-bold text-base mb-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>

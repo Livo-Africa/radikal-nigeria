@@ -36,7 +36,7 @@ export const COUNTRY_CONFIGS: CountryConfig[] = [
         flag: '🇬🇭',
         minLength: 9,
         maxLength: 9,
-        prefixes: ['20', '23', '24', '25', '26', '27', '28', '29', '50', '54', '55', '59'],
+        prefixes: ['20', '23', '24', '25', '26', '27', '50', '54', '55', '59', '57', '53', '56'],
         formatPattern: 'XX XXX XXXX'
     },
     {

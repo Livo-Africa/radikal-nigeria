@@ -43,6 +43,12 @@ interface StylingOptions {
 type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
 type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
 
+interface PhotoData {
+    file: File | null;
+    url: string;
+    state: PhotoState;
+}
+
 // Mandatory backgrounds for certain packages
 const MANDATORY_BACKGROUNDS: Record<string, string> = {
     'birthday': 'Studio with balloons',
@@ -59,14 +65,17 @@ export default function NigeriaBookingPage() {
     const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
     const [groupSize, setGroupSize] = useState(2);
 
-    // Photo state
-    const [facePhoto, setFacePhoto] = useState<{ file: File | null; url: string; state: PhotoState }>({ file: null, url: '', state: 'empty' });
-    const [bodyPhoto, setBodyPhoto] = useState<{ file: File | null; url: string; state: PhotoState }>({ file: null, url: '', state: 'empty' });
+    // Single person photo state
+    const [facePhoto, setFacePhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
+    const [bodyPhoto, setBodyPhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
+
+    // Group photos state
+    const [groupPhotos, setGroupPhotos] = useState<{ face: PhotoData; body: PhotoData }[]>([]);
 
     // Unified outfit state
     const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
 
-    // Styling state (new structure)
+    // Styling state
     const [styling, setStyling] = useState<StylingOptions>({
         makeup: false,
         makeupType: null,
@@ -91,6 +100,21 @@ export default function NigeriaBookingPage() {
     const packageRef = useRef<HTMLDivElement>(null);
     const photoRef = useRef<HTMLDivElement>(null);
     const outfitRef = useRef<HTMLDivElement>(null);
+
+    // Check if this is a group booking
+    const isGroupBooking = category === 'group';
+
+    // Initialize group photos when group size changes
+    useEffect(() => {
+        if (isGroupBooking) {
+            setGroupPhotos(
+                Array.from({ length: groupSize }, () => ({
+                    face: { file: null, url: '', state: 'empty' as PhotoState },
+                    body: { file: null, url: '', state: 'empty' as PhotoState }
+                }))
+            );
+        }
+    }, [groupSize, isGroupBooking]);
 
     // Preload outfits when page loads
     useEffect(() => {
@@ -120,7 +144,6 @@ export default function NigeriaBookingPage() {
             ? calculateGroupPrice(selectedPackage, groupSize)
             : selectedPackage.price;
 
-        // Add add-ons
         addOns.forEach(addOnId => {
             const addOn = ADD_ONS.find(a => a.id === addOnId);
             if (addOn) total += addOn.price;
@@ -156,10 +179,10 @@ export default function NigeriaBookingPage() {
     // Handle package selection
     const handlePackageSelect = useCallback((pkg: Package) => {
         setSelectedPackage(pkg);
-        setSelectedOutfits([]); // Reset outfits when package changes
+        setSelectedOutfits([]);
     }, []);
 
-    // Handle face photo upload
+    // Handle face photo upload (single mode)
     const handleFaceUpload = useCallback((file: File) => {
         setFacePhoto({ file: null, url: '', state: 'uploading' });
 
@@ -174,7 +197,7 @@ export default function NigeriaBookingPage() {
         }, 2300);
     }, []);
 
-    // Handle body photo upload
+    // Handle body photo upload (single mode)
     const handleBodyUpload = useCallback((file: File) => {
         setBodyPhoto({ file: null, url: '', state: 'uploading' });
 
@@ -183,6 +206,34 @@ export default function NigeriaBookingPage() {
         setTimeout(() => {
             setBodyPhoto({ file, url, state: 'complete' });
         }, 1000);
+    }, []);
+
+    // Handle group photo upload
+    const handleGroupPhotoUpload = useCallback((personIndex: number, type: 'face' | 'body', file: File) => {
+        setGroupPhotos(prev => {
+            const updated = [...prev];
+            const url = URL.createObjectURL(file);
+
+            // Set uploading first
+            updated[personIndex] = {
+                ...updated[personIndex],
+                [type]: { file: null, url: '', state: 'uploading' as PhotoState }
+            };
+
+            // Then complete after delay
+            setTimeout(() => {
+                setGroupPhotos(prev2 => {
+                    const updated2 = [...prev2];
+                    updated2[personIndex] = {
+                        ...updated2[personIndex],
+                        [type]: { file, url, state: 'complete' as PhotoState }
+                    };
+                    return updated2;
+                });
+            }, type === 'face' ? 2000 : 1000);
+
+            return updated;
+        });
     }, []);
 
     // Handle add-on toggle
@@ -204,13 +255,10 @@ export default function NigeriaBookingPage() {
         setOrderId(newOrderId);
 
         try {
-            // TODO: Integrate real Paystack SDK here
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Get background text (mandatory or user-entered)
             const backgroundText = MANDATORY_BACKGROUNDS[category || ''] || styling.backgroundText;
 
-            // Prepare order data
             const orderData = {
                 orderId: newOrderId,
                 shootType: category,
@@ -223,7 +271,6 @@ export default function NigeriaBookingPage() {
                     outfits: selectedPackage.outfits
                 },
                 groupSize: category === 'group' ? groupSize : undefined,
-                // Send outfits as proper array
                 outfits: selectedOutfits.map(o => ({
                     id: o.id,
                     name: o.name,
@@ -249,16 +296,26 @@ export default function NigeriaBookingPage() {
                 timestamp: new Date().toISOString()
             };
 
-            // Create FormData
             const formData = new FormData();
             formData.append('orderData', JSON.stringify(orderData));
 
-            // Append photos
-            if (facePhoto.file) {
-                formData.append('photo_face', facePhoto.file);
-            }
-            if (bodyPhoto.file) {
-                formData.append('photo_body', bodyPhoto.file);
+            // Append photos based on mode
+            if (isGroupBooking) {
+                groupPhotos.forEach((person, index) => {
+                    if (person.face.file) {
+                        formData.append(`photo_face_${index}`, person.face.file);
+                    }
+                    if (person.body.file) {
+                        formData.append(`photo_body_${index}`, person.body.file);
+                    }
+                });
+            } else {
+                if (facePhoto.file) {
+                    formData.append('photo_face', facePhoto.file);
+                }
+                if (bodyPhoto.file) {
+                    formData.append('photo_body', bodyPhoto.file);
+                }
             }
 
             // Append uploaded outfit files
@@ -268,7 +325,6 @@ export default function NigeriaBookingPage() {
                 }
             });
 
-            // Submit to API
             const response = await fetch('/api/orders', {
                 method: 'POST',
                 body: formData
@@ -290,16 +346,17 @@ export default function NigeriaBookingPage() {
     }, [
         selectedPackage, category, groupSize, selectedOutfits,
         styling, phoneValidation.fullNumber, addOns,
-        calculateTotal, facePhoto.file, bodyPhoto.file
+        calculateTotal, facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking
     ]);
 
-    // Handle new booking from success screen
+    // Handle new booking
     const handleNewBooking = useCallback(() => {
         setCategory(null);
         setSelectedPackage(null);
         setGroupSize(2);
         setFacePhoto({ file: null, url: '', state: 'empty' });
         setBodyPhoto({ file: null, url: '', state: 'empty' });
+        setGroupPhotos([]);
         setSelectedOutfits([]);
         setStyling({
             makeup: false,
@@ -328,16 +385,20 @@ export default function NigeriaBookingPage() {
         );
     }
 
-    // Check if can proceed to payment
-    const photosComplete = facePhoto.state === 'complete' && bodyPhoto.state === 'complete';
+    // Check photo completion
+    const singlePhotosComplete = facePhoto.state === 'complete' && bodyPhoto.state === 'complete';
+    const groupPhotosComplete = groupPhotos.length > 0 &&
+        groupPhotos.every(p => p.face.state === 'complete' && p.body.state === 'complete');
+    const photosComplete = isGroupBooking ? groupPhotosComplete : singlePhotosComplete;
+
     const phoneValid = phoneValidation.isValid;
 
-    // Outfits: either selected some OR skipped (empty but method is skip)
+    // Outfits valid if selected some OR skipped (styling interaction implies skip)
     const outfitsValid = selectedOutfits.length > 0 ||
-        // Check if styling section has been interacted with (implied skip)
         (styling.makeup || styling.hairstyle || styling.background);
 
-    const canPay = selectedPackage && photosComplete && phoneValid;
+    // Payment bar only shows when outfits section is done (not just phone)
+    const canPay = selectedPackage && photosComplete && phoneValid && outfitsValid;
 
     return (
         <>
@@ -425,12 +486,18 @@ export default function NigeriaBookingPage() {
                                     <HelperSystem section="photos" />
                                 </div>
                                 <PhotoUpload
+                                    // Single mode props
                                     faceState={facePhoto.state}
                                     bodyState={bodyPhoto.state}
                                     faceImage={facePhoto.url}
                                     bodyImage={bodyPhoto.url}
                                     onFaceUpload={handleFaceUpload}
                                     onBodyUpload={handleBodyUpload}
+                                    // Group mode props
+                                    isGroupMode={isGroupBooking}
+                                    groupSize={groupSize}
+                                    groupPhotos={groupPhotos}
+                                    onGroupPhotoUpload={handleGroupPhotoUpload}
                                 />
                             </div>
 
@@ -477,7 +544,7 @@ export default function NigeriaBookingPage() {
                 )}
             </main>
 
-            {/* Sticky Payment Bar */}
+            {/* Sticky Payment Bar - Only shows when outfits section is done */}
             <StickyPaymentBar
                 package={selectedPackage}
                 groupSize={groupSize}

@@ -1,9 +1,13 @@
 // src/components/booking-nigeria/OutfitSelection.tsx
-// Outfit selection + styling - unified outfit management with package limits
+// Outfit selection + styling with Lucide icons
 
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Upload, Search, Sparkles, X, Check, Shirt, Camera, Image } from 'lucide-react';
+import {
+    Upload, Search, Sparkles, X, Check, Shirt,
+    Palette, Scissors, Heart,
+    LucideIcon
+} from 'lucide-react';
 import OptimizedImage from '@/components/shared/OptimizedImage';
 
 interface Outfit {
@@ -14,7 +18,6 @@ interface Outfit {
     tags: string[];
     available: boolean;
     gender?: string;
-    // For uploaded files
     isUploaded?: boolean;
     file?: File;
     previewUrl?: string;
@@ -39,11 +42,9 @@ interface OutfitSelectionProps {
     onStylingChange: (styling: Partial<StylingOptions>) => void;
     preloadedOutfits: Outfit[];
     outfitsLoading: boolean;
-    // Mandatory background config
     mandatoryBackground?: { enabled: boolean; text: string } | null;
 }
 
-// Packages that require mandatory background - cannot be edited
 const MANDATORY_BACKGROUNDS: Record<string, string> = {
     'birthday': 'Studio with balloons',
     'graduation': 'Academic backdrop',
@@ -71,17 +72,11 @@ export default function OutfitSelection({
 
     const categories = ['All', 'Professional', 'Casual', 'Formal', 'Cultural', 'Creative'];
 
-    // Determine if background is mandatory and what it should be
     const hasMandatoryBackground = MANDATORY_BACKGROUNDS[category];
-    const backgroundDisplayText = hasMandatoryBackground || styling.backgroundText;
-
-    // Total outfits count (both uploaded and wardrobe)
     const totalOutfits = selectedOutfits.length;
     const canAddMore = totalOutfits < packageOutfits;
     const uploadedOutfits = selectedOutfits.filter(o => o.isUploaded);
-    const wardrobeOutfits = selectedOutfits.filter(o => !o.isUploaded);
 
-    // Filter wardrobe outfits
     const filteredOutfits = preloadedOutfits.filter(outfit => {
         let matches = true;
 
@@ -111,7 +106,6 @@ export default function OutfitSelection({
         return matches;
     });
 
-    // Handle file upload
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || files.length === 0) return;
@@ -137,21 +131,17 @@ export default function OutfitSelection({
             previewUrl: URL.createObjectURL(file)
         }));
 
-        // Add to selected outfits
         onOutfitsChange([...selectedOutfits, ...newUploadedOutfits]);
         setSkipped(false);
         e.target.value = '';
     };
 
-    // Handle wardrobe outfit toggle
     const handleWardrobeToggle = (outfit: Outfit) => {
         const exists = selectedOutfits.some(o => o.id === outfit.id);
 
         if (exists) {
-            // Remove
             onOutfitsChange(selectedOutfits.filter(o => o.id !== outfit.id));
         } else {
-            // Add if within limit
             if (!canAddMore) {
                 alert(`Your package allows ${packageOutfits} outfit(s) only. Remove one to add more.`);
                 return;
@@ -161,7 +151,6 @@ export default function OutfitSelection({
         }
     };
 
-    // Remove outfit
     const removeOutfit = (outfitId: string) => {
         const outfit = selectedOutfits.find(o => o.id === outfitId);
         if (outfit?.previewUrl) {
@@ -170,17 +159,15 @@ export default function OutfitSelection({
         onOutfitsChange(selectedOutfits.filter(o => o.id !== outfitId));
     };
 
-    // Skip outfit selection
     const handleSkip = () => {
         setSkipped(true);
-        onOutfitsChange([]); // Clear any selections
+        onOutfitsChange([]);
     };
 
     const isOutfitInWardrobe = (outfitId: string) => selectedOutfits.some(o => o.id === outfitId && !o.isUploaded);
 
     return (
         <div className="w-full px-4">
-            {/* Hidden file input */}
             <input
                 ref={fileInputRef}
                 type="file"
@@ -203,7 +190,10 @@ export default function OutfitSelection({
             {/* === OUTFIT SELECTION === */}
             <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                    <span className="font-bold text-gray-900">Select Outfits</span>
+                    <div className="flex items-center gap-2">
+                        <Shirt className="w-5 h-5 text-gray-700" />
+                        <span className="font-bold text-gray-900">Select Outfits</span>
+                    </div>
                     <span className={`text-sm font-medium ${totalOutfits >= packageOutfits ? 'text-green-600' : 'text-gray-500'}`}>
                         {totalOutfits}/{packageOutfits}
                     </span>
@@ -211,7 +201,6 @@ export default function OutfitSelection({
 
                 {/* Action Buttons Row */}
                 <div className="grid grid-cols-3 gap-3 mb-4">
-                    {/* Upload My Photos */}
                     <button
                         onClick={() => canAddMore && fileInputRef.current?.click()}
                         disabled={!canAddMore && totalOutfits > 0}
@@ -227,7 +216,6 @@ export default function OutfitSelection({
                         <span className={`text-xs font-medium ${canAddMore ? 'text-gray-900' : 'text-gray-400'}`}>Upload</span>
                     </button>
 
-                    {/* Browse Wardrobe */}
                     <button
                         onClick={() => setShowWardrobe(true)}
                         className="p-4 rounded-xl border-2 border-purple-200 bg-purple-50 hover:bg-purple-100 flex flex-col items-center gap-2 transition-all"
@@ -236,7 +224,6 @@ export default function OutfitSelection({
                         <span className="text-xs font-medium text-gray-900">Wardrobe</span>
                     </button>
 
-                    {/* Skip / Let Us Style */}
                     <button
                         onClick={handleSkip}
                         className={`
@@ -252,7 +239,7 @@ export default function OutfitSelection({
                     </button>
                 </div>
 
-                {/* Selected Outfits Display Area */}
+                {/* Selected Outfits Display */}
                 {(totalOutfits > 0 || skipped) && (
                     <div className="bg-gray-50 rounded-2xl p-4">
                         {skipped ? (
@@ -281,7 +268,6 @@ export default function OutfitSelection({
                                             >
                                                 <X className="w-4 h-4" />
                                             </button>
-                                            {/* Source Badge */}
                                             <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
                                                 <p className="text-white text-[10px] truncate flex items-center gap-1">
                                                     {outfit.isUploaded ? (
@@ -294,7 +280,6 @@ export default function OutfitSelection({
                                         </div>
                                     ))}
 
-                                    {/* Add More Button (if under limit) */}
                                     {canAddMore && (
                                         <button
                                             onClick={() => fileInputRef.current?.click()}
@@ -314,7 +299,9 @@ export default function OutfitSelection({
             {/* ===== STYLING SECTION ===== */}
             <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-5 border-2 border-pink-200">
                 <div className="flex items-center gap-3 mb-5">
-                    <span className="text-2xl">✨</span>
+                    <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-white" />
+                    </div>
                     <div>
                         <h3 className="font-bold text-gray-900 text-lg">Styling Preferences</h3>
                         <p className="text-xs text-gray-500">Optional but helps us create your perfect look</p>
@@ -325,7 +312,7 @@ export default function OutfitSelection({
                 <div className="mb-5">
                     <label className="flex items-center justify-between p-3 bg-white rounded-xl cursor-pointer">
                         <div className="flex items-center gap-2">
-                            <span className="text-lg">💄</span>
+                            <Heart className="w-5 h-5 text-pink-500" />
                             <span className="font-medium text-gray-900">Do you want makeup?</span>
                         </div>
                         <div
@@ -342,7 +329,6 @@ export default function OutfitSelection({
                         </div>
                     </label>
 
-                    {/* Makeup Options (shown when toggled) */}
                     {styling.makeup && (
                         <div className="mt-3 bg-white rounded-xl p-4 space-y-2">
                             {[
@@ -390,7 +376,7 @@ export default function OutfitSelection({
                 <div className="mb-5">
                     <label className="flex items-center justify-between p-3 bg-white rounded-xl cursor-pointer">
                         <div className="flex items-center gap-2">
-                            <span className="text-lg">✂️</span>
+                            <Scissors className="w-5 h-5 text-purple-600" />
                             <span className="font-medium text-gray-900">Hairstyle preference?</span>
                         </div>
                         <div
@@ -407,7 +393,6 @@ export default function OutfitSelection({
                         </div>
                     </label>
 
-                    {/* Hairstyle Text Input (shown when toggled) */}
                     {styling.hairstyle && (
                         <div className="mt-3">
                             <input
@@ -424,10 +409,9 @@ export default function OutfitSelection({
                 {/* === BACKGROUND === */}
                 <div>
                     {hasMandatoryBackground ? (
-                        // Mandatory Background - Cannot Edit
                         <div className="p-3 bg-gray-100 rounded-xl">
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-lg">🎨</span>
+                                <Palette className="w-5 h-5 text-blue-600" />
                                 <span className="font-medium text-gray-900">Background</span>
                                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
                                     Default for {packageName}
@@ -436,11 +420,10 @@ export default function OutfitSelection({
                             <p className="text-sm text-gray-700 font-medium pl-7">{hasMandatoryBackground}</p>
                         </div>
                     ) : (
-                        // Optional Background Toggle
                         <>
                             <label className="flex items-center justify-between p-3 bg-white rounded-xl cursor-pointer">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-lg">🎨</span>
+                                    <Palette className="w-5 h-5 text-orange-500" />
                                     <span className="font-medium text-gray-900">Background preference?</span>
                                 </div>
                                 <div
@@ -457,7 +440,6 @@ export default function OutfitSelection({
                                 </div>
                             </label>
 
-                            {/* Background Text Input (shown when toggled) */}
                             {styling.background && (
                                 <div className="mt-3">
                                     <input
@@ -474,21 +456,25 @@ export default function OutfitSelection({
                 </div>
             </div>
 
-            <p className="text-xs text-gray-500 text-center mt-4">
-                💡 Our team will contact you for further clarity on styling
+            <p className="text-xs text-gray-500 text-center mt-4 flex items-center justify-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                Our team will contact you for further clarity on styling
             </p>
 
-            {/* Wardrobe Modal with Search */}
+            {/* Wardrobe Modal */}
             {showWardrobe && (
                 <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setShowWardrobe(false)}>
                     <div
                         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90vh] overflow-hidden flex flex-col"
                         onClick={e => e.stopPropagation()}
                     >
-                        {/* Modal Header */}
+                        {/* STICKY Modal Header */}
                         <div className="sticky top-0 bg-white border-b border-gray-100 p-4 z-10">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold">Browse Wardrobe</h3>
+                                <div className="flex items-center gap-2">
+                                    <Shirt className="w-5 h-5 text-purple-600" />
+                                    <h3 className="text-lg font-bold">Browse Wardrobe</h3>
+                                </div>
                                 <div className="flex items-center gap-3">
                                     <span className={`text-sm font-medium ${totalOutfits >= packageOutfits ? 'text-green-600' : 'text-gray-500'}`}>
                                         {totalOutfits}/{packageOutfits}
@@ -594,7 +580,6 @@ export default function OutfitSelection({
                                                     className="w-full h-full object-cover"
                                                 />
 
-                                                {/* Selection Overlay */}
                                                 {isSelected && (
                                                     <div className="absolute inset-0 bg-[#D4AF37]/30 flex items-center justify-center">
                                                         <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center">
@@ -603,7 +588,6 @@ export default function OutfitSelection({
                                                     </div>
                                                 )}
 
-                                                {/* Info Badge */}
                                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
                                                     <p className="text-white text-xs font-bold truncate">{outfit.name}</p>
                                                     <p className="text-white/70 text-[10px]">{outfit.category}</p>

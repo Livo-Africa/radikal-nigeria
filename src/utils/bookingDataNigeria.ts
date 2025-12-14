@@ -1,9 +1,10 @@
 // src/utils/bookingDataNigeria.ts
 // All category, package, and add-on data for Nigeria booking flow
+// Using icon names for Lucide icon rendering
 
 export interface Category {
     id: 'professional' | 'graduation' | 'birthday' | 'group' | 'jersey';
-    icon: string;
+    iconName: string; // Lucide icon name
     label: string;
     priceRange: string;
 }
@@ -12,12 +13,12 @@ export interface Package {
     id: string;
     name: string;
     price: number;
-    basePrice?: number; // For group packages
+    basePrice?: number;
     images: number;
     outfits: number;
     popular?: boolean;
     description: string;
-    addOns?: Record<string, number>; // For group size pricing
+    addOns?: Record<string, number>;
 }
 
 export interface AddOn {
@@ -25,37 +26,38 @@ export interface AddOn {
     name: string;
     price: number;
     description?: string;
+    iconName?: string;
 }
 
-// Category data
+// Category data - using Lucide icon names
 export const CATEGORIES: Category[] = [
     {
         id: 'professional',
-        icon: '💼',
+        iconName: 'Briefcase',
         label: 'Professional',
         priceRange: '₦2,500+'
     },
     {
         id: 'graduation',
-        icon: '🎓',
+        iconName: 'GraduationCap',
         label: 'Graduation',
         priceRange: '₦7,500+'
     },
     {
         id: 'birthday',
-        icon: '🎉',
+        iconName: 'PartyPopper',
         label: 'Birthday',
         priceRange: '₦4,500+'
     },
     {
         id: 'group',
-        icon: '👥',
+        iconName: 'Users',
         label: 'Group/Family',
         priceRange: '₦8,500+'
     },
     {
         id: 'jersey',
-        icon: '⚽',
+        iconName: 'Trophy',
         label: 'Jersey Shoot',
         priceRange: '₦1,500+'
     }
@@ -178,13 +180,13 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
     ]
 };
 
-// Add-ons
+// Add-ons with Lucide icon names
 export const ADD_ONS: AddOn[] = [
-    { id: 'extra-image', name: 'Extra Image', price: 500, description: 'One additional edited photo' },
-    { id: 'extra-outfit', name: 'Extra Outfit', price: 1000, description: 'One additional outfit change' },
-    { id: 'advanced-retouch', name: 'Advanced Retouch', price: 1500, description: 'Professional skin smoothing' },
-    { id: 'body-restructuring', name: 'Body Restructuring', price: 3000, description: 'Subtle body shaping' },
-    { id: 'rush-delivery', name: 'Rush Delivery', price: 1000, description: 'Get photos in 1 hour' }
+    { id: 'extra-image', name: 'Extra Image', price: 500, description: 'One additional edited photo', iconName: 'ImagePlus' },
+    { id: 'extra-outfit', name: 'Extra Outfit', price: 1000, description: 'One additional outfit change', iconName: 'Shirt' },
+    { id: 'advanced-retouch', name: 'Advanced Retouch', price: 1500, description: 'Professional skin smoothing', iconName: 'Sparkles' },
+    { id: 'body-restructuring', name: 'Body Restructuring', price: 3000, description: 'Subtle body shaping', iconName: 'Wand2' },
+    { id: 'rush-delivery', name: 'Rush Delivery', price: 1000, description: 'Get photos in 1 hour', iconName: 'Zap' }
 ];
 
 // Helper tips for each section
@@ -259,13 +261,13 @@ export function generateOrderId(): string {
 
 // WhatsApp deep link generator - Message FROM client TO team
 export function generateWhatsAppLink(orderId: string, packageName: string, amount: number, businessNumber: string = '233207472307'): string {
-    const message = `Hi Radikal Team! 👋
+    const message = `Hi Radikal Team!
 
 I just booked a photoshoot and would like to track my order.
 
-📌 Order ID: ${orderId}
-📦 Package: ${packageName}
-💰 Amount: ₦${amount.toLocaleString()}
+Order ID: ${orderId}
+Package: ${packageName}
+Amount: ₦${amount.toLocaleString()}
 
 Please let me know the status of my order. Thank you!`;
 

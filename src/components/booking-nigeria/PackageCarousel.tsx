@@ -1,9 +1,10 @@
 // src/components/booking-nigeria/PackageCarousel.tsx
-// Horizontal swipe carousel for package selection
+// Horizontal swipe carousel for package selection with Lucide icons
 
 'use client';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { Package, PACKAGES_BY_CATEGORY, formatNaira, calculateGroupPrice } from '@/utils/bookingDataNigeria';
+import { Camera, Shirt, Zap, Star, Check } from 'lucide-react';
 
 interface PackageCarouselProps {
     category: string;
@@ -27,7 +28,6 @@ export default function PackageCarousel({
 
     const handleSelect = (pkg: Package) => {
         onSelect(pkg);
-        // Trigger confetti animation
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 1500);
     };
@@ -56,7 +56,7 @@ export default function PackageCarousel({
 
     return (
         <div className="w-full relative">
-            {/* Section Header - BIGGER AND MORE READABLE */}
+            {/* Section Header */}
             <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Choose Package
@@ -66,7 +66,7 @@ export default function PackageCarousel({
                 </p>
             </div>
 
-            {/* Group Size Stepper (only for group category) */}
+            {/* Group Size Stepper */}
             {isGroupCategory && (
                 <div className="flex items-center justify-center gap-4 mb-6 bg-gray-50 rounded-2xl p-4 mx-4">
                     <span className="text-gray-700 font-medium">People:</span>
@@ -116,8 +116,9 @@ export default function PackageCarousel({
                         >
                             {/* Popular Badge */}
                             {pkg.popular && (
-                                <div className="bg-[#D4AF37] text-black text-xs font-bold px-3 py-1.5 text-center">
-                                    ⭐ POPULAR
+                                <div className="bg-[#D4AF37] text-black text-xs font-bold px-3 py-1.5 text-center flex items-center justify-center gap-1">
+                                    <Star className="w-3 h-3 fill-current" />
+                                    POPULAR
                                 </div>
                             )}
 
@@ -135,16 +136,22 @@ export default function PackageCarousel({
 
                                 {/* Features */}
                                 <div className="space-y-3 mb-6 flex-grow">
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <span className="text-lg">📸</span>
+                                    <div className="flex items-center gap-3 text-gray-700">
+                                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <Camera className="w-4 h-4 text-blue-600" />
+                                        </div>
                                         <span>{pkg.images} Professional Photos</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <span className="text-lg">👔</span>
+                                    <div className="flex items-center gap-3 text-gray-700">
+                                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                            <Shirt className="w-4 h-4 text-purple-600" />
+                                        </div>
                                         <span>{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-700">
-                                        <span className="text-lg">⚡</span>
+                                    <div className="flex items-center gap-3 text-gray-700">
+                                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                            <Zap className="w-4 h-4 text-orange-600" />
+                                        </div>
                                         <span>1-3 Hours Delivery</span>
                                     </div>
                                 </div>
@@ -171,14 +178,21 @@ export default function PackageCarousel({
                                 {/* Selection Button */}
                                 <button
                                     className={`
-                    w-full mt-4 py-3 rounded-xl font-bold text-sm transition-all
+                    w-full mt-4 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2
                     ${isSelected
                                             ? 'bg-[#D4AF37] text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }
                   `}
                                 >
-                                    {isSelected ? '✓ Selected' : 'Select Package'}
+                                    {isSelected ? (
+                                        <>
+                                            <Check className="w-4 h-4" />
+                                            Selected
+                                        </>
+                                    ) : (
+                                        'Select Package'
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -189,7 +203,7 @@ export default function PackageCarousel({
             {/* Scroll Indicators */}
             {packages.length > 1 && (
                 <div className="flex justify-center gap-2 mt-4">
-                    {packages.map((pkg, index) => (
+                    {packages.map((pkg) => (
                         <div
                             key={pkg.id}
                             className={`w-2 h-2 rounded-full transition-all ${selectedId === pkg.id ? 'bg-[#D4AF37] w-6' : 'bg-gray-300'
