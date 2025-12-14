@@ -1,184 +1,395 @@
-// In src/app/individuals/style-journey/page.tsx - ADD MobileStepHeader
 'use client';
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Navigation from '@/components/shared/Navigation';
-import Footer from '@/components/shared/Footer';
-import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
-import Step1ShootType from '@/components/style-journey/Step1ShootType';
-import Step2Package from '@/components/style-journey/Step2Package';
-import Step3PhotoUpload from '@/components/style-journey/Step3PhotoUpload';
-import Step4OutfitSelection from '@/components/style-journey/Step4OutfitSelection';
-import Step5StyleCustomization from '@/components/style-journey/Step5StyleCustomization';
-import Step6Review from '@/components/style-journey/Step6Review';
-import Step7Payment from '@/components/style-journey/Step7Payment';
-import SessionRecovery from '@/components/style-journey/SessionRecovery';
-import MobileStepHeader from '@/components/mobile/MobileStepHeader';
-import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
-function StyleJourneyContent() {
-  const searchParams = useSearchParams();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    shootType: 'profile', // Default to avoid null issues
-    shootTypeName: 'Profile Shoot',
-    package: null as any,
-    photos: [],
-    outfits: [],
-    style: {},
-    whatsappNumber: '',
-    specialRequests: '',
-    addOns: [],
-    total: 0,
-    finalTotal: 0
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { LayoutGroup, motion, AnimatePresence } from 'framer-motion';
+import {
+  CATEGORIES,
+  PACKAGES_BY_CATEGORY,
+  ADD_ONS,
+  Category,
+  Package,
+  calculateGroupPrice,
+  generateOrderId
+} from '@/utils/bookingDataGhana';
+import { PaymentStatus, PhotoData, PhotoState, Outfit, StylingOptions } from '@/hooks/useBookingState';
+import { usePhoneValidation } from '@/hooks/usePhoneValidation';
+
+// Components
+import CategoryGrid from '@/components/booking-ghana/CategoryGrid';
+import PackageCarousel from '@/components/booking-ghana/PackageCarousel';
+import PhotoUpload from '@/components/booking-ghana/PhotoUpload';
+import ContactStyling from '@/components/booking-ghana/ContactStyling';
+import OutfitSelection from '@/components/booking-ghana/OutfitSelection';
+import StickyPaymentBar from '@/components/booking-ghana/StickyPaymentBar';
+import HelperSystem from '@/components/booking-ghana/HelperSystem';
+import SuccessScreen from '@/components/booking-ghana/SuccessScreen';
+
+export default function GhanaBookingPage() {
+  // Phone validation (Ghana default)
+  const phoneValidation = usePhoneValidation('+233');
+
+  // Core booking state
+  const [category, setCategory] = useState<string | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [groupSize, setGroupSize] = useState(2);
+
+  // Single person photo state
+  const [facePhoto, setFacePhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
+  const [bodyPhoto, setBodyPhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
+
+  // Group photos state
+  const [groupPhotos, setGroupPhotos] = useState<{ face: PhotoData; body: PhotoData }[]>([]);
+
+  // Unified outfit state
+  const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
+
+  // Styling state
+  const [styling, setStyling] = useState<StylingOptions>({
+    makeup: false,
+    makeupType: null,
+    hairstyle: false,
+    hairstyleText: '',
+    background: false,
+    backgroundText: ''
   });
 
-  // Initialize abandonment tracking globally
-  useAbandonmentTracking(formData, currentStep);
+  // Add-ons
+  const [addOns, setAddOns] = useState<string[]>([]);
 
-  // Handle Entry Points (URL Params)
+  // Payment
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
+
+  // Preloaded outfits
+  const [preloadedOutfits, setPreloadedOutfits] = useState<Outfit[]>([]);
+  const [outfitsLoading, setOutfitsLoading] = useState(false);
+
+  // Refs for auto-scrolling
+  const packageRef = useRef<HTMLDivElement>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
+  const outfitRef = useRef<HTMLDivElement>(null);
+
+  // Check if this is a group booking
+  const isGroupBooking = category === 'group';
+
+  // Initialize group photos when group size changes
   useEffect(() => {
-    const fromWardrobe = searchParams.get('fromWardrobe');
-    const outfitCount = parseInt(searchParams.get('outfitCount') || '0');
-    const stepParam = searchParams.get('step');
-
-    // Case 1: Coming from Wardrobe
-    if (fromWardrobe === 'true') {
-      // Load selected outfits from localStorage
-      if (typeof window !== 'undefined') {
-        const saved = localStorage.getItem('radikal_selected_outfits');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed.outfits && Array.isArray(parsed.outfits)) {
-
-              // Auto-select package based on outfit count (Simple logic)
-              // 1 outfit -> Basic, 2 outfits -> Standard, 3+ -> Premium
-              // Ideally we check shootType too using an effect map, but defaulting to Profile/Standard is safe
-              let autoPackageId = 'basic-profile';
-              if (outfitCount === 2) autoPackageId = 'professional-headshots';
-              if (outfitCount >= 3) autoPackageId = 'premium-portfolio';
-
-              // We need to fetch package details or just mock them for now since they are in Step2Package file
-              // For robustness, we might want to move package data to a shared constant file.
-              // For now, let's just set the outfits and skip to Step 3 (Photos)
-
-              setFormData(prev => ({
-                ...prev,
-                outfits: parsed.outfits,
-                // We leave package as null so Step 2 forces them to confirm or we auto-select if we had the data
-                // Better UX: Let them pick package in Step 2 but show "Recommended for X outfits"
-              }));
-
-              // If specific step requested, go there, else go to Step 2 (to pick package matching outfits) or Step 3
-              if (stepParam) {
-                setCurrentStep(parseInt(stepParam));
-              } else {
-                setCurrentStep(2); // Go to Package selection to confirm package
-              }
-            }
-          } catch (e) {
-            console.error('Error parsing saved outfits', e);
-          }
-        }
-      }
-    } else if (stepParam) {
-      setCurrentStep(parseInt(stepParam));
+    if (isGroupBooking) {
+      setGroupPhotos(
+        Array.from({ length: groupSize }, () => ({
+          face: { file: null, url: '', state: 'empty' as PhotoState },
+          body: { file: null, url: '', state: 'empty' as PhotoState }
+        }))
+      );
     }
-  }, [searchParams]);
+  }, [groupSize, isGroupBooking]);
 
-  const steps = [
-    { number: 1, title: 'Shoot Type', component: Step1ShootType },
-    { number: 2, title: 'Package', component: Step2Package },
-    { number: 3, title: 'Photos', component: Step3PhotoUpload },
-    { number: 4, title: 'Outfits', component: Step4OutfitSelection },
-    { number: 5, title: 'Style', component: Step5StyleCustomization },
-    { number: 6, title: 'Review', component: Step6Review },
-    { number: 7, title: 'Payment', component: Step7Payment },
-  ];
+  // Preload outfits when page loads
+  useEffect(() => {
+    fetchOutfits();
+  }, []);
 
-  const CurrentStepComponent = steps[currentStep - 1]?.component;
+  const fetchOutfits = async () => {
+    try {
+      setOutfitsLoading(true);
+      const response = await fetch('/api/outfits'); // Keeping same API for now
+      const data = await response.json();
+      if (data.outfits) {
+        setPreloadedOutfits(data.outfits);
+      }
+    } catch (error) {
+      console.error('Failed to load outfits:', error);
+    } finally {
+      setOutfitsLoading(false);
+    }
+  };
 
-  // Step titles for mobile header
-  const stepTitles = [
-    'Choose Shoot Type',
-    'Select Package',
-    'Upload Photos',
-    'Choose Outfits',
-    'Customize Style',
-    'Review Order',
-    'Complete Payment'
-  ];
+  // Calculate total
+  const calculateTotal = useCallback(() => {
+    if (!selectedPackage) return 0;
+
+    let total = category === 'group' && selectedPackage.basePrice
+      ? calculateGroupPrice(selectedPackage, groupSize)
+      : selectedPackage.price;
+
+    addOns.forEach(addOnId => {
+      const addOn = ADD_ONS.find(a => a.id === addOnId);
+      if (addOn) total += addOn.price;
+    });
+
+    return total;
+  }, [selectedPackage, category, groupSize, addOns]);
+
+  // Auto-scroll when category is selected
+  useEffect(() => {
+    if (category && packageRef.current) {
+      setTimeout(() => {
+        packageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [category]);
+
+  // Auto-scroll when package is selected
+  useEffect(() => {
+    if (selectedPackage && photoRef.current) {
+      setTimeout(() => {
+        photoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [selectedPackage]);
+
+  // Handle category selection
+  const handleCategorySelect = useCallback((categoryId: string) => {
+    setCategory(categoryId);
+    setSelectedPackage(null);
+  }, []);
+
+  // Handle package selection
+  const handlePackageSelect = useCallback((pkg: Package) => {
+    setSelectedPackage(pkg);
+    setSelectedOutfits([]);
+  }, []);
+
+  // Handle face photo upload (single mode)
+  const handleFaceUpload = useCallback((file: File) => {
+    setFacePhoto({ file: null, url: '', state: 'uploading' });
+
+    const url = URL.createObjectURL(file);
+
+    setTimeout(() => {
+      setFacePhoto({ file, url, state: 'processing' });
+      setTimeout(() => {
+        setFacePhoto({ file, url, state: 'complete' });
+      }, 1000); // Simulate processing
+    }, 1500); // Simulate upload
+  }, []);
+
+  // Handle body photo upload (single mode)
+  const handleBodyUpload = useCallback((file: File) => {
+    setBodyPhoto({ file: null, url: '', state: 'uploading' });
+    const url = URL.createObjectURL(file);
+    setTimeout(() => {
+      setBodyPhoto({ file, url, state: 'processing' });
+      setTimeout(() => {
+        setBodyPhoto({ file, url, state: 'complete' });
+      }, 1000);
+    }, 1500);
+  }, []);
+
+  // Handle Add-on Toggle
+  const toggleAddOn = (addOnId: string) => {
+    setAddOns(prev =>
+      prev.includes(addOnId)
+        ? prev.filter(id => id !== addOnId)
+        : [...prev, addOnId]
+    );
+  };
+
+  // Handle Payment Processing
+  const handlePayment = async () => {
+    try {
+      setPaymentStatus('processing');
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Create Order
+      const newOrderId = generateOrderId();
+      setOrderId(newOrderId);
+      setPaymentStatus('success');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (error) {
+      console.error('Payment failed:', error);
+      setPaymentStatus('failed');
+    }
+  };
+
+  // Reset Booking
+  const handleNewBooking = () => {
+    setCategory(null);
+    setSelectedPackage(null);
+    setFacePhoto({ file: null, url: '', state: 'empty' });
+    setBodyPhoto({ file: null, url: '', state: 'empty' });
+    setGroupPhotos([]);
+    setSelectedOutfits([]);
+    setStyling({
+      makeup: false,
+      makeupType: null,
+      hairstyle: false,
+      hairstyleText: '',
+      background: false,
+      backgroundText: ''
+    });
+    setAddOns([]);
+    setPaymentStatus('idle');
+    setOrderId(null);
+    phoneValidation.reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Render Success Screen
+  if (paymentStatus === 'success' && orderId && selectedPackage) {
+    return (
+      <SuccessScreen
+        orderId={orderId}
+        packageName={selectedPackage.name}
+        amount={calculateTotal()}
+        whatsappNumber={phoneValidation.fullNumber}
+        onNewBooking={handleNewBooking}
+      />
+    );
+  }
+
+  // Determine if payment is enabled
+  // Basic validation: Category -> Package -> Photos (optional but recommended) -> Phone -> Outfits (optional)
+  const isPaymentEnabled =
+    !!category &&
+    !!selectedPackage &&
+    phoneValidation.isValid;
 
   return (
-    <>
-      <Navigation />
+    <div className="min-h-screen bg-gray-50 pb-32">
+      <LayoutGroup>
+        <div className="max-w-md mx-auto px-4 py-8 space-y-12">
 
-      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-20 lg:pt-0 pb-32">
-        <SessionRecovery
-          formData={formData}
-          setFormData={setFormData}
-          currentStep={currentStep}
-          setCurrentStep={setCurrentStep}
-        />
-
-        {/* Mobile Header - Shows on all steps */}
-        <MobileStepHeader
-          title={stepTitles[currentStep - 1]}
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          showBack={currentStep > 1}
-          onBack={currentStep > 1 ? () => setCurrentStep(currentStep - 1) : undefined}
-        />
-
-        {/* Progress Bar - Desktop Only */}
-        <div className="hidden lg:block container mx-auto px-4 py-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-medium text-gray-700">
-                Step {currentStep} of {steps.length}
-              </span>
-              <span className="text-sm font-bold text-[#D4AF37]">
-                {Math.round((currentStep / steps.length) * 100)}% Complete
-              </span>
-            </div>
-
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] h-3 rounded-full transition-all duration-700 ease-out"
-                style={{ width: `${(currentStep / steps.length) * 100}%` }}
-              ></div>
-            </div>
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-black bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
+              RADIKAL GHANA
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Premium AI Photoshoots in Accra
+            </p>
           </div>
-        </div>
 
-        {/* Current Step Content */}
-        <div className="container mx-auto px-0 lg:px-4">
-          {CurrentStepComponent && (
-            <CurrentStepComponent
-              formData={formData}
-              setFormData={setFormData}
-              currentStep={currentStep}
-              setCurrentStep={setCurrentStep}
+          {/* Step 1: Category Selection */}
+          <section>
+            <div className="flex items-center justify-between mb-2">
+              {category && <span className="text-xs font-bold text-gray-400">STEP 1</span>}
+              <HelperSystem section="category" />
+            </div>
+            <CategoryGrid
+              selectedId={category}
+              onSelect={handleCategorySelect}
             />
-          )}
+          </section>
+
+          {/* Step 2: Package Selection */}
+          <AnimatePresence>
+            {category && (
+              <motion.section
+                ref={packageRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-gray-400">STEP 2</span>
+                  <HelperSystem section="package" />
+                </div>
+                <PackageCarousel
+                  category={category}
+                  selectedId={selectedPackage?.id || null}
+                  onSelect={handlePackageSelect}
+                  groupSize={groupSize}
+                  onGroupSizeChange={setGroupSize}
+                />
+              </motion.section>
+            )}
+          </AnimatePresence>
+
+          {/* Step 3: Photos & Outfits & Details */}
+          <AnimatePresence>
+            {selectedPackage && (
+              <motion.div
+                ref={photoRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-12"
+              >
+                {/* Photo Upload */}
+                <section>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-gray-400">STEP 3</span>
+                    <HelperSystem section="photos" />
+                  </div>
+                  <PhotoUpload
+                    faceState={facePhoto.state}
+                    faceImage={facePhoto.url}
+                    bodyState={bodyPhoto.state}
+                    bodyImage={bodyPhoto.url}
+                    onFaceUpload={handleFaceUpload}
+                    onBodyUpload={handleBodyUpload}
+                    isGroupMode={isGroupBooking}
+                    groupSize={groupSize}
+                    groupPhotos={groupPhotos}
+                    onGroupPhotoUpload={(index, type, file) => {
+                      // Implement group photo logic if needed
+                      // Simplified for migration first pass
+                    }}
+                  />
+                </section>
+
+                {/* Outfit Selection */}
+                <section ref={outfitRef}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-gray-400">STEP 4</span>
+                    <HelperSystem section="outfits" />
+                  </div>
+                  <OutfitSelection
+                    packageOutfits={selectedPackage.outfits}
+                    packageName={selectedPackage.name}
+                    category={category!}
+                    selectedOutfits={selectedOutfits}
+                    onOutfitsChange={setSelectedOutfits}
+                    styling={styling}
+                    onStylingChange={(updates) => setStyling(prev => ({ ...prev, ...updates }))}
+                    preloadedOutfits={preloadedOutfits}
+                    outfitsLoading={outfitsLoading}
+                  />
+                </section>
+
+                {/* Contact Details */}
+                <section>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-gray-400">STEP 5</span>
+                    <HelperSystem section="phone" />
+                  </div>
+                  <ContactStyling
+                    countryCode={phoneValidation.countryCode}
+                    phoneNumber={phoneValidation.localNumber}
+                    onPhoneChange={(code, number) => {
+                      if (code !== phoneValidation.countryCode) {
+                        phoneValidation.setCountryCode(code);
+                      }
+                      phoneValidation.setLocalNumber(number);
+                    }}
+                    isPhoneValid={phoneValidation.isValid}
+                    phoneError={phoneValidation.error}
+                  />
+                </section>
+
+                {/* Spacer for bottom bar */}
+                <div className="h-24" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Sticky Payment Bar */}
+          <StickyPaymentBar
+            package={selectedPackage}
+            groupSize={groupSize}
+            selectedAddOns={addOns}
+            onToggleAddOn={toggleAddOn}
+            total={calculateTotal()}
+            isEnabled={isPaymentEnabled}
+            onPay={handlePayment}
+            isLoading={paymentStatus === 'processing'}
+          />
+
         </div>
-      </main>
-
-      <Footer />
-      <WhatsAppFloat />
-    </>
-  );
-}
-
-export default function StyleJourney() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-pulse text-[#D4AF37] font-semibold">Loading Style Journey...</div>
-      </div>
-    }>
-      <StyleJourneyContent />
-    </Suspense>
+      </LayoutGroup>
+    </div>
   );
 }

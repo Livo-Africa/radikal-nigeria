@@ -5,9 +5,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Package, AddOn, ADD_ONS, calculateGroupPrice } from '@/utils/bookingDataNigeria';
 
 // Photo state types
-type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
+export type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
 
-interface PhotoData {
+export interface PhotoData {
     file: File | null;
     url: string;
     state: PhotoState;
@@ -17,7 +17,29 @@ interface PhotoData {
 type OutfitMethod = 'upload' | 'wardrobe' | 'auto' | null;
 
 // Payment status types
-type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
+export type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
+
+export interface Outfit {
+    id: string;
+    name: string;
+    category: string;
+    imageUrl: string;
+    tags: string[];
+    available: boolean;
+    gender?: string;
+    isUploaded?: boolean;
+    file?: File;
+    previewUrl?: string;
+}
+
+export interface StylingOptions {
+    makeup: boolean;
+    makeupType: 'light' | 'heavy' | 'glam' | null;
+    hairstyle: boolean;
+    hairstyleText: string;
+    background: boolean;
+    backgroundText: string;
+}
 
 // Complete booking state interface
 export interface BookingState {
