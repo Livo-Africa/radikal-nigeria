@@ -173,6 +173,7 @@ interface UsePhoneValidationReturn {
     setCountryCode: (code: string) => void;
     setLocalNumber: (number: string) => void;
     validate: () => PhoneValidationResult;
+    reset: () => void;
 }
 
 export function usePhoneValidation(defaultCountryCode: string = '+234'): UsePhoneValidationReturn {
@@ -197,6 +198,11 @@ export function usePhoneValidation(defaultCountryCode: string = '+234'): UsePhon
 
     const validationResult = validatePhoneByCountry(localNumber, countryCode);
 
+    const reset = useCallback(() => {
+        setCountryCode(defaultCountryCode);
+        setLocalNumber('');
+    }, [defaultCountryCode]);
+
     return {
         countryCode,
         localNumber,
@@ -206,7 +212,8 @@ export function usePhoneValidation(defaultCountryCode: string = '+234'): UsePhon
         countryConfig,
         setCountryCode,
         setLocalNumber: handleLocalNumberChange,
-        validate
+        validate,
+        reset
     };
 }
 

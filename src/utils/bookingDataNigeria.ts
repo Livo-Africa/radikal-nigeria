@@ -256,7 +256,8 @@ export function formatNaira(amount: number): string {
 // Generate order ID
 export function generateOrderId(): string {
     const timestamp = Date.now().toString().slice(-6);
-    return `RAD-${timestamp}`;
+    const random = Math.random().toString(36).substring(2, 5).toUpperCase();
+    return `RAD-${timestamp}-${random}`;
 }
 
 // WhatsApp deep link generator - Message FROM client TO team

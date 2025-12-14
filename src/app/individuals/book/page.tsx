@@ -337,11 +337,13 @@ export default function NigeriaBookingPage() {
             } else {
                 console.error('Order submission failed:', result.error);
                 setPaymentStatus('failed');
+                alert(`Order failed to submit: ${result.error || 'Unknown error'}. Please try again.`);
             }
 
         } catch (error) {
             console.error('Payment error:', error);
             setPaymentStatus('failed');
+            alert('Something went wrong with the payment/booking submission. Please check your connection and try again.');
         }
     }, [
         selectedPackage, category, groupSize, selectedOutfits,
@@ -369,8 +371,9 @@ export default function NigeriaBookingPage() {
         setAddOns([]);
         setOrderId(null);
         setPaymentStatus('idle');
+        phoneValidation.reset();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    }, [phoneValidation]);
 
     // Show success screen
     if (paymentStatus === 'success' && orderId) {
