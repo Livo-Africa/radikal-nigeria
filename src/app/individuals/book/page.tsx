@@ -590,6 +590,7 @@ export default function NigeriaBookingPage() {
                 amount={paystackConfig.amount}
                 publicKey={paystackConfig.publicKey}
                 reference={paystackConfig.reference}
+                currency="NGN"
                 onSuccess={handlePaystackSuccess}
                 onClose={handlePaystackClose}
                 trigger={triggerPaystack}

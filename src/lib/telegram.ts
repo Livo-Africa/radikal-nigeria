@@ -116,10 +116,9 @@ export function formatOrderForTelegram(order: any) {
         ? addOns.join(', ')
         : 'None';
 
-    // Detect currency based on shoot type or use amount format
-    const isNigeria = shootType === 'professional' || shootType === 'graduation' ||
-        shootType === 'birthday' || shootType === 'group' || shootType === 'jersey';
-    const currency = isNigeria ? 'NGN' : 'GHS';
+    // Detect currency based on Order ID prefix (RAD-GH means Ghana)
+    const isGhana = orderId?.toString().includes('RAD-GH');
+    const currency = isGhana ? 'GHS' : 'NGN';
 
     // Group size info
     const groupInfo = groupSize ? `\n👥 <b>Group Size:</b> ${groupSize} people` : '';

@@ -1,4 +1,5 @@
 'use client';
+import dynamic from 'next/dynamic';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LayoutGroup, motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +25,12 @@ import StickyPaymentBar from '@/components/booking-ghana/StickyPaymentBar';
 import HelperSystem from '@/components/booking-ghana/HelperSystem';
 import SuccessScreen from '@/components/booking-ghana/SuccessScreen';
 
+// Dynamic import for Paystack to avoid SSR window issues
+const PaystackHandler = dynamic(
+  () => import('@/components/booking-nigeria/PaystackHandler'),
+  { ssr: false }
+);
+
 export default function GhanaBookingPage() {
   // Phone validation (Ghana default)
   const phoneValidation = usePhoneValidation('+233');
@@ -35,7 +42,7 @@ export default function GhanaBookingPage() {
 
   // Single person photo state
   const [facePhoto, setFacePhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
-  const [bodyPhoto, setBodyPhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
+  const [bodyPhoto, setBodyData] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
 
   // Group photos state
   const [groupPhotos, setGroupPhotos] = useState<{ face: PhotoData; body: PhotoData }[]>([]);
@@ -63,6 +70,15 @@ export default function GhanaBookingPage() {
   // Preloaded outfits
   const [preloadedOutfits, setPreloadedOutfits] = useState<Outfit[]>([]);
   const [outfitsLoading, setOutfitsLoading] = useState(false);
+
+  // Paystack Configuration State
+  const [paystackConfig, setPaystackConfig] = useState({
+    reference: '',
+    email: '',
+    amount: 0,
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_80bc62ffbd037a464869dfcd01dc89b1a901ed33',
+  });
+  const [triggerPaystack, setTriggerPaystack] = useState(false);
 
   // Refs for auto-scrolling
   const packageRef = useRef<HTMLDivElement>(null);
@@ -166,12 +182,12 @@ export default function GhanaBookingPage() {
 
   // Handle body photo upload (single mode)
   const handleBodyUpload = useCallback((file: File) => {
-    setBodyPhoto({ file: null, url: '', state: 'uploading' });
+    setBodyData({ file: null, url: '', state: 'uploading' });
     const url = URL.createObjectURL(file);
     setTimeout(() => {
-      setBodyPhoto({ file, url, state: 'processing' });
+      setBodyData({ file, url, state: 'processing' });
       setTimeout(() => {
-        setBodyPhoto({ file, url, state: 'complete' });
+        setBodyData({ file, url, state: 'complete' });
       }, 1000);
     }, 1500);
   }, []);
@@ -185,32 +201,139 @@ export default function GhanaBookingPage() {
     );
   };
 
-  // Handle Payment Processing
-  const handlePayment = async () => {
+  // Submit Order logic (from Nigeria flow)
+  const submitOrder = useCallback(async (paymentReference?: any) => {
+    if (!selectedPackage || !orderId) return;
+
     try {
-      setPaymentStatus('processing');
+      const orderData = {
+        orderId,
+        paymentReference,
+        shootType: category,
+        shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
+        package: {
+          id: selectedPackage.id,
+          name: selectedPackage.name,
+          price: selectedPackage.price,
+          images: selectedPackage.images,
+          outfits: selectedPackage.outfits
+        },
+        groupSize: category === 'group' ? groupSize : undefined,
+        outfits: selectedOutfits.map(o => ({
+          id: o.id,
+          name: o.name,
+          image: o.imageUrl || o.previewUrl,
+          category: o.category,
+          uploaded: o.isUploaded || false
+        })),
+        style: {
+          makeup: {
+            selectedName: styling.makeup
+              ? (styling.makeupType === 'light' ? 'Light Makeup' :
+                styling.makeupType === 'heavy' ? 'Heavy Makeup' :
+                  styling.makeupType === 'glam' ? 'Glam Makeup' : 'Yes')
+              : 'No'
+          },
+          hairstyle: { customDescription: styling.hairstyle ? styling.hairstyleText : 'Not specified' },
+          background: { customDescription: styling.background ? styling.backgroundText : 'Not specified' }
+        },
+        whatsappNumber: phoneValidation.fullNumber,
+        specialRequests: '',
+        addOns: addOns,
+        finalTotal: calculateTotal(),
+        timestamp: new Date().toISOString()
+      };
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const formData = new FormData();
+      formData.append('orderData', JSON.stringify(orderData));
 
-      // Create Order
-      const newOrderId = generateOrderId();
-      setOrderId(newOrderId);
-      setPaymentStatus('success');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Append photos based on mode
+      if (isGroupBooking) {
+        groupPhotos.forEach((person, index) => {
+          if (person.face.file) {
+            formData.append(`photo_face_${index}`, person.face.file);
+          }
+          if (person.body.file) {
+            formData.append(`photo_body_${index}`, person.body.file);
+          }
+        });
+      } else {
+        if (facePhoto.file) {
+          formData.append('photo_face', facePhoto.file);
+        }
+        if (bodyPhoto.file) {
+          formData.append('photo_body', bodyPhoto.file);
+        }
+      }
+
+      // Append uploaded outfit files
+      selectedOutfits.forEach((outfit, index) => {
+        if (outfit.isUploaded && outfit.file) {
+          formData.append(`outfit_upload_${index}`, outfit.file);
+        }
+      });
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setPaymentStatus('success');
+      } else {
+        console.error('Order submission failed:', result.error);
+        setPaymentStatus('failed');
+        alert(`Order failed to submit: ${result.error || 'Unknown error'}. Please try again.`);
+      }
 
     } catch (error) {
-      console.error('Payment failed:', error);
+      console.error('Payment error:', error);
       setPaymentStatus('failed');
+      alert('Something went wrong with the booking submission. Please check your connection and try again.');
     }
-  };
+  }, [
+    selectedPackage, category, groupSize, selectedOutfits,
+    styling, phoneValidation.fullNumber, addOns,
+    calculateTotal, facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking, orderId
+  ]);
+
+  // Handle Paystack Callbacks
+  const handlePaystackSuccess = useCallback((reference: any) => {
+    submitOrder(reference);
+  }, [submitOrder]);
+
+  const handlePaystackClose = useCallback(() => {
+    setPaymentStatus('failed');
+    alert('Payment cancelled. Please try again.');
+  }, []);
+
+  // Handle Payment Button Click
+  const handlePayment = useCallback(() => {
+    if (!selectedPackage) return;
+
+    setPaymentStatus('processing');
+    const newOrderId = generateOrderId();
+    setOrderId(newOrderId);
+
+    setPaystackConfig({
+      reference: newOrderId,
+      email: `order-${newOrderId}@radikal.ng`, // Dummy email matches Nigeria flow
+      amount: calculateTotal() * 100, // Paystack uses smallest currency unit (kobo/pesewas)
+      publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_80bc62ffbd037a464869dfcd01dc89b1a901ed33',
+    });
+
+    setTimeout(() => setTriggerPaystack(true), 100);
+
+  }, [selectedPackage, calculateTotal]);
 
   // Reset Booking
   const handleNewBooking = () => {
     setCategory(null);
     setSelectedPackage(null);
     setFacePhoto({ file: null, url: '', state: 'empty' });
-    setBodyPhoto({ file: null, url: '', state: 'empty' });
+    setBodyData({ file: null, url: '', state: 'empty' });
     setGroupPhotos([]);
     setSelectedOutfits([]);
     setStyling({
@@ -386,6 +509,19 @@ export default function GhanaBookingPage() {
             isEnabled={isPaymentEnabled}
             onPay={handlePayment}
             isLoading={paymentStatus === 'processing'}
+          />
+
+          {/* Paystack Integration */}
+          <PaystackHandler
+            email={paystackConfig.email}
+            amount={paystackConfig.amount}
+            publicKey={paystackConfig.publicKey}
+            reference={paystackConfig.reference}
+            currency="GHS"
+            onSuccess={handlePaystackSuccess}
+            onClose={handlePaystackClose}
+            trigger={triggerPaystack}
+            setTrigger={setTriggerPaystack}
           />
 
         </div>
