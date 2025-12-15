@@ -16,6 +16,7 @@ import { PaymentStatus, PhotoData, PhotoState, Outfit, StylingOptions } from '@/
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
 
 // Components
+import Navigation from '@/components/shared/Navigation';
 import CategoryGrid from '@/components/booking-ghana/CategoryGrid';
 import PackageCarousel from '@/components/booking-ghana/PackageCarousel';
 import PhotoUpload from '@/components/booking-ghana/PhotoUpload';
@@ -203,12 +204,17 @@ export default function GhanaBookingPage() {
 
   // Submit Order logic (from Nigeria flow)
   const submitOrder = useCallback(async (paymentReference?: any) => {
-    if (!selectedPackage || !orderId) return;
+    console.log('🚀 submitOrder called with reference:', paymentReference);
+
+    if (!selectedPackage || !orderId) {
+      console.error('❌ Missing package or orderId', { selectedPackage, orderId });
+      return;
+    }
 
     try {
       const orderData = {
         orderId,
-        paymentReference,
+        paymentReference, // Expecting { reference: "..." } or string
         shootType: category,
         shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
         package: {
@@ -372,6 +378,7 @@ export default function GhanaBookingPage() {
     phoneValidation.isValid;
 
   return (
+
     <div className="min-h-screen bg-gray-50 pb-32">
       <LayoutGroup>
         <div className="max-w-md mx-auto px-4 py-8 space-y-12">

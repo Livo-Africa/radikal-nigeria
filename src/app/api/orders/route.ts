@@ -1,3 +1,5 @@
+//src/app/api/orders/route.ts
+
 import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendTelegramMessage, sendTelegramPhoto, formatOrderForTelegram } from '@/lib/telegram';
@@ -30,6 +32,7 @@ async function verifyPaystackPayment(reference: string): Promise<boolean> {
       return true; // Allow in dev/test if key missing, or fail? Better to fail safely if critical.
     }
 
+    console.log(`🔍 Verifying payment reference: ${reference}`);
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       method: 'GET',
       headers: {
@@ -38,6 +41,10 @@ async function verifyPaystackPayment(reference: string): Promise<boolean> {
     });
 
     const data = await response.json();
+    console.log('--- Paystack Verification Response ---');
+    console.log(JSON.stringify(data, null, 2));
+    console.log('--------------------------------------');
+
     return data.status && data.data.status === 'success';
   } catch (error) {
     console.error('❌ Paystack verification error:', error);
