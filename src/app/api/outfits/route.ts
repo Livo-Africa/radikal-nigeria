@@ -49,6 +49,19 @@ export async function GET(request: Request) {
       outfits = outfits.filter(outfit => outfit.category === category);
     }
 
+    // Gender Filter
+    const gender = searchParams.get('gender');
+    if (gender && gender !== 'All') {
+      const g = gender.toUpperCase();
+      outfits = outfits.filter(outfit => {
+        const outfitGender = (outfit.gender || '').toUpperCase();
+        const isUnisex = outfitGender === 'UNISEX' || outfitGender === 'U';
+        if (g === 'M' || g === 'MALE') return outfitGender === 'MALE' || outfitGender === 'M' || isUnisex;
+        if (g === 'F' || g === 'FEMALE') return outfitGender === 'FEMALE' || outfitGender === 'F' || isUnisex;
+        return true;
+      });
+    }
+
     if (search) {
       const searchLower = search.toLowerCase();
       outfits = outfits.filter(outfit =>

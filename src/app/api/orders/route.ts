@@ -1,4 +1,3 @@
-// src/app/api/orders/route.ts
 import { google } from 'googleapis';
 import { NextRequest, NextResponse } from 'next/server';
 import { sendTelegramMessage, sendTelegramPhoto, formatOrderForTelegram } from '@/lib/telegram';
@@ -49,6 +48,7 @@ export async function POST(request: NextRequest) {
       style = {},
       whatsappNumber,
       specialRequests = '',
+      paymentReference,
       addOns = [],
       finalTotal,
       timestamp = new Date().toISOString()
@@ -134,6 +134,10 @@ export async function POST(request: NextRequest) {
       // Photo Status
       const photoStatus = files.length > 0 ? `Uploaded ${files.length} photos` : 'No photos uploaded';
 
+      // Format Paystack Reference for Status
+      const paystackRef = paymentReference?.reference || paymentReference;
+      const status = paystackRef ? `Paid (Ref: ${paystackRef})` : 'Received';
+
       // Row Data matching the user's requested format:
       // ID, Phone, Package, Amount, Outfits, Hairstyle, Makeup, Background, Status, Timestamp, Shoot Type, Add-ons, Notes
       const rowData = [
@@ -145,7 +149,7 @@ export async function POST(request: NextRequest) {
         hairstyle,                                // Hairstyle
         makeup,                                   // Makeup
         background,                               // Background
-        'Received',                               // Status
+        status,                                   // Status (Updated with Payment Ref)
         timestamp,                                // Timestamp
         shootTypeName || shootType || 'Not specified', // Shoot Type
         addOnsString,                             // Add-ons
@@ -163,37 +167,20 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      console.log('✅ Order saved to Google Sheets');
+      console.log('✅ Logged to Google Sheet');
+
     } catch (sheetError) {
-      console.error('❌ Failed to save to Google Sheets:', sheetError);
-      // Don't fail the whole request if sheet logging fails, but log it
+      console.error('❌ Failed to log to Google Sheets:', sheetError);
+      // Non-blocking but good to log
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Order processed successfully',
-        orderId
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, orderId });
 
   } catch (error) {
     console.error('❌ Error processing order:', error);
-
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to process order',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { success: false, error: 'Internal server error while processing order' },
       { status: 500 }
     );
   }
-}
-
-// GET endpoint remains the same for testing
-export async function GET() {
-  // ... existing GET ...
-  return NextResponse.json({ message: 'Use POST to submit orders' });
 }

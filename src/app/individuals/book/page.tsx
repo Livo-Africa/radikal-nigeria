@@ -15,6 +15,7 @@ import {
     SuccessScreen
 } from '@/components/booking-nigeria';
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
+import { usePaystackPayment } from 'react-paystack';
 import { Package, generateOrderId, calculateGroupPrice, ADD_ONS } from '@/utils/bookingDataNigeria';
 
 // Types
@@ -237,6 +238,7 @@ export default function NigeriaBookingPage() {
     }, []);
 
     // Handle add-on toggle
+    // Handle add-on toggle
     const handleAddOnToggle = useCallback((addOnId: string) => {
         setAddOns(prev =>
             prev.includes(addOnId)
@@ -245,22 +247,46 @@ export default function NigeriaBookingPage() {
         );
     }, []);
 
-    // Handle payment
-    const handlePayment = useCallback(async () => {
-        if (!selectedPackage) return;
+    // Paystack Configuration State
+    const [paystackConfig, setPaystackConfig] = useState({
+        reference: '',
+        email: '',
+        amount: 0,
+        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_80bc62ffbd037a464869dfcd01dc89b1a901ed33',
+    });
+    const [triggerPaystack, setTriggerPaystack] = useState(false);
 
-        setPaymentStatus('processing');
+    // Initialize Paystack with current config
+    const initializePayment = usePaystackPayment(paystackConfig);
 
-        const newOrderId = generateOrderId();
-        setOrderId(newOrderId);
+    // Handle Paystack Trigger
+    useEffect(() => {
+        if (triggerPaystack) {
+            const onSuccess = (reference: any) => {
+                submitOrder(reference);
+                setTriggerPaystack(false);
+            };
+
+            const onClose = () => {
+                setPaymentStatus('failed'); // or idle
+                alert('Payment cancelled. Please try again.');
+                setTriggerPaystack(false);
+            };
+
+            initializePayment({ onSuccess, onClose });
+        }
+    }, [triggerPaystack, paystackConfig, initializePayment]);
+
+    // Submit Order to API (moved from handlePayment)
+    const submitOrder = useCallback(async (paymentReference?: any) => {
+        if (!selectedPackage || !orderId) return;
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
             const backgroundText = MANDATORY_BACKGROUNDS[category || ''] || styling.backgroundText;
 
             const orderData = {
-                orderId: newOrderId,
+                orderId,
+                paymentReference, // Add Paystack ref
                 shootType: category,
                 shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
                 package: {
@@ -343,13 +369,35 @@ export default function NigeriaBookingPage() {
         } catch (error) {
             console.error('Payment error:', error);
             setPaymentStatus('failed');
-            alert('Something went wrong with the payment/booking submission. Please check your connection and try again.');
+            alert('Something went wrong with the booking submission. Please check your connection and try again.');
         }
     }, [
         selectedPackage, category, groupSize, selectedOutfits,
         styling, phoneValidation.fullNumber, addOns,
-        calculateTotal, facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking
+        calculateTotal, facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking, orderId
     ]);
+
+    // Handle Payment Button Click
+    const handlePayment = useCallback(() => {
+        if (!selectedPackage) return;
+
+        setPaymentStatus('processing');
+        const newOrderId = generateOrderId();
+        setOrderId(newOrderId);
+
+        // Prepare Paystack Config
+        setPaystackConfig({
+            reference: newOrderId,
+            email: `order-${newOrderId}@radikal.ng`, // Dummy email
+            amount: calculateTotal() * 100, // Convert to kobo
+            publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_80bc62ffbd037a464869dfcd01dc89b1a901ed33',
+        });
+
+        // Trigger Paystack flow after state update
+        // We use setTimeout to allow state to settle, though useEffect dependency should handle it
+        setTimeout(() => setTriggerPaystack(true), 100);
+
+    }, [selectedPackage, calculateTotal]);
 
     // Handle new booking - Hard reload to ensure completely fresh state
     const handleNewBooking = useCallback(() => {

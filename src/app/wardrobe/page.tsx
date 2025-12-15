@@ -86,62 +86,31 @@ function WardrobeContent() {
       setLoading(true);
 
       const params = new URLSearchParams();
-      // We'll filter client side for better interactivity on small datasets, 
-      // but good to support server filtering too
+      if (activeCategory !== 'All') params.append('category', activeCategory);
+      if (activeGender !== 'All') params.append('gender', activeGender);
+      if (debouncedSearch) params.append('search', debouncedSearch);
 
-      const response = await fetch(`/api/outfits?${params}`);
+      const response = await fetch(`/api/outfits?${params.toString()}`);
       const data = await response.json();
 
       if (data.outfits) {
         setOutfits(data.outfits);
+        setFilteredOutfits(data.outfits); // Server does the filtering
       }
     } catch (error) {
       console.error('Failed to load outfits:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeCategory, activeGender, debouncedSearch]);
 
   useEffect(() => {
     fetchOutfits();
-  }, []);
+  }, [fetchOutfits]);
 
-  // Filter logic
-  useEffect(() => {
-    let result = outfits;
+  // Filter logic handled by server primarily, but we can keep minimal client-side sync if needed
+  // For now, we rely on the fetchOutfits hook to update filteredOutfits directly.
 
-    // Filter by Category
-    if (activeCategory !== 'All') {
-      result = result.filter(o => o.category === activeCategory);
-    }
-
-    // Filter by Gender (New)
-    // Filter by Gender
-    if (activeGender !== 'All') {
-      result = result.filter(o => {
-        const g = (o as any).gender?.toUpperCase() || '';
-        const isUnisex = g === 'UNISEX' || g === 'U';
-        const isMale = g === 'MALE' || g === 'M';
-        const isFemale = g === 'FEMALE' || g === 'F';
-
-        if (activeGender === 'M') return isMale || isUnisex; // Men see Men + Unisex
-        if (activeGender === 'F') return isFemale || isUnisex; // Women see Women + Unisex
-        if (activeGender === 'U') return isUnisex; // Unisex sees only Unisex
-        return true;
-      });
-    }
-
-    // Filter by Search
-    if (debouncedSearch) {
-      const searchLower = debouncedSearch.toLowerCase();
-      result = result.filter(o =>
-        o.name.toLowerCase().includes(searchLower) ||
-        o.tags.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-    }
-
-    setFilteredOutfits(result);
-  }, [outfits, activeCategory, activeGender, debouncedSearch]);
 
 
   // Handle outfit selection
