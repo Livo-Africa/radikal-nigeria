@@ -70,7 +70,7 @@ export default function OutfitSelection({
     const [skipped, setSkipped] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const categories = ['All', 'Professional', 'Casual', 'Formal', 'Cultural', 'Creative'];
+    const categories = ['All', 'Official', 'Traditional', 'Semi Official', 'All Occasions', 'Blouse'];
 
     const hasMandatoryBackground = MANDATORY_BACKGROUNDS[category];
     const totalOutfits = selectedOutfits.length;

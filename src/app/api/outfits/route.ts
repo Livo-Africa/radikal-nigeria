@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Outfits!A:F', // ID, Name, Category, Image_URL, Tags, Available
+      range: 'Outfits!A:G', // ID, Name, Category, Image_URL, Tags, Available, Gender
     });
 
     const rows = response.data.values;
@@ -35,12 +35,12 @@ export async function GET(request: Request) {
 
     // Process outfit data
     let outfits = rows.slice(1).map((row) => ({
-      id: row[0] || '',
-      name: row[1] || '',
-      category: row[2] || '',
+      id: (row[0] || '').trim(),
+      name: (row[1] || '').trim(),
+      category: (row[2] || '').trim(),
       imageUrl: row[3] || '',
       tags: (row[4] || '').split(',').map(tag => tag.trim()),
-      available: (row[5] || '').toString().toUpperCase() === 'TRUE',
+      available: (row[5] || '').toString().trim().toUpperCase() === 'TRUE',
       gender: (row[6] || 'Unisex').toString().trim(),
     })).filter(outfit => outfit.available && outfit.id);
 
