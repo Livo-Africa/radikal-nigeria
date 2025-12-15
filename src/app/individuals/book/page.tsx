@@ -360,13 +360,13 @@ export default function NigeriaBookingPage() {
             } else {
                 console.error('Order submission failed:', result.error);
                 setPaymentStatus('failed');
-                alert(`Order failed to submit: ${result.error || 'Unknown error'}. Please try again.`);
+                alert(`Order failed: ${result.error}. If you were charged, please contact support with Order ID: ${orderId}`);
             }
 
         } catch (error) {
             console.error('Payment error:', error);
             setPaymentStatus('failed');
-            alert('Something went wrong with the booking submission. Please check your connection and try again.');
+            alert('Network error. Please check your connection. If payment was deducted, do NOT pay again. Contact support.');
         }
     }, [
         selectedPackage, category, groupSize, selectedOutfits,
