@@ -15,8 +15,8 @@ import {
     SuccessScreen
 } from '@/components/booking-nigeria';
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
-import { usePaystackPayment } from 'react-paystack';
 import { Package, generateOrderId, calculateGroupPrice, ADD_ONS } from '@/utils/bookingDataNigeria';
+import dynamic from 'next/dynamic';
 
 // Types
 interface Outfit {
@@ -56,6 +56,12 @@ const MANDATORY_BACKGROUNDS: Record<string, string> = {
     'graduation': 'Academic backdrop',
     'professional': 'Professional office/studio'
 };
+
+// Dynamic import for Paystack to avoid SSR window issues
+const PaystackHandler = dynamic(
+    () => import('@/components/booking-nigeria/PaystackHandler'),
+    { ssr: false }
+);
 
 export default function NigeriaBookingPage() {
     // Phone validation (multi-country)
@@ -247,6 +253,8 @@ export default function NigeriaBookingPage() {
         );
     }, []);
 
+
+
     // Paystack Configuration State
     const [paystackConfig, setPaystackConfig] = useState({
         reference: '',
@@ -256,26 +264,15 @@ export default function NigeriaBookingPage() {
     });
     const [triggerPaystack, setTriggerPaystack] = useState(false);
 
-    // Initialize Paystack with current config
-    const initializePayment = usePaystackPayment(paystackConfig);
+    // Handle Paystack Callbacks (passed to Handler)
+    const handlePaystackSuccess = useCallback((reference: any) => {
+        submitOrder(reference);
+    }, []);
 
-    // Handle Paystack Trigger
-    useEffect(() => {
-        if (triggerPaystack) {
-            const onSuccess = (reference: any) => {
-                submitOrder(reference);
-                setTriggerPaystack(false);
-            };
-
-            const onClose = () => {
-                setPaymentStatus('failed'); // or idle
-                alert('Payment cancelled. Please try again.');
-                setTriggerPaystack(false);
-            };
-
-            initializePayment({ onSuccess, onClose });
-        }
-    }, [triggerPaystack, paystackConfig, initializePayment]);
+    const handlePaystackClose = useCallback(() => {
+        setPaymentStatus('failed'); // or idle
+        alert('Payment cancelled. Please try again.');
+    }, []);
 
     // Submit Order to API (moved from handlePayment)
     const submitOrder = useCallback(async (paymentReference?: any) => {
@@ -586,6 +583,17 @@ export default function NigeriaBookingPage() {
                 isEnabled={canPay || false}
                 onPay={handlePayment}
                 isLoading={paymentStatus === 'processing'}
+            />
+            {/* Paystack Integration */}
+            <PaystackHandler
+                email={paystackConfig.email}
+                amount={paystackConfig.amount}
+                publicKey={paystackConfig.publicKey}
+                reference={paystackConfig.reference}
+                onSuccess={handlePaystackSuccess}
+                onClose={handlePaystackClose}
+                trigger={triggerPaystack}
+                setTrigger={setTriggerPaystack}
             />
         </>
     );
