@@ -586,6 +586,7 @@ export default function NigeriaBookingPage() {
             />
             {/* Paystack Integration */}
             <PaystackHandler
+                key={paystackConfig.reference || 'init'}
                 email={paystackConfig.email}
                 amount={paystackConfig.amount}
                 publicKey={paystackConfig.publicKey}

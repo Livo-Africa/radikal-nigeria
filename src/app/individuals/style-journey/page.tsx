@@ -42,7 +42,7 @@ export default function GhanaBookingPage() {
 
   // Single person photo state
   const [facePhoto, setFacePhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
-  const [bodyPhoto, setBodyData] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
+  const [bodyPhoto, setBodyPhoto] = useState<PhotoData>({ file: null, url: '', state: 'empty' });
 
   // Group photos state
   const [groupPhotos, setGroupPhotos] = useState<{ face: PhotoData; body: PhotoData }[]>([]);
@@ -182,12 +182,12 @@ export default function GhanaBookingPage() {
 
   // Handle body photo upload (single mode)
   const handleBodyUpload = useCallback((file: File) => {
-    setBodyData({ file: null, url: '', state: 'uploading' });
+    setBodyPhoto({ file: null, url: '', state: 'uploading' });
     const url = URL.createObjectURL(file);
     setTimeout(() => {
-      setBodyData({ file, url, state: 'processing' });
+      setBodyPhoto({ file, url, state: 'processing' });
       setTimeout(() => {
-        setBodyData({ file, url, state: 'complete' });
+        setBodyPhoto({ file, url, state: 'complete' });
       }, 1000);
     }, 1500);
   }, []);
@@ -333,7 +333,7 @@ export default function GhanaBookingPage() {
     setCategory(null);
     setSelectedPackage(null);
     setFacePhoto({ file: null, url: '', state: 'empty' });
-    setBodyData({ file: null, url: '', state: 'empty' });
+    setBodyPhoto({ file: null, url: '', state: 'empty' });
     setGroupPhotos([]);
     setSelectedOutfits([]);
     setStyling({
@@ -513,6 +513,7 @@ export default function GhanaBookingPage() {
 
           {/* Paystack Integration */}
           <PaystackHandler
+            key={paystackConfig.reference || 'init'}
             email={paystackConfig.email}
             amount={paystackConfig.amount}
             publicKey={paystackConfig.publicKey}
