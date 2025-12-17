@@ -1,4 +1,4 @@
-// src/components/homepage/Transformations.tsx - ALL FIXES APPLIED
+// src/components/homepage/Transformations.tsx - FIXED VERSION
 'use client';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
@@ -17,49 +17,36 @@ export default function Transformations({ transformations = [] }: Transformation
   const [displayPhase, setDisplayPhase] = useState<DisplayPhase>('before');
   const [isMounted, setIsMounted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isTouchActive, setIsTouchActive] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [imagesLoaded, setImagesLoaded] = useState<Set<number>>(new Set());
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const pathname = usePathname();
-  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
-  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const preloadedIndices = useRef<Set<number>>(new Set());
+  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchCooldownRef = useRef<NodeJS.Timeout | null>(null);
+  const loadedImagesRef = useRef<Set<string>>(new Set());
 
   // Constants
-  const BEFORE_DURATION = 2500; // 2.5 seconds
-  const AFTER_DURATION = 2500; // 2.5 seconds
-  const INACTIVITY_RESUME_DELAY = 5000; // 5 seconds before resuming auto-play
-  const SWIPE_THRESHOLD = 50; // Minimum swipe distance
+  const AUTO_PLAY_INTERVAL = 5000; // 5 seconds total
+  const SWIPE_THRESHOLD = 50;
 
   // Safe mount detection
   useEffect(() => {
     setIsMounted(true);
     return () => {
-      // Cleanup on unmount
-      if (autoPlayRef.current) clearTimeout(autoPlayRef.current);
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+      if (touchCooldownRef.current) clearTimeout(touchCooldownRef.current);
     };
   }, []);
 
-  // CLIENT-SIDE VALIDATION: Filter transformations with your requirements
+  // VALIDATION: Filter transformations
   const validatedTransformations = useMemo(() => {
     return transformations.filter(t => {
       // Must be visible
-      if (!t.visible) return false;
+      if (t.visible === false) return false;
 
       // Must have both URLs
       if (!t.beforeUrl || !t.afterUrl) return false;
 
-      // Basic URL validation
-      try {
-        new URL(t.beforeUrl);
-        new URL(t.afterUrl);
-        return true;
-      } catch {
-        return false;
-      }
+      return true;
     });
   }, [transformations]);
 
@@ -85,142 +72,82 @@ export default function Transformations({ transformations = [] }: Transformation
     });
   }, [validatedTransformations, activeFilter]);
 
-  // PRELOAD IMAGES to eliminate flickering
+  // PRELOAD ALL IMAGES ONCE when component mounts
   useEffect(() => {
     if (!isMounted || filteredTransformations.length === 0) return;
 
-    const preloadImages = async (index: number) => {
-      if (preloadedIndices.current.has(index)) return;
+    const preloadAllImages = () => {
+      filteredTransformations.forEach((transform, index) => {
+        // Preload before image
+        const beforeImg = new Image();
+        beforeImg.src = transform.beforeUrl;
+        beforeImg.onload = () => {
+          loadedImagesRef.current.add(`${index}-before`);
+        };
 
-      const current = filteredTransformations[index];
-      if (!current) return;
-
-      const urls = [current.beforeUrl, current.afterUrl];
-
-      try {
-        await Promise.all(
-          urls.map(url =>
-            new Promise((resolve, reject) => {
-              const img = new Image();
-              img.onload = () => resolve(true);
-              img.onerror = () => reject(new Error(`Failed to load: ${url}`));
-              img.src = url;
-            })
-          )
-        );
-
-        preloadedIndices.current.add(index);
-        setImagesLoaded(prev => new Set(prev).add(index));
-      } catch (error) {
-        console.warn('Failed to preload images for index:', index, error);
-      }
+        // Preload after image
+        const afterImg = new Image();
+        afterImg.src = transform.afterUrl;
+        afterImg.onload = () => {
+          loadedImagesRef.current.add(`${index}-after`);
+        };
+      });
     };
 
-    // Preload current, next, and previous images
-    const indicesToPreload = [
-      currentIndex,
-      (currentIndex + 1) % filteredTransformations.length,
-      (currentIndex - 1 + filteredTransformations.length) % filteredTransformations.length
-    ];
+    preloadAllImages();
+  }, [filteredTransformations, isMounted]);
 
-    indicesToPreload.forEach(index => {
-      if (index >= 0 && index < filteredTransformations.length) {
-        preloadImages(index);
-      }
-    });
-  }, [currentIndex, filteredTransformations, isMounted]);
-
-  // FIXED AUTO-PLAY LOGIC: 5-second cycle with proper state management
+  // SIMPLE & CORRECT AUTO-PLAY LOGIC
   useEffect(() => {
-    if (!isMounted || filteredTransformations.length === 0 || !isPlaying || isTouchActive) {
-      if (autoPlayRef.current) clearTimeout(autoPlayRef.current);
+    if (!isMounted || filteredTransformations.length === 0 || !isPlaying) {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
       return;
     }
 
     const startAutoPlay = () => {
-      if (autoPlayRef.current) clearTimeout(autoPlayRef.current);
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
 
-      const duration = displayPhase === 'before' ? BEFORE_DURATION : AFTER_DURATION;
+      autoPlayTimerRef.current = setTimeout(() => {
+        if (displayPhase === 'before') {
+          // Switch to AFTER view
+          setDisplayPhase('after');
 
-      autoPlayRef.current = setTimeout(() => {
-        setIsTransitioning(true);
-
-        requestAnimationFrame(() => {
-          if (displayPhase === 'before') {
-            setDisplayPhase('after');
-          } else {
-            setDisplayPhase('before');
+          // After showing "after" for 2.5 seconds, move to next
+          autoPlayTimerRef.current = setTimeout(() => {
             setCurrentIndex(prev => {
               const nextIndex = (prev + 1) % filteredTransformations.length;
-              // Preload the next-next image
-              const nextNextIndex = (nextIndex + 1) % filteredTransformations.length;
-              if (!preloadedIndices.current.has(nextNextIndex)) {
-                const nextTransform = filteredTransformations[nextNextIndex];
-                if (nextTransform) {
-                  const img = new Image();
-                  img.src = nextTransform.beforeUrl;
-                  img.src = nextTransform.afterUrl;
-                  preloadedIndices.current.add(nextNextIndex);
-                }
-              }
               return nextIndex;
             });
-          }
+            setDisplayPhase('before');
 
-          requestAnimationFrame(() => {
-            setIsTransitioning(false);
+            // Restart the cycle
             startAutoPlay();
-          });
-        });
-      }, duration);
+          }, 2500); // 2.5 seconds for AFTER view
+        }
+      }, displayPhase === 'before' ? 2500 : 0); // 2.5 seconds for BEFORE view
     };
 
     startAutoPlay();
 
     return () => {
-      if (autoPlayRef.current) clearTimeout(autoPlayRef.current);
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
     };
-  }, [displayPhase, isPlaying, isTouchActive, filteredTransformations, isMounted]);
+  }, [displayPhase, isPlaying, filteredTransformations.length, isMounted]);
 
-  // Handle user inactivity and resume auto-play
-  const resetInactivityTimer = useCallback(() => {
-    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
-
-    if (!isPlaying) {
-      setIsTouchActive(true);
-      inactivityTimerRef.current = setTimeout(() => {
-        setIsTouchActive(false);
-        setIsPlaying(true);
-      }, INACTIVITY_RESUME_DELAY);
-    }
-  }, [isPlaying]);
-
-  // Handle route changes
-  useEffect(() => {
-    if (isMounted && pathname === '/') {
-      setDisplayPhase('before');
-      setCurrentIndex(0);
-      setIsPlaying(true);
-      setIsTouchActive(false);
-    }
-  }, [pathname, isMounted]);
-
-  // Reset when filter changes
+  // Reset on filter change
   useEffect(() => {
     if (!isMounted || filteredTransformations.length === 0) return;
 
-    setDisplayPhase('before');
-    setCurrentIndex(0);
-    setIsPlaying(true);
-    setIsTouchActive(false);
-    resetInactivityTimer();
-  }, [activeFilter, isMounted, filteredTransformations.length, resetInactivityTimer]);
+    if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
 
-  // Touch handlers with debouncing
+    setCurrentIndex(0);
+    setDisplayPhase('before');
+    setIsPlaying(true);
+  }, [activeFilter, isMounted, filteredTransformations.length]);
+
+  // Touch handlers - SIMPLIFIED
   const handleTouchStart = (e: React.TouchEvent) => {
-    setIsPlaying(false);
-    setIsTouchActive(true);
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStart(e.touches[0].clientX);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -230,80 +157,55 @@ export default function Transformations({ transformations = [] }: Transformation
     const distance = touchStart - touchEnd;
 
     if (Math.abs(distance) > SWIPE_THRESHOLD) {
-      setIsTransitioning(true);
+      // Pause auto-play on swipe
+      setIsPlaying(false);
 
-      requestAnimationFrame(() => {
-        if (distance > 0) {
-          // Swipe left - next
-          setCurrentIndex(prev => {
-            const nextIndex = (prev + 1) % filteredTransformations.length;
-            return nextIndex;
-          });
-        } else {
-          // Swipe right - previous
-          setCurrentIndex(prev => {
-            const prevIndex = (prev - 1 + filteredTransformations.length) % filteredTransformations.length;
-            return prevIndex;
-          });
-        }
+      if (distance > 0) {
+        // Swipe left - next
+        setCurrentIndex(prev => (prev + 1) % filteredTransformations.length);
+      } else {
+        // Swipe right - previous
+        setCurrentIndex(prev => (prev - 1 + filteredTransformations.length) % filteredTransformations.length);
+      }
 
-        setDisplayPhase('before');
+      // Always show BEFORE image after swipe
+      setDisplayPhase('before');
 
-        requestAnimationFrame(() => {
-          setIsTransitioning(false);
-          resetInactivityTimer();
-        });
-      });
+      // Resume auto-play after 5 seconds of inactivity
+      if (touchCooldownRef.current) clearTimeout(touchCooldownRef.current);
+      touchCooldownRef.current = setTimeout(() => {
+        setIsPlaying(true);
+      }, 5000);
     }
 
     setTouchStart(null);
   };
 
-  // Manual toggle
-  const handleToggleView = useCallback(() => {
-    setIsPlaying(false);
-    setIsTouchActive(true);
-    setIsTransitioning(true);
-
-    requestAnimationFrame(() => {
-      setDisplayPhase(prev => prev === 'before' ? 'after' : 'before');
-
-      requestAnimationFrame(() => {
-        setIsTransitioning(false);
-        resetInactivityTimer();
-      });
-    });
-  }, [resetInactivityTimer]);
-
-  // Navigation with debouncing
-  const handleNavigation = useCallback((index: number) => {
-    if (index === currentIndex || isTransitioning) return;
-
-    setIsPlaying(false);
-    setIsTouchActive(true);
-    setIsTransitioning(true);
-
-    requestAnimationFrame(() => {
-      setCurrentIndex(index);
-      setDisplayPhase('before');
-
-      requestAnimationFrame(() => {
-        setIsTransitioning(false);
-        resetInactivityTimer();
-      });
-    });
-  }, [currentIndex, isTransitioning, resetInactivityTimer]);
-
-  const togglePlayPause = useCallback(() => {
-    if (isPlaying) {
-      setIsPlaying(false);
-      setIsTouchActive(true);
+  // Manual toggle view
+  const handleToggleView = () => {
+    if (displayPhase === 'before') {
+      setDisplayPhase('after');
     } else {
-      setIsPlaying(true);
-      setIsTouchActive(false);
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      setDisplayPhase('before');
     }
-  }, [isPlaying]);
+  };
+
+  // Navigation
+  const handleNavigation = (index: number) => {
+    setCurrentIndex(index);
+    setDisplayPhase('before');
+    setIsPlaying(false);
+
+    // Resume auto-play after 5 seconds
+    if (touchCooldownRef.current) clearTimeout(touchCooldownRef.current);
+    touchCooldownRef.current = setTimeout(() => {
+      setIsPlaying(true);
+    }, 5000);
+  };
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   // Filter tabs
   const filters = [
@@ -337,7 +239,8 @@ export default function Transformations({ transformations = [] }: Transformation
   }
 
   const currentTransform = filteredTransformations[currentIndex];
-  const isCurrentImageLoaded = imagesLoaded.has(currentIndex);
+  const isCurrentImageLoaded = loadedImagesRef.current.has(`${currentIndex}-before`) &&
+    loadedImagesRef.current.has(`${currentIndex}-after`);
 
   return (
     <section className="py-12 md:py-20 bg-black text-white">
@@ -358,9 +261,7 @@ export default function Transformations({ transformations = [] }: Transformation
             {filters.map((filter) => (
               <button
                 key={filter.id}
-                onClick={() => {
-                  setActiveFilter(filter.id);
-                }}
+                onClick={() => setActiveFilter(filter.id)}
                 className={`flex items-center space-x-2 px-4 py-2 md:px-6 md:py-3 rounded-full font-semibold transition-all duration-300 whitespace-nowrap flex-shrink-0 ${activeFilter === filter.id
                   ? 'bg-[#D4AF37] text-black shadow-lg shadow-[#D4AF37]/30'
                   : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -396,32 +297,34 @@ export default function Transformations({ transformations = [] }: Transformation
         {/* Transformation Display */}
         {filteredTransformations.length > 0 && currentTransform && (
           <div className="max-w-4xl mx-auto">
-            {/* Image Container - FLICKER FIXED */}
+            {/* Image Container */}
             <div
               className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl md:rounded-3xl overflow-hidden border-2 md:border-4 border-gray-700 shadow-2xl mb-6 md:mb-8 cursor-pointer bg-gray-900"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
               onClick={handleToggleView}
             >
-              {/* Skeleton while loading */}
+              {/* Loading Skeleton */}
               {!isCurrentImageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                  <div className="animate-pulse flex space-x-4">
-                    <div className="rounded-full bg-gray-700 h-12 w-12"></div>
+                <div className="absolute inset-0 bg-gray-800 animate-pulse">
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <div className="inline-block h-12 w-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin"></div>
+                      <p className="mt-4 text-[#D4AF37]">Loading images...</p>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Before Image - NO FLICKER: Always in DOM */}
+              {/* Before Image */}
               <div
-                className={`absolute inset-0 transition-all duration-500 ease-in-out ${displayPhase === 'before' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-                style={{ transition: isTransitioning ? 'opacity 300ms ease-in-out, visibility 300ms ease-in-out' : 'none' }}
+                className={`absolute inset-0 transition-opacity duration-500 ${displayPhase === 'before' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
               >
                 <img
                   src={currentTransform.beforeUrl}
                   alt="Before transformation"
                   className="w-full h-full object-cover"
-                  loading={isCurrentImageLoaded ? 'lazy' : 'eager'}
+                  loading="eager"
                   onError={(e) => {
                     e.currentTarget.src = 'https://via.placeholder.com/800x1000/333/fff?text=Before+Image+Not+Found';
                   }}
@@ -431,16 +334,15 @@ export default function Transformations({ transformations = [] }: Transformation
                 </div>
               </div>
 
-              {/* After Image - NO FLICKER: Always in DOM */}
+              {/* After Image */}
               <div
-                className={`absolute inset-0 transition-all duration-500 ease-in-out ${displayPhase === 'after' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-                style={{ transition: isTransitioning ? 'opacity 300ms ease-in-out, visibility 300ms ease-in-out' : 'none' }}
+                className={`absolute inset-0 transition-opacity duration-500 ${displayPhase === 'after' ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
               >
                 <img
                   src={currentTransform.afterUrl}
                   alt="After transformation"
                   className="w-full h-full object-cover"
-                  loading={isCurrentImageLoaded ? 'lazy' : 'eager'}
+                  loading="eager"
                   onError={(e) => {
                     e.currentTarget.src = 'https://via.placeholder.com/800x1000/666/fff?text=After+Image+Not+Found';
                   }}
@@ -456,7 +358,7 @@ export default function Transformations({ transformations = [] }: Transformation
                   e.stopPropagation();
                   togglePlayPause();
                 }}
-                className="absolute top-3 md:top-4 right-3 md:right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-all duration-300 backdrop-blur-sm z-10"
+                className="absolute top-3 md:top-4 right-3 md:right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-all duration-300 backdrop-blur-sm z-20"
                 aria-label={isPlaying ? 'Pause auto-play' : 'Play auto-play'}
               >
                 {isPlaying ? (
@@ -467,13 +369,24 @@ export default function Transformations({ transformations = [] }: Transformation
               </button>
 
               {/* Status Indicator */}
-              <div className="absolute top-3 md:top-4 left-3 md:left-4 bg-black/60 text-white px-2 py-1 rounded text-xs backdrop-blur-sm z-10">
+              <div className="absolute top-3 md:top-4 left-3 md:left-4 bg-black/60 text-white px-2 py-1 rounded text-xs backdrop-blur-sm z-20">
                 {isPlaying ? 'Auto' : 'Paused'}
               </div>
 
               {/* Swipe Hint - Mobile Only */}
-              <div className="absolute bottom-3 md:bottom-4 right-3 md:right-4 bg-black/60 text-white px-2 py-1 rounded text-xs md:hidden backdrop-blur-sm z-10">
+              <div className="absolute bottom-3 md:bottom-4 right-3 md:right-4 bg-black/60 text-white px-2 py-1 rounded text-xs md:hidden backdrop-blur-sm z-20">
                 ← Swipe →
+              </div>
+
+              {/* Progress Bar */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-700 z-20">
+                <div
+                  className="h-full bg-[#D4AF37] transition-all duration-100 ease-linear"
+                  style={{
+                    width: isPlaying ? '100%' : '0%',
+                    transitionDuration: isPlaying ? '5000ms' : '0ms'
+                  }}
+                />
               </div>
             </div>
 
@@ -483,7 +396,6 @@ export default function Transformations({ transformations = [] }: Transformation
               <button
                 onClick={handleToggleView}
                 className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-semibold transition-colors border border-gray-600 w-full md:w-auto justify-center"
-                disabled={isTransitioning}
               >
                 {displayPhase === 'after' ? (
                   <>
@@ -509,7 +421,6 @@ export default function Transformations({ transformations = [] }: Transformation
                       : 'bg-gray-600 hover:bg-gray-400 hover:scale-110'
                       }`}
                     aria-label={`Go to transformation ${index + 1}`}
-                    disabled={isTransitioning}
                   />
                 ))}
               </div>
