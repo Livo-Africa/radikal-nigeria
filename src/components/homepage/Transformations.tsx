@@ -1,4 +1,4 @@
-// src/components/homepage/Transformations.tsx - FINAL FIXED VERSION
+// src/components/homepage/Transformations.tsx - FIXED SWIPE BEHAVIOR
 'use client';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Eye, EyeOff, ArrowRight, Play, Pause, Sparkles } from 'lucide-react';
@@ -20,7 +20,7 @@ export default function Transformations({ transformations = [] }: Transformation
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
-  // SIMPLE: 5 seconds total (2.5s before, 2.5s after)
+  // Constants
   const SWIPE_THRESHOLD = 50;
 
   // Mount detection
@@ -32,20 +32,16 @@ export default function Transformations({ transformations = [] }: Transformation
     };
   }, []);
 
-  // CRITICAL FIX: Validate transformations
+  // Validate transformations
   const validatedTransformations = useMemo(() => {
     return transformations.filter(t => {
-      // Must be visible (if field exists)
       if (t.visible === false) return false;
-
-      // Must have both URLs
       if (!t.beforeUrl || !t.afterUrl) return false;
-
       return true;
     });
   }, [transformations]);
 
-  // Filter by service - SIMPLIFIED from your individuals code
+  // Filter by service
   const filteredTransformations = useMemo(() => {
     if (activeFilter === 'All') return validatedTransformations;
 
@@ -65,14 +61,13 @@ export default function Transformations({ transformations = [] }: Transformation
     });
   }, [validatedTransformations, activeFilter]);
 
-  // CRITICAL FLICKER FIX: Preload only current images
+  // Preload current images
   useEffect(() => {
     if (!isMounted || filteredTransformations.length === 0) return;
 
     const current = filteredTransformations[currentIndex];
     if (!current) return;
 
-    // Preload current before image
     const beforeKey = `${currentIndex}-before`;
     if (!imageCacheRef.current.has(beforeKey)) {
       const beforeImg = new Image();
@@ -80,7 +75,6 @@ export default function Transformations({ transformations = [] }: Transformation
       imageCacheRef.current.set(beforeKey, beforeImg);
     }
 
-    // Preload current after image
     const afterKey = `${currentIndex}-after`;
     if (!imageCacheRef.current.has(afterKey)) {
       const afterImg = new Image();
@@ -89,7 +83,7 @@ export default function Transformations({ transformations = [] }: Transformation
     }
   }, [currentIndex, filteredTransformations, isMounted]);
 
-  // CRITICAL: Simple auto-play like your individuals code
+  // AUTO-PLAY LOGIC: Shows before→after→next like your individuals page
   useEffect(() => {
     if (!isMounted || filteredTransformations.length === 0 || !isPlaying) {
       if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
@@ -102,14 +96,14 @@ export default function Transformations({ transformations = [] }: Transformation
     autoPlayTimerRef.current = setTimeout(() => {
       setShowAfter(prev => {
         if (prev) {
-          // Currently showing "after", move to next slide and show "before"
+          // If currently showing "after", move to next transformation and show "before"
           setCurrentIndex(current => (current + 1) % filteredTransformations.length);
           return false;
         }
-        // Currently showing "before", show "after"
+        // If currently showing "before", show "after"
         return true;
       });
-    }, 2500); // 2.5 seconds
+    }, showAfter ? 2500 : 2500); // 2.5 seconds for both before and after
 
     return () => {
       if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
@@ -125,7 +119,7 @@ export default function Transformations({ transformations = [] }: Transformation
     setIsPlaying(true);
   }, [activeFilter, isMounted, filteredTransformations.length]);
 
-  // SIMPLE touch handlers like your code
+  // Touch handlers - FIXED: Only navigate, don't reset showAfter to false
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientX);
   };
@@ -148,8 +142,8 @@ export default function Transformations({ transformations = [] }: Transformation
         setCurrentIndex(prev => (prev - 1 + filteredTransformations.length) % filteredTransformations.length);
       }
 
-      // Always show BEFORE after swipe
-      setShowAfter(false);
+      // DO NOT reset showAfter here - let auto-play handle the before/after toggle
+      // This way, if we're currently showing "after", swiping will show "after" of next image
 
       // Resume auto-play after 5 seconds
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
@@ -161,7 +155,7 @@ export default function Transformations({ transformations = [] }: Transformation
     setTouchStart(null);
   };
 
-  // Manual toggle
+  // Manual toggle view
   const handleToggleView = () => {
     setIsPlaying(false);
     setShowAfter(!showAfter);
@@ -173,11 +167,11 @@ export default function Transformations({ transformations = [] }: Transformation
     }, 5000);
   };
 
-  // Navigation
+  // Navigation - FIXED: Only change index, preserve showAfter state
   const handleNavigation = (index: number) => {
     setIsPlaying(false);
     setCurrentIndex(index);
-    setShowAfter(false);
+    // DO NOT reset showAfter - keep whatever view (before/after) is currently showing
 
     // Resume auto-play after 5 seconds
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
@@ -280,14 +274,14 @@ export default function Transformations({ transformations = [] }: Transformation
         {/* Transformation Display */}
         {filteredTransformations.length > 0 && currentTransform && (
           <div className="max-w-4xl mx-auto">
-            {/* Image Container - UPDATED CSS FOR NO FLICKER */}
+            {/* Image Container */}
             <div
               className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl md:rounded-3xl overflow-hidden border-2 md:border-4 border-gray-700 shadow-2xl mb-6 md:mb-8 cursor-pointer bg-gray-900"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
               onClick={handleToggleView}
             >
-              {/* Before Image - Key fix: Use display:none instead of opacity:0 */}
+              {/* Before Image */}
               <div className={`absolute inset-0 ${showAfter ? 'hidden' : 'block'}`}>
                 <img
                   src={currentTransform.beforeUrl}
@@ -295,7 +289,6 @@ export default function Transformations({ transformations = [] }: Transformation
                   className="w-full h-full object-cover"
                   loading="eager"
                   onLoad={(e) => {
-                    // Force image to stay loaded
                     const img = e.target as HTMLImageElement;
                     img.style.opacity = '1';
                   }}
@@ -309,7 +302,7 @@ export default function Transformations({ transformations = [] }: Transformation
                 </div>
               </div>
 
-              {/* After Image - Key fix: Use display:none instead of opacity:0 */}
+              {/* After Image */}
               <div className={`absolute inset-0 ${showAfter ? 'block' : 'hidden'}`}>
                 <img
                   src={currentTransform.afterUrl}
@@ -317,7 +310,6 @@ export default function Transformations({ transformations = [] }: Transformation
                   className="w-full h-full object-cover"
                   loading="eager"
                   onLoad={(e) => {
-                    // Force image to stay loaded
                     const img = e.target as HTMLImageElement;
                     img.style.opacity = '1';
                   }}
@@ -355,6 +347,11 @@ export default function Transformations({ transformations = [] }: Transformation
               {/* Swipe Hint - Mobile Only */}
               <div className="absolute bottom-3 md:bottom-4 right-3 md:right-4 bg-black/60 text-white px-2 py-1 rounded text-xs md:hidden backdrop-blur-sm z-20">
                 ← Swipe →
+              </div>
+
+              {/* Current State Indicator */}
+              <div className="absolute top-12 md:top-14 left-3 md:left-4 bg-black/60 text-white px-2 py-1 rounded text-xs backdrop-blur-sm z-20">
+                {showAfter ? 'After View' : 'Before View'}
               </div>
             </div>
 
