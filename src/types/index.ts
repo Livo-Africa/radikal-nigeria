@@ -10,10 +10,10 @@ export interface Testimonial {
 }
 
 export interface Transformation {
-  title: string;
+  title?: string;
   beforeUrl: string;
   afterUrl: string;
-  service: string;
-  metrics: string;
+  service?: string;
+  metrics?: string;
   visible: boolean;
 }

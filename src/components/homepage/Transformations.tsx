@@ -339,20 +339,12 @@ export default function Transformations({ transformations = [] }: Transformation
                 )}
               </button>
 
-              {/* Status Indicator */}
-              <div className="absolute top-3 md:top-4 left-3 md:left-4 bg-black/60 text-white px-2 py-1 rounded text-xs backdrop-blur-sm z-20">
-                {isPlaying ? 'Auto' : 'Paused'}
-              </div>
-
               {/* Swipe Hint - Mobile Only */}
               <div className="absolute bottom-3 md:bottom-4 right-3 md:right-4 bg-black/60 text-white px-2 py-1 rounded text-xs md:hidden backdrop-blur-sm z-20">
                 ← Swipe →
               </div>
 
-              {/* Current State Indicator */}
-              <div className="absolute top-12 md:top-14 left-3 md:left-4 bg-black/60 text-white px-2 py-1 rounded text-xs backdrop-blur-sm z-20">
-                {showAfter ? 'After View' : 'Before View'}
-              </div>
+
             </div>
 
             {/* Controls */}
@@ -374,21 +366,6 @@ export default function Transformations({ transformations = [] }: Transformation
                   </>
                 )}
               </button>
-
-              {/* Navigation Dots */}
-              <div className="flex space-x-2 md:space-x-3 order-first md:order-none">
-                {filteredTransformations.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleNavigation(index)}
-                    className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex
-                      ? 'bg-[#D4AF37] scale-125 shadow-lg shadow-[#D4AF37]/50'
-                      : 'bg-gray-600 hover:bg-gray-400 hover:scale-110'
-                      }`}
-                    aria-label={`Go to transformation ${index + 1}`}
-                  />
-                ))}
-              </div>
             </div>
 
             {/* Transformation Info */}
