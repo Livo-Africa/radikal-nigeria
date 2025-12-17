@@ -1,86 +1,45 @@
-// src/components/individuals/TransformationsGallery.tsx - FLICKER FIXED
+// src/components/individuals/TransformationsGallery.tsx - FIXED
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { Transformation } from '@/types';
+import { useState, useEffect } from 'react';
 
-export default function TransformationsGallery({ transformations = [] }: { transformations?: Transformation[] }) {
+export default function TransformationsGallery({ transformations = [] }: { transformations?: any[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAfter, setShowAfter] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   useEffect(() => {
     setIsMounted(true);
-    return () => {
-      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
-    };
   }, []);
 
-  // Filter transformations - Personal only
+  // Filter transformations logic - FIXED: Removed broken 'category' check
   const personalTransformations = transformations.filter(transform => {
-    if (!transform.visible) return false;
+    // Must have images
     if (!transform.beforeUrl || !transform.afterUrl) return false;
 
+    // Check service type
     const service = transform.service?.toLowerCase() || '';
     return service.includes('personal') || service.includes('individual');
   });
 
-  // Preload current images to prevent flicker
+  // Auto-rotate logic - FIXED: Toggles view instead of just index
   useEffect(() => {
     if (!isMounted || personalTransformations.length === 0) return;
 
-    const current = personalTransformations[currentIndex];
-    if (!current) return;
-
-    const beforeKey = `${currentIndex}-before`;
-    if (!imageCacheRef.current.has(beforeKey)) {
-      const beforeImg = new Image();
-      beforeImg.src = current.beforeUrl;
-      imageCacheRef.current.set(beforeKey, beforeImg);
-    }
-
-    const afterKey = `${currentIndex}-after`;
-    if (!imageCacheRef.current.has(afterKey)) {
-      const afterImg = new Image();
-      afterImg.src = current.afterUrl;
-      imageCacheRef.current.set(afterKey, afterImg);
-    }
-  }, [currentIndex, personalTransformations, isMounted]);
-
-  // Fixed auto-rotate logic with smoother transitions
-  useEffect(() => {
-    if (!isMounted || personalTransformations.length === 0) return;
-
-    if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
-
-    autoPlayTimerRef.current = setTimeout(() => {
-      setIsTransitioning(true);
-
-      // Wait for transition to start
-      requestAnimationFrame(() => {
-        if (showAfter) {
-          // If showing after, move to next slide and show before
+    const interval = setInterval(() => {
+      // First toggle after view
+      setShowAfter(prev => {
+        if (prev) {
+          // If currently showing after, switch to next slide and show before
           setCurrentIndex((current) => (current + 1) % personalTransformations.length);
-          setShowAfter(false);
-        } else {
-          // If showing before, show after
-          setShowAfter(true);
+          return false;
         }
-
-        // Wait for the DOM to update
-        requestAnimationFrame(() => {
-          setIsTransitioning(false);
-        });
+        // If showing before, show after
+        return true;
       });
     }, 3000);
 
-    return () => {
-      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
-    };
-  }, [showAfter, personalTransformations.length, isMounted]);
+    return () => clearInterval(interval);
+  }, [personalTransformations.length, isMounted]);
 
   // Handle Loading State
   if (!isMounted) {
@@ -98,7 +57,7 @@ export default function TransformationsGallery({ transformations = [] }: { trans
     );
   }
 
-  // Handle Empty State
+  // Handle Empty State - FIXED: No longer infinite loading
   if (personalTransformations.length === 0) {
     return (
       <section className="py-16 bg-black">
@@ -121,29 +80,21 @@ export default function TransformationsGallery({ transformations = [] }: { trans
           Personal Transformations
         </h2>
 
-        {/* Transformation Display - NO FLICKER */}
+        {/* Transformation Display */}
         <div className="max-w-4xl mx-auto">
           <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border-2 border-gray-700 bg-gray-900 shadow-2xl">
 
-            {/* Before Image - Fixed: Use display property instead of opacity */}
-            <div className={`absolute inset-0 ${showAfter ? 'hidden' : 'block'}`}>
+            {/* Before Image - Always rendered, opacity handles visibility */}
+            <div
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${showAfter ? 'opacity-0' : 'opacity-100'}`}
+            >
               <img
                 src={currentTransform.beforeUrl}
                 alt="Before transformation"
                 className="w-full h-full object-cover"
                 loading="eager"
-                onLoad={(e) => {
-                  // Fade in after load to prevent flash
-                  const img = e.target as HTMLImageElement;
-                  img.style.opacity = '1';
-                }}
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/800x1000/333/fff?text=Before+Image+Not+Found';
-                  (e.target as HTMLImageElement).style.opacity = '1';
-                }}
-                style={{
-                  opacity: 0,
-                  transition: isTransitioning ? 'opacity 0.5s ease-in-out' : 'none'
                 }}
               />
               <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-sm z-10">
@@ -151,37 +102,21 @@ export default function TransformationsGallery({ transformations = [] }: { trans
               </div>
             </div>
 
-            {/* After Image - Fixed: Use display property instead of opacity */}
-            <div className={`absolute inset-0 ${showAfter ? 'block' : 'hidden'}`}>
+            {/* After Image - Always rendered, opacity handles visibility */}
+            <div
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${showAfter ? 'opacity-100' : 'opacity-0'}`}
+            >
               <img
                 src={currentTransform.afterUrl}
                 alt="After transformation"
                 className="w-full h-full object-cover"
                 loading="eager"
-                onLoad={(e) => {
-                  // Fade in after load to prevent flash
-                  const img = e.target as HTMLImageElement;
-                  img.style.opacity = '1';
-                }}
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/800x1000/666/fff?text=After+Image+Not+Found';
-                  (e.target as HTMLImageElement).style.opacity = '1';
-                }}
-                style={{
-                  opacity: 0,
-                  transition: isTransitioning ? 'opacity 0.5s ease-in-out' : 'none'
                 }}
               />
               <div className="absolute top-4 left-4 bg-[#D4AF37] text-black px-3 py-1 rounded-lg font-bold text-sm z-10">
                 AFTER
-              </div>
-            </div>
-
-            {/* Loading Overlay */}
-            <div className={`absolute inset-0 flex items-center justify-center bg-gray-900 transition-opacity duration-300 ${isTransitioning ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-              <div className="flex flex-col items-center">
-                <div className="inline-block h-12 w-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-[#D4AF37] text-sm">Loading...</p>
               </div>
             </div>
           </div>
@@ -192,7 +127,6 @@ export default function TransformationsGallery({ transformations = [] }: { trans
               <button
                 key={index}
                 onClick={() => {
-                  if (isTransitioning) return;
                   setCurrentIndex(index);
                   setShowAfter(false);
                 }}
@@ -201,31 +135,8 @@ export default function TransformationsGallery({ transformations = [] }: { trans
                   : 'bg-gray-600 hover:bg-gray-400'
                   }`}
                 aria-label={`View transformation ${index + 1}`}
-                disabled={isTransitioning}
               />
             ))}
-          </div>
-
-          {/* Manual Toggle Button - New Addition */}
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={() => {
-                if (isTransitioning) return;
-                setShowAfter(!showAfter);
-              }}
-              className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors border border-gray-600"
-              disabled={isTransitioning}
-            >
-              {showAfter ? (
-                <>
-                  <span>Show Before</span>
-                </>
-              ) : (
-                <>
-                  <span>Show After</span>
-                </>
-              )}
-            </button>
           </div>
 
           {/* View All Transformations Link */}
