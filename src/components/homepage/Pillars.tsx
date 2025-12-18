@@ -1,11 +1,10 @@
-// src/components/homepage/Pillars.tsx - MOBILE SIMPLIFIED, DESKTOP CARDS
+// src/components/homepage/Pillars.tsx - MOBILE SIMPLIFIED HORIZONTAL, DESKTOP CARDS
 'use client';
 import { useState, useEffect } from 'react';
-import { Crown, Cpu, TrendingUp, ArrowRight, Info } from 'lucide-react';
+import { Crown, Cpu, TrendingUp, ArrowRight } from 'lucide-react';
 
 export default function Pillars() {
   const [isMobile, setIsMobile] = useState(false);
-  const [expandedPillar, setExpandedPillar] = useState<number | null>(null);
 
   // Check if mobile
   useEffect(() => {
@@ -27,7 +26,7 @@ export default function Pillars() {
       quote: 'We believe in quality that speaks for itself',
       icon: Crown,
       color: 'from-[#D4AF37] to-[#F4D03F]',
-      shortDescription: 'Elegance & Professionalism'
+      mobileSubtext: 'Elegance & Professionalism'
     },
     {
       id: 2,
@@ -36,7 +35,7 @@ export default function Pillars() {
       quote: 'We leverage cutting-edge technology to enhance, not replace, human creativity',
       icon: Cpu,
       color: 'from-blue-500 to-cyan-500',
-      shortDescription: 'Advanced Digital Tools'
+      mobileSubtext: 'Advanced Digital Tools'
     },
     {
       id: 3,
@@ -45,13 +44,9 @@ export default function Pillars() {
       quote: 'We\'re not just keeping up - we\'re paving the way',
       icon: TrendingUp,
       color: 'from-purple-500 to-pink-500',
-      shortDescription: 'Forward-Thinking Creativity'
+      mobileSubtext: 'Forward-Thinking Creativity'
     }
   ];
-
-  const togglePillar = (id: number) => {
-    setExpandedPillar(expandedPillar === id ? null : id);
-  };
 
   return (
     <section className="py-8 md:py-20 bg-black text-white">
@@ -67,119 +62,42 @@ export default function Pillars() {
         </div>
 
         {/* =============================================== */}
-        {/* MOBILE VIEW: Simplified Icon Grid */}
+        {/* MOBILE VIEW: Simplified Horizontal Row */}
         {/* =============================================== */}
         <div className="block md:hidden">
           <div className="max-w-md mx-auto">
-            {/* Three Pillars Grid - Simple Icons */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            {/* Three Pillars in a Horizontal Row */}
+            <div className="flex flex-row justify-between items-start gap-4">
               {pillars.map((pillar) => {
                 const Icon = pillar.icon;
-                const isExpanded = expandedPillar === pillar.id;
 
                 return (
-                  <div key={pillar.id} className="text-center">
-                    {/* Icon Button */}
-                    <button
-                      onClick={() => togglePillar(pillar.id)}
-                      className={`w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br ${pillar.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-2 transition-all duration-300 transform ${isExpanded ? 'scale-110 ring-4 ring-white/20' : 'hover:scale-105'
-                        }`}
-                      aria-label={`Learn about ${pillar.title}`}
-                    >
-                      <Icon className="w-8 h-8 md:w-10 md:h-10" />
-                    </button>
+                  <div key={pillar.id} className="flex-1 text-center">
+                    {/* Icon */}
+                    <div className={`w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${pillar.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-3`}>
+                      <Icon className="w-6 h-6 md:w-8 md:h-8" />
+                    </div>
 
                     {/* Title */}
-                    <div className="text-center">
-                      <h3 className="text-sm font-bold mb-1 text-[#D4AF37]">
-                        {pillar.title}
-                      </h3>
-                      <p className="text-xs text-gray-400">
-                        {pillar.shortDescription}
-                      </p>
-                    </div>
+                    <h3 className="text-sm font-bold mb-1 text-[#D4AF37] leading-tight">
+                      {pillar.title}
+                    </h3>
+
+                    {/* Subtext */}
+                    <p className="text-xs text-gray-400 leading-tight">
+                      {pillar.mobileSubtext}
+                    </p>
                   </div>
                 );
               })}
             </div>
 
-            {/* Expandable Details - Shows one at a time */}
-            {expandedPillar && (
-              <div className="mt-6">
-                {pillars.map((pillar) => {
-                  if (pillar.id !== expandedPillar) return null;
-
-                  return (
-                    <div
-                      key={pillar.id}
-                      className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-800 animate-fadeIn"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <h3 className="text-xl font-bold text-[#D4AF37]">
-                          {pillar.title}
-                        </h3>
-                        <button
-                          onClick={() => setExpandedPillar(null)}
-                          className="text-gray-400 hover:text-white"
-                          aria-label="Close details"
-                        >
-                          ×
-                        </button>
-                      </div>
-
-                      <p className="text-gray-300 mb-4 leading-relaxed">
-                        {pillar.description}
-                      </p>
-
-                      <blockquote className="text-sm italic text-[#D4AF37]/80 border-l-2 border-[#D4AF37] pl-4 py-2 mb-6 leading-relaxed">
-                        "{pillar.quote}"
-                      </blockquote>
-
-                      {/* Expand Indicator */}
-                      <div className="text-center pt-4 border-t border-gray-800">
-                        <div className="flex items-center justify-center space-x-1 text-xs text-gray-400">
-                          <Info className="w-3 h-3" />
-                          <span>Tap other icons to learn more</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Default State - If nothing expanded */}
-            {!expandedPillar && (
-              <div className="text-center mt-6">
-                <p className="text-gray-400 text-sm mb-4">
-                  Tap on any icon to learn more about our pillars
-                </p>
-
-                {/* Quick Description Cards */}
-                <div className="space-y-3">
-                  {pillars.map((pillar) => (
-                    <div
-                      key={pillar.id}
-                      className="bg-gray-900/50 rounded-xl p-3 border border-gray-800"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-8 h-8 bg-gradient-to-br ${pillar.color} rounded-lg flex items-center justify-center`}>
-                          <pillar.icon className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h4 className="font-semibold text-sm text-white">
-                            {pillar.title}
-                          </h4>
-                          <p className="text-xs text-gray-400">
-                            {pillar.shortDescription}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Optional: Simple separator line */}
+            <div className="mt-8 pt-6 border-t border-gray-800">
+              <p className="text-center text-sm text-gray-400">
+                The core principles guiding every project
+              </p>
+            </div>
           </div>
         </div>
 
@@ -215,7 +133,7 @@ export default function Pillars() {
           ))}
         </div>
 
-        {/* Bottom CTA - Desktop only (hiding on mobile per your request) */}
+        {/* Bottom CTA - Desktop only */}
         <div className="hidden md:text-center mt-12">
           <a
             href="/about"
@@ -223,17 +141,6 @@ export default function Pillars() {
           >
             <span>Learn More About Our Philosophy</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </a>
-        </div>
-
-        {/* Mobile: Simple Learn More Link */}
-        <div className="block md:hidden text-center mt-8">
-          <a
-            href="/about"
-            className="inline-flex items-center space-x-2 text-[#D4AF37] hover:text-white font-medium text-sm transition-colors"
-          >
-            <span>Learn more about our philosophy</span>
-            <ArrowRight className="w-4 h-4" />
           </a>
         </div>
       </div>

@@ -1,18 +1,10 @@
-// src/components/homepage/Services.tsx - MOBILE ACCORDION, DESKTOP GRID
+// src/components/homepage/Services.tsx
 'use client';
 import { useState } from 'react';
 import { Palette, Video, Camera, Zap, CheckCircle2, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function Services() {
   const [expandedService, setExpandedService] = useState<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Check if mobile on mount
-  useState(() => {
-    if (typeof window !== 'undefined') {
-      setIsMobile(window.innerWidth < 768);
-    }
-  });
 
   const services = [
     {
@@ -56,21 +48,23 @@ export default function Services() {
   return (
     <section className="py-8 md:py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
-        {/* Header - Same for both */}
+
+        {/* ========== SECTION HEADER ========== */}
         <div className="text-center mb-8 md:mb-16">
+          {/* Title */}
           <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 font-playfair">
             Our Creative <span className="text-[#D4AF37]">Services</span>
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+
+          {/* Subtext */}
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
             Premium creative solutions powered by cutting-edge technology
           </p>
         </div>
 
-        {/* =============================================== */}
-        {/* MOBILE VIEW: Accordion List */}
-        {/* =============================================== */}
+        {/* ========== MOBILE: ACCORDION ========== */}
         <div className="block md:hidden">
-          <div className="space-y-4 max-w-2xl mx-auto">
+          <div className="space-y-3 max-w-lg mx-auto">
             {services.map((service) => {
               const isExpanded = expandedService === service.id;
               const Icon = service.icon;
@@ -78,29 +72,24 @@ export default function Services() {
               return (
                 <div
                   key={service.id}
-                  className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-300 ${isExpanded ? 'shadow-xl' : ''
+                  className={`bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 ${isExpanded ? 'shadow-lg' : 'shadow-sm'
                     }`}
                 >
-                  {/* Service Header - Always Visible */}
+                  {/* Accordion Header - Icon + Title Only */}
                   <button
                     onClick={() => toggleService(service.id)}
-                    className="w-full text-left p-5 flex items-center justify-between focus:outline-none"
+                    className="w-full text-left p-4 flex items-center justify-between focus:outline-none"
                   >
                     <div className="flex items-center space-x-4">
                       {/* Icon */}
-                      <div className={`w-12 h-12 bg-gradient-to-br ${service.gradient} rounded-xl flex items-center justify-center text-white`}>
-                        <Icon className="w-6 h-6" />
+                      <div className={`w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br ${service.gradient} rounded-lg flex items-center justify-center`}>
+                        <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
 
-                      {/* Title & Description */}
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900">
-                          {service.title}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {service.description}
-                        </p>
-                      </div>
+                      {/* Title Only - No Extra Text */}
+                      <span className="text-base md:text-lg font-semibold text-gray-900">
+                        {service.title}
+                      </span>
                     </div>
 
                     {/* Expand/Collapse Icon */}
@@ -114,20 +103,22 @@ export default function Services() {
                   </button>
 
                   {/* Expandable Content */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                      }`}
-                  >
-                    <div className="p-5 pt-0 border-t border-gray-100">
+                  {isExpanded && (
+                    <div className="px-4 pb-4">
+                      {/* Description */}
+                      <p className="text-gray-600 text-sm mb-4">
+                        {service.description}
+                      </p>
+
                       {/* Items List */}
-                      <ul className="space-y-3 mb-4">
+                      <ul className="space-y-2 mb-4">
                         {service.items.map((item, idx) => (
                           <li
                             key={idx}
-                            className="flex items-center text-gray-700"
+                            className="flex items-center text-gray-700 text-sm"
                           >
-                            <CheckCircle2 className="w-4 h-4 text-[#D4AF37] mr-3 flex-shrink-0" />
-                            <span className="text-sm">{item}</span>
+                            <CheckCircle2 className="w-4 h-4 text-[#D4AF37] mr-2 flex-shrink-0" />
+                            <span>{item}</span>
                           </li>
                         ))}
                       </ul>
@@ -135,21 +126,19 @@ export default function Services() {
                       {/* Mobile CTA Button */}
                       <a
                         href="/services"
-                        className="block w-full bg-gray-900 hover:bg-black text-white font-semibold py-3 rounded-lg text-center transition-colors"
+                        className="block w-full bg-gray-900 hover:bg-black text-white font-semibold py-3 rounded-lg text-center text-sm transition-colors"
                       >
                         Learn More
                       </a>
                     </div>
-                  </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* =============================================== */}
-        {/* DESKTOP VIEW: Grid Cards (Original) */}
-        {/* =============================================== */}
+        {/* ========== DESKTOP: ORIGINAL GRID ========== */}
         <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {services.map((service, index) => (
             <div
@@ -185,7 +174,7 @@ export default function Services() {
                 ))}
               </ul>
 
-              {/* CTA Button */}
+              {/* CTA Button - Hidden until hover */}
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 <a
                   href="/services"
@@ -195,34 +184,25 @@ export default function Services() {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
               </div>
-
-              {/* Mobile CTA - Always visible on mobile */}
-              <a
-                href="/services"
-                className="w-full md:hidden bg-gray-900 hover:bg-black text-white font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 mt-4"
-              >
-                <span>Learn More</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
             </div>
           ))}
         </div>
 
-        {/* Bottom CTA Section - Show on both */}
+        {/* ========== BOTTOM CTA ========== */}
         <div className="text-center mt-8 md:mt-12">
           <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl p-6 md:p-8 border border-[#D4AF37]/20">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
+            {/* Heading Only - No Extra Text */}
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">
               Need a custom solution?
             </h3>
-            <p className="text-gray-600 mb-4 md:mb-6 max-w-2xl mx-auto">
-              Our team can create tailored packages for your specific needs and budget.
-            </p>
+
+            {/* Button Only - No Extra Text */}
             <a
               href="/contact"
-              className="inline-flex items-center space-x-2 bg-[#D4AF37] hover:bg-[#b8941f] text-black font-semibold py-3 md:py-4 px-6 md:px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl mx-auto group"
+              className="inline-flex items-center space-x-2 bg-[#D4AF37] hover:bg-[#b8941f] text-black font-semibold py-3 md:py-4 px-6 md:px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl mx-auto"
             >
               <span>Get Custom Pricing</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5" />
             </a>
           </div>
         </div>

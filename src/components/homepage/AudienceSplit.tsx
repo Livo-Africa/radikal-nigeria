@@ -1,12 +1,11 @@
-// src/components/homepage/AudienceSplit.tsx - MOBILE TABS, DESKTOP GRID
+// src/components/homepage/AudienceSplit.tsx - MOBILE TABS (SIMPLIFIED)
 'use client';
 import { useState, useEffect } from 'react';
-import { Camera, Building2, Users, CheckCircle2, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { Camera, Building2, Users, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export default function AudienceSplit() {
   const [activeTab, setActiveTab] = useState<'individuals' | 'business' | 'creators'>('individuals');
   const [isMobile, setIsMobile] = useState(false);
-  const [expandedFeatures, setExpandedFeatures] = useState(false);
 
   // Check if mobile
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function AudienceSplit() {
       icon: Camera,
       iconColor: "text-[#D4AF37]",
       buttonColor: "bg-[#D4AF37] hover:bg-[#b8941f]",
-      mobileIcon: "📸"
+
     },
     business: {
       id: 'business',
@@ -47,7 +46,7 @@ export default function AudienceSplit() {
       icon: Building2,
       iconColor: "text-[#B91C1C]",
       buttonColor: "bg-[#B91C1C] hover:bg-[#991b1b]",
-      mobileIcon: "💼"
+
     },
     creators: {
       id: 'creators',
@@ -61,7 +60,7 @@ export default function AudienceSplit() {
       icon: Users,
       iconColor: "text-gray-900",
       buttonColor: "bg-gray-900 hover:bg-black",
-      mobileIcon: "✨"
+
     }
   };
 
@@ -81,20 +80,17 @@ export default function AudienceSplit() {
         </div>
 
         {/* =============================================== */}
-        {/* MOBILE VIEW: Tabbed Interface */}
+        {/* MOBILE VIEW: Simple Tabbed Interface */}
         {/* =============================================== */}
         <div className="block md:hidden">
           <div className="max-w-md mx-auto">
             {/* Tab Navigation */}
             <div className="flex justify-between mb-6 bg-gray-100 rounded-2xl p-1 shadow-inner">
               <button
-                onClick={() => {
-                  setActiveTab('individuals');
-                  setExpandedFeatures(false);
-                }}
+                onClick={() => setActiveTab('individuals')}
                 className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${activeTab === 'individuals'
-                    ? 'bg-[#D4AF37] text-black shadow-lg'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-[#D4AF37] text-black shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 <span className="text-2xl mb-1">📸</span>
@@ -102,13 +98,10 @@ export default function AudienceSplit() {
               </button>
 
               <button
-                onClick={() => {
-                  setActiveTab('business');
-                  setExpandedFeatures(false);
-                }}
+                onClick={() => setActiveTab('business')}
                 className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${activeTab === 'business'
-                    ? 'bg-[#B91C1C] text-white shadow-lg'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-[#B91C1C] text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 <span className="text-2xl mb-1">💼</span>
@@ -116,13 +109,10 @@ export default function AudienceSplit() {
               </button>
 
               <button
-                onClick={() => {
-                  setActiveTab('creators');
-                  setExpandedFeatures(false);
-                }}
+                onClick={() => setActiveTab('creators')}
                 className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${activeTab === 'creators'
-                    ? 'bg-gray-900 text-white shadow-lg'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gray-900 text-white shadow-lg'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 <span className="text-2xl mb-1">✨</span>
@@ -130,65 +120,32 @@ export default function AudienceSplit() {
               </button>
             </div>
 
-            {/* Active Tab Content */}
+            {/* Active Tab Content - Always Expanded */}
             <div className={`bg-gradient-to-br ${activeAudience.bgGradient} rounded-2xl p-6 shadow-lg border ${activeAudience.borderColor} overflow-hidden transition-all duration-500`}>
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-12 h-12 bg-white rounded-2xl flex items-center justify-center ${activeAudience.iconColor} shadow-md`}>
-                    <activeAudience.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">
-                      {activeAudience.title}
-                    </h3>
-                    <p className="text-sm font-semibold text-[#D4AF37]">
-                      {activeAudience.description}
-                    </p>
-                  </div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className={`w-12 h-12 bg-white rounded-2xl flex items-center justify-center ${activeAudience.iconColor} shadow-md`}>
+                  <activeAudience.icon className="w-6 h-6" />
                 </div>
-
-                {/* Expand/Collapse Features Button */}
-                <button
-                  onClick={() => setExpandedFeatures(!expandedFeatures)}
-                  className="text-gray-500 hover:text-gray-700"
-                  aria-label={expandedFeatures ? "Hide features" : "Show features"}
-                >
-                  {expandedFeatures ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-
-              {/* Features List - Collapsible */}
-              <div className={`overflow-hidden transition-all duration-300 ${expandedFeatures ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                }`}>
-                <ul className="space-y-3 mb-4">
-                  {activeAudience.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start text-gray-700">
-                      <CheckCircle2 className="w-5 h-5 text-[#D4AF37] mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Quick Features Preview (when collapsed) */}
-              {!expandedFeatures && (
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-2">
-                    Includes: {activeAudience.features.slice(0, 2).join(", ")}...
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {activeAudience.title}
+                  </h3>
+                  <p className="text-sm font-semibold text-[#D4AF37]">
+                    {activeAudience.description}
                   </p>
-                  <button
-                    onClick={() => setExpandedFeatures(true)}
-                    className="text-xs text-[#D4AF37] font-medium hover:text-[#b8941f]"
-                  >
-                    Show all features
-                  </button>
                 </div>
-              )}
+              </div>
+
+              {/* Features List - Always Visible */}
+              <ul className="space-y-3 mb-6">
+                {activeAudience.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start text-gray-700">
+                    <CheckCircle2 className="w-5 h-5 text-[#D4AF37] mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
 
               {/* CTA Button */}
               <a
@@ -205,25 +162,17 @@ export default function AudienceSplit() {
               {Object.keys(audiences).map((key) => (
                 <button
                   key={key}
-                  onClick={() => {
-                    setActiveTab(key as 'individuals' | 'business' | 'creators');
-                    setExpandedFeatures(false);
-                  }}
+                  onClick={() => setActiveTab(key as 'individuals' | 'business' | 'creators')}
                   className={`w-2 h-2 rounded-full transition-all ${activeTab === key
-                      ? key === 'individuals' ? 'bg-[#D4AF37] w-6'
-                        : key === 'business' ? 'bg-[#B91C1C] w-6'
-                          : 'bg-gray-900 w-6'
-                      : 'bg-gray-300'
+                    ? key === 'individuals' ? 'bg-[#D4AF37] w-6'
+                      : key === 'business' ? 'bg-[#B91C1C] w-6'
+                        : 'bg-gray-900 w-6'
+                    : 'bg-gray-300'
                     }`}
                   aria-label={`Switch to ${key} tab`}
                 />
               ))}
             </div>
-
-            {/* Tab Switch Hint */}
-            <p className="text-center text-sm text-gray-500 mt-4">
-              Tap tabs above to explore other solutions
-            </p>
           </div>
         </div>
 
@@ -287,9 +236,9 @@ export default function AudienceSplit() {
           })}
         </div>
 
-        {/* Trust Indicator - Mobile Optimized */}
-        <div className="text-center mt-8 md:mt-12">
-          <div className="inline-flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 text-gray-500 text-sm md:text-base">
+        {/* Trust Indicator - Desktop Only */}
+        <div className="hidden md:block text-center mt-12">
+          <div className="inline-flex items-center space-x-2 text-gray-500 text-base">
             <span>Trusted by businesses and individuals worldwide</span>
             <div className="flex space-x-1">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -297,17 +246,6 @@ export default function AudienceSplit() {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Mobile: View All Solutions Link */}
-        <div className="block md:hidden text-center mt-6">
-          <a
-            href="/solutions"
-            className="inline-flex items-center space-x-1 text-[#D4AF37] hover:text-[#b8941f] text-sm font-medium"
-          >
-            <span>View all solutions in detail</span>
-            <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
       </div>
     </section>

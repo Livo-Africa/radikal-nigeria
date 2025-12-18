@@ -1,4 +1,4 @@
-// src/components/homepage/Process.tsx - MOBILE ACCORDION, DESKTOP GRID
+// src/components/homepage/Process.tsx - MOBILE ACCORDION (ICON + TITLE ONLY)
 'use client';
 import { useState, useEffect } from 'react';
 import {
@@ -113,14 +113,6 @@ export default function Process() {
     );
   };
 
-  const expandAllSteps = () => {
-    setExpandedSteps(currentProcess.map(step => step.id));
-  };
-
-  const collapseAllSteps = () => {
-    setExpandedSteps([]);
-  };
-
   return (
     <section className="py-8 md:py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
@@ -134,14 +126,14 @@ export default function Process() {
           </p>
         </div>
 
-        {/* Tab Toggle - Same for both but mobile optimized */}
+        {/* Tab Toggle - Same for both */}
         <div className="flex justify-center mb-8 md:mb-16">
           <div className="bg-gray-100 rounded-2xl p-1 md:p-2 shadow-inner w-full max-w-md">
             <div className="grid grid-cols-2 gap-1">
               <button
                 onClick={() => {
                   setActiveTab('individuals');
-                  setExpandedSteps([]); // Reset expanded steps when tab changes
+                  setExpandedSteps([]);
                 }}
                 className={`flex items-center justify-center space-x-2 py-3 md:py-4 rounded-xl font-bold text-sm md:text-lg transition-all duration-300 transform ${activeTab === 'individuals'
                     ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
@@ -154,7 +146,7 @@ export default function Process() {
               <button
                 onClick={() => {
                   setActiveTab('business');
-                  setExpandedSteps([]); // Reset expanded steps when tab changes
+                  setExpandedSteps([]);
                 }}
                 className={`flex items-center justify-center space-x-2 py-3 md:py-4 rounded-xl font-bold text-sm md:text-lg transition-all duration-300 transform ${activeTab === 'business'
                     ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
@@ -169,26 +161,10 @@ export default function Process() {
         </div>
 
         {/* =============================================== */}
-        {/* MOBILE VIEW: Accordion Steps */}
+        {/* MOBILE VIEW: Accordion Steps (Icon + Title Only) */}
         {/* =============================================== */}
         <div className="block md:hidden">
           <div className="max-w-2xl mx-auto">
-            {/* Expand/Collapse All Buttons */}
-            <div className="flex justify-between items-center mb-4">
-              <button
-                onClick={expandAllSteps}
-                className="text-sm text-[#D4AF37] font-medium hover:text-[#b8941f] transition-colors"
-              >
-                Expand All
-              </button>
-              <button
-                onClick={collapseAllSteps}
-                className="text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
-              >
-                Collapse All
-              </button>
-            </div>
-
             {/* Steps Accordion */}
             <div className="space-y-3">
               {currentProcess.map((step) => {
@@ -201,32 +177,23 @@ export default function Process() {
                     className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-300 ${isExpanded ? 'shadow-xl' : ''
                       }`}
                   >
-                    {/* Step Header */}
+                    {/* Step Header - ICON + TITLE ONLY (No step number, no description) */}
                     <button
                       onClick={() => toggleStep(step.id)}
-                      className="w-full text-left p-4 flex items-center justify-between focus:outline-none"
+                      className="w-full text-left p-5 flex items-center justify-between focus:outline-none"
                     >
                       <div className="flex items-center space-x-4">
-                        {/* Step Number */}
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold">
-                          {step.step}
+                        {/* Large Icon - More space since we removed step number */}
+                        <div className={`w-14 h-14 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center text-white`}>
+                          <Icon className="w-7 h-7" />
                         </div>
 
-                        {/* Step Info */}
-                        <div className="flex items-center space-x-3">
-                          {/* Icon */}
-                          <div className={`w-10 h-10 bg-gradient-to-br ${step.color} rounded-xl flex items-center justify-center text-white`}>
-                            <Icon className="w-5 h-5" />
-                          </div>
-
-                          <div>
-                            <h3 className="font-bold text-gray-900 text-left">
-                              {step.title}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              {step.description}
-                            </p>
-                          </div>
+                        {/* Title Only - No description */}
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 text-left">
+                            {step.title}
+                          </h3>
+                          {/* Description removed for mobile - desktop only */}
                         </div>
                       </div>
 
@@ -245,7 +212,7 @@ export default function Process() {
                       className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                         }`}
                     >
-                      <div className="p-4 pt-0">
+                      <div className="p-5 pt-0">
                         <div className="border-t border-gray-100 pt-4">
                           <h4 className="font-semibold text-gray-800 mb-2">
                             How it works:
@@ -273,7 +240,7 @@ export default function Process() {
         </div>
 
         {/* =============================================== */}
-        {/* DESKTOP VIEW: Original Grid Layout */}
+        {/* DESKTOP VIEW: Original Grid Layout (100% Unchanged) */}
         {/* =============================================== */}
         <div className="hidden md:block max-w-6xl mx-auto">
           {/* Process Steps Grid */}
@@ -291,29 +258,29 @@ export default function Process() {
                   <div className="hidden md:block absolute top-8 left-3/4 w-full h-0.5 bg-gray-300 group-hover:bg-[#D4AF37] transition-colors duration-500 z-0"></div>
                 )}
 
-                {/* Step Card */}
+                {/* Step Card - DESKTOP: Step Number + Icon + Title + Description */}
                 <div className="relative z-10 bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 transform group-hover:-translate-y-2 border border-gray-100">
-                  {/* Step Number */}
+                  {/* Step Number - Desktop only */}
                   <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold text-xl mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg">
                     {step.step}
                   </div>
 
-                  {/* Enhanced Icon */}
+                  {/* Enhanced Icon - Desktop only */}
                   <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-500 shadow-lg`}>
                     <step.icon className="w-10 h-10" />
                   </div>
 
-                  {/* Title */}
+                  {/* Title - Desktop only */}
                   <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-black transition-colors">
                     {step.title}
                   </h3>
 
-                  {/* Description */}
+                  {/* Description - Desktop only (hidden on mobile) */}
                   <p className="text-gray-600 mb-3 font-semibold text-base">
                     {step.description}
                   </p>
 
-                  {/* Details */}
+                  {/* Details - Desktop only (expands on mobile) */}
                   <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors leading-relaxed">
                     {step.details}
                   </p>
@@ -330,10 +297,12 @@ export default function Process() {
           </div>
         </div>
 
-        {/* Process Summary - Same for both but mobile optimized */}
-        <div className="text-center mt-8 md:mt-12 max-w-3xl mx-auto">
-          <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl p-6 md:p-8 border border-[#D4AF37]/20">
-            <h4 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-900 flex items-center justify-center space-x-2">
+        {/* =============================================== */}
+        {/* "No Studio..." Tagline - DESKTOP ONLY */}
+        {/* =============================================== */}
+        <div className="hidden md:block text-center mt-8 md:mt-12 max-w-3xl mx-auto">
+          <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl p-8 border border-[#D4AF37]/20">
+            <h4 className="text-2xl font-bold mb-4 text-gray-900 flex items-center justify-center space-x-2">
               <CheckCircle2 className="w-6 h-6 text-[#D4AF37]" />
               <span>
                 {activeTab === 'individuals'
@@ -342,7 +311,7 @@ export default function Process() {
                 }
               </span>
             </h4>
-            <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+            <p className="text-gray-600 text-base leading-relaxed">
               {activeTab === 'individuals'
                 ? 'Professional results without the traditional studio hassle. Get perfect photos from the comfort of your home.'
                 : 'Professional creative solutions with transparent communication and cutting-edge technology tailored to your business needs.'
@@ -351,7 +320,7 @@ export default function Process() {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section - Same for both */}
         <div className="text-center mt-8 md:mt-12">
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -366,8 +335,8 @@ export default function Process() {
           </div>
         </div>
 
-        {/* Trust Indicators - Desktop only */}
-        <div className="hidden md:grid grid-cols-4 gap-8 max-w-2xl mx-auto mt-8 md:mt-12 text-center">
+        {/* Trust Indicators - Desktop only (original grid) */}
+        <div className="hidden md:grid grid-cols-4 gap-8 max-w-2xl mx-auto mt-12 text-center">
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="text-3xl font-bold text-[#D4AF37] mb-1">1-3h</div>
             <div className="text-sm text-gray-600">Avg. Delivery</div>
@@ -386,7 +355,7 @@ export default function Process() {
           </div>
         </div>
 
-        {/* Mobile Trust Indicators - Simplified */}
+        {/* Mobile Trust Indicators - Simplified (2 metrics) */}
         <div className="block md:hidden mt-8">
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="grid grid-cols-2 gap-4">
