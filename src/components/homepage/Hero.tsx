@@ -19,8 +19,12 @@ interface Symbol {
 export default function Hero() {
   const [currentSubheading, setCurrentSubheading] = useState(0);
   const [symbols, setSymbols] = useState<Symbol[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [freezeAnimations, setFreezeAnimations] = useState(false);
   const symbolCount = useRef(0);
-  const maxSymbols = 7; // Increased but with faster cycles
+
+  // Mobile: smaller number of symbols
+  const maxSymbols = isMobile ? 6 : 12;
 
   const subheadings = [
     "Studio photos without the studio",
@@ -28,7 +32,7 @@ export default function Hero() {
     "Your Creative Partner in the Digital Age"
   ];
 
-  // Properly formatted SVG symbols
+  // Properly formatted SVG symbols (unchanged)
   const symbolTemplates = [
     {
       name: "Gye Nyame",
@@ -117,49 +121,81 @@ export default function Hero() {
       y: -20 - Math.random() * 30, // Start from above the screen
       scale: 0.3 + Math.random() * 0.7,
       rotation: Math.random() * 360,
-      delay: Math.random() * 500, // Faster start
-      duration: 2000 + Math.random() * 3000, // Shorter duration for faster cycles
+      delay: Math.random() * 500,
+      duration: 2000 + Math.random() * 3000,
       animationType
     };
   };
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Freeze animations after 2 seconds on mobile
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const freezeTimer = setTimeout(() => {
+      setFreezeAnimations(true);
+    }, 2000); // Freeze after 2 seconds
+
+    return () => clearTimeout(freezeTimer);
+  }, [isMobile]);
 
   useEffect(() => {
     const subheadingInterval = setInterval(() => {
       setCurrentSubheading((prev) => (prev + 1) % subheadings.length);
     }, 3000);
 
-    // Initial burst of symbols for attention
-    const initialSymbols = Array.from({ length: 8 }, createSymbol);
+    // Adjust symbol generation based on device
+    const initialSymbols = Array.from({ length: isMobile ? 4 : 8 }, createSymbol);
     setSymbols(initialSymbols);
 
-    // Fast symbol generation for first 3 seconds
+    if (freezeAnimations) {
+      // If frozen, don't generate new symbols
+      return () => clearInterval(subheadingInterval);
+    }
+
+    // Symbol generation logic
     const fastInterval = setInterval(() => {
       setSymbols(current => {
         const newSymbols = [...current, createSymbol()];
-        // Remove oldest symbols if we have too many
         return newSymbols.length > maxSymbols ? newSymbols.slice(2) : newSymbols;
       });
-    }, 300); // Very fast for first 3 seconds
+    }, isMobile ? 500 : 300);
 
-    // Switch to slower pace after 3 seconds
-    setTimeout(() => {
-      clearInterval(fastInterval);
+    // Switch to slower pace after 3 seconds only if not mobile
+    if (!isMobile) {
+      setTimeout(() => {
+        clearInterval(fastInterval);
 
-      const slowInterval = setInterval(() => {
-        setSymbols(current => {
-          const newSymbols = [...current, createSymbol()];
-          return newSymbols.length > maxSymbols ? newSymbols.slice(1) : newSymbols;
-        });
-      }, 800); // Slower after initial attention
+        const slowInterval = setInterval(() => {
+          setSymbols(current => {
+            const newSymbols = [...current, createSymbol()];
+            return newSymbols.length > maxSymbols ? newSymbols.slice(1) : newSymbols;
+          });
+        }, 800);
 
-      return () => clearInterval(slowInterval);
-    }, 3000);
+        return () => clearInterval(slowInterval);
+      }, 3000);
+    }
 
     return () => {
       clearInterval(subheadingInterval);
       clearInterval(fastInterval);
     };
-  }, []);
+  }, [isMobile, freezeAnimations]);
 
   const getAnimationStyle = (symbol: Symbol) => {
     const color = colors[Math.floor(Math.random() * colors.length)];
@@ -168,10 +204,15 @@ export default function Hero() {
       top: `${symbol.y}%`,
       transform: `scale(${symbol.scale}) rotate(${symbol.rotation}deg)`,
       color: color,
-      opacity: 0.2 + Math.random() * 0.3,
-      width: '50px',
-      height: '50px'
+      opacity: freezeAnimations ? 0.3 : 0.2 + Math.random() * 0.3,
+      width: isMobile ? '40px' : '50px',
+      height: isMobile ? '40px' : '50px'
     };
+
+    // If animations are frozen, don't apply animation
+    if (freezeAnimations) {
+      return baseStyle;
+    }
 
     switch (symbol.animationType) {
       case 'float':
@@ -205,7 +246,8 @@ export default function Hero() {
   };
 
   return (
-    <section className="pt-16 min-h-[90vh] md:min-h-[100vh] flex items-center justify-center relative overflow-hidden bg-black">
+    // MODIFIED: 70vh on mobile, 100vh on desktop
+    <section className="pt-16 min-h-[70vh] md:min-h-[100vh] flex items-center justify-center relative overflow-hidden bg-black">
       {/* Animated Background with Cultural Symbols */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Cultural Symbols */}
@@ -223,16 +265,17 @@ export default function Hero() {
         ))}
 
         {/* Enhanced Gradient Orbs for Depth */}
-        <div className="absolute top-20 left-10 w-80 h-80 bg-gradient-to-r from-[#D4AF37]/30 to-[#F4D03F]/15 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-[#F4D03F]/15 to-[#D4AF37]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2000ms' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-[#FFD700]/10 to-[#D4AF37]/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1000ms' }}></div>
+        {/* MODIFIED: Smaller orbs on mobile */}
+        <div className="absolute top-20 left-10 w-40 h-40 md:w-80 md:h-80 bg-gradient-to-r from-[#D4AF37]/30 to-[#F4D03F]/15 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-48 h-48 md:w-96 md:h-96 bg-gradient-to-r from-[#F4D03F]/15 to-[#D4AF37]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2000ms' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-64 md:h-64 bg-gradient-to-r from-[#FFD700]/10 to-[#D4AF37]/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1000ms' }}></div>
 
         {/* Animated Grid Lines */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer"></div>
-          <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{ animationDelay: '500ms' }}></div>
-          <div className="absolute top-2/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer" style={{ animationDelay: '1000ms' }}></div>
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{ animationDelay: '1500ms' }}></div>
+          <div className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent ${freezeAnimations ? '' : 'animate-shimmer'}`}></div>
+          <div className={`absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent ${freezeAnimations ? '' : 'animate-shimmer'}`} style={{ animationDelay: '500ms' }}></div>
+          <div className={`absolute top-2/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent ${freezeAnimations ? '' : 'animate-shimmer'}`} style={{ animationDelay: '1000ms' }}></div>
+          <div className={`absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent ${freezeAnimations ? '' : 'animate-shimmer'}`} style={{ animationDelay: '1500ms' }}></div>
         </div>
       </div>
 
@@ -241,12 +284,13 @@ export default function Hero() {
         <div className="max-w-2xl md:max-w-4xl mx-auto">
 
           {/* Enhanced Headline with Quick Entrance */}
-          <div className="mb-6 md:mb-8 animate-slideDown">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-4 tracking-tight leading-tight">
+          <div className="mb-4 md:mb-8 animate-slideDown">
+            <h1 className="text-3xl md:text-6xl lg:text-7xl font-light text-white mb-3 md:mb-4 tracking-tight leading-tight">
               Advanced
               <br />
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37] bg-clip-text text-transparent font-semibold animate-gradient-x">
+                {/* MODIFIED: Static gradient on mobile when frozen */}
+                <span className={`bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37] bg-clip-text text-transparent font-semibold ${freezeAnimations ? '' : 'animate-gradient-x'}`}>
                   Creative
                 </span>
               </span>
@@ -256,14 +300,14 @@ export default function Hero() {
           </div>
 
           {/* Animated Subheading */}
-          <div className="h-16 md:h-20 mb-6 md:mb-8 flex items-center justify-center animate-fadeIn" style={{ animationDelay: '200ms' }}>
-            <div className="text-lg md:text-xl lg:text-2xl text-gray-300 font-light transition-all duration-500 px-4">
+          <div className="h-14 md:h-20 mb-4 md:mb-8 flex items-center justify-center animate-fadeIn" style={{ animationDelay: '200ms' }}>
+            <div className="text-base md:text-xl lg:text-2xl text-gray-300 font-light transition-all duration-500 px-4">
               {subheadings[currentSubheading]}
             </div>
           </div>
 
           {/* CTA Buttons with Enhanced Animation */}
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center mb-8 md:mb-12 px-4 animate-fadeIn" style={{ animationDelay: '400ms' }}>
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center mb-6 md:mb-12 px-4 animate-fadeIn" style={{ animationDelay: '400ms' }}>
             <a
               href="/individuals"
               className="w-full sm:w-auto group bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] hover:from-[#b8941f] hover:to-[#d4b83d] text-black font-semibold py-3 md:py-4 px-6 md:px-8 rounded-full text-base md:text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-2xl flex items-center justify-center space-x-2 relative overflow-hidden"
@@ -279,10 +323,9 @@ export default function Hero() {
               className="w-full sm:w-auto group bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-3 md:py-4 px-6 md:px-8 rounded-full text-base md:text-lg transition-all duration-300 transform hover:scale-105 border border-white/30 hover:border-white/50 flex items-center justify-center space-x-2"
             >
               <Building className="w-4 h-4 md:w-5 md:h-5" />
-              <span>Explore Business Solutions</span>
+              <span className="text-sm md:text-base">Explore Business Solutions</span>
             </a>
           </div>
-
 
         </div>
       </div>
