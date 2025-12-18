@@ -20,11 +20,11 @@ export default function Hero() {
   const [currentSubheading, setCurrentSubheading] = useState(0);
   const [symbols, setSymbols] = useState<Symbol[]>([]);
   const symbolCount = useRef(0);
-  const maxSymbols = 12; // Increased but with faster cycles
-  
+  const maxSymbols = 7; // Increased but with faster cycles
+
   const subheadings = [
     "Studio photos without the studio",
-    "Premium Visuals at Revolutionary Speed", 
+    "Premium Visuals at Revolutionary Speed",
     "Your Creative Partner in the Digital Age"
   ];
 
@@ -108,7 +108,7 @@ export default function Hero() {
   const createSymbol = (): Symbol => {
     const template = symbolTemplates[Math.floor(Math.random() * symbolTemplates.length)];
     const animationType = animationTypes[Math.floor(Math.random() * animationTypes.length)];
-    
+
     return {
       id: symbolCount.current++,
       svg: template.svg,
@@ -144,14 +144,14 @@ export default function Hero() {
     // Switch to slower pace after 3 seconds
     setTimeout(() => {
       clearInterval(fastInterval);
-      
+
       const slowInterval = setInterval(() => {
         setSymbols(current => {
           const newSymbols = [...current, createSymbol()];
           return newSymbols.length > maxSymbols ? newSymbols.slice(1) : newSymbols;
         });
       }, 800); // Slower after initial attention
-      
+
       return () => clearInterval(slowInterval);
     }, 3000);
 
@@ -215,7 +215,7 @@ export default function Hero() {
             className="absolute pointer-events-none"
             style={getAnimationStyle(symbol)}
           >
-            <div 
+            <div
               dangerouslySetInnerHTML={{ __html: symbol.svg }}
               className="w-full h-full"
             />
@@ -224,22 +224,22 @@ export default function Hero() {
 
         {/* Enhanced Gradient Orbs for Depth */}
         <div className="absolute top-20 left-10 w-80 h-80 bg-gradient-to-r from-[#D4AF37]/30 to-[#F4D03F]/15 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-[#F4D03F]/15 to-[#D4AF37]/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2000ms'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-[#FFD700]/10 to-[#D4AF37]/10 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-        
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-[#F4D03F]/15 to-[#D4AF37]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2000ms' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-[#FFD700]/10 to-[#D4AF37]/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1000ms' }}></div>
+
         {/* Animated Grid Lines */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer"></div>
-          <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{animationDelay: '500ms'}}></div>
-          <div className="absolute top-2/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer" style={{animationDelay: '1000ms'}}></div>
-          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{animationDelay: '1500ms'}}></div>
+          <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{ animationDelay: '500ms' }}></div>
+          <div className="absolute top-2/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent animate-shimmer" style={{ animationDelay: '1000ms' }}></div>
+          <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F4D03F] to-transparent animate-shimmer" style={{ animationDelay: '1500ms' }}></div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 text-center relative z-10">
         <div className="max-w-2xl md:max-w-4xl mx-auto">
-          
+
           {/* Enhanced Headline with Quick Entrance */}
           <div className="mb-6 md:mb-8 animate-slideDown">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-4 tracking-tight leading-tight">
@@ -254,17 +254,17 @@ export default function Hero() {
               Solutions
             </h1>
           </div>
-          
+
           {/* Animated Subheading */}
-          <div className="h-16 md:h-20 mb-6 md:mb-8 flex items-center justify-center animate-fadeIn" style={{animationDelay: '200ms'}}>
+          <div className="h-16 md:h-20 mb-6 md:mb-8 flex items-center justify-center animate-fadeIn" style={{ animationDelay: '200ms' }}>
             <div className="text-lg md:text-xl lg:text-2xl text-gray-300 font-light transition-all duration-500 px-4">
               {subheadings[currentSubheading]}
             </div>
           </div>
 
           {/* CTA Buttons with Enhanced Animation */}
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center mb-8 md:mb-12 px-4 animate-fadeIn" style={{animationDelay: '400ms'}}>
-            <a 
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center mb-8 md:mb-12 px-4 animate-fadeIn" style={{ animationDelay: '400ms' }}>
+            <a
               href="/individuals"
               className="w-full sm:w-auto group bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] hover:from-[#b8941f] hover:to-[#d4b83d] text-black font-semibold py-3 md:py-4 px-6 md:px-8 rounded-full text-base md:text-lg transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-2xl flex items-center justify-center space-x-2 relative overflow-hidden"
             >
@@ -273,8 +273,8 @@ export default function Hero() {
               <span className="relative z-10">Start Photoshoot</span>
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform relative z-10" />
             </a>
-            
-            <a 
+
+            <a
               href="/business"
               className="w-full sm:w-auto group bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-3 md:py-4 px-6 md:px-8 rounded-full text-base md:text-lg transition-all duration-300 transform hover:scale-105 border border-white/30 hover:border-white/50 flex items-center justify-center space-x-2"
             >
@@ -283,7 +283,7 @@ export default function Hero() {
             </a>
           </div>
 
-        
+
         </div>
       </div>
 
