@@ -1,4 +1,4 @@
-// src/components/homepage/FinalCTA.tsx - ENHANCED
+// src/components/homepage/FinalCTA.tsx - HIDDEN ON MOBILE, VISIBLE ON DESKTOP
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Users, Star, Zap, MessageCircle, CheckCircle2 } from 'lucide-react';
@@ -32,7 +32,7 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = '' }: { end: number; d
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      
+
       setCount(Math.floor(progress * end));
 
       if (progress < 1) {
@@ -51,12 +51,35 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = '' }: { end: number; d
 };
 
 export default function FinalCTA() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // Check if mobile and control visibility
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setIsVisible(!mobile); // Hide on mobile, show on desktop
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Don't render anything on mobile
+  if (isMobile) {
+    return null;
+  }
+
+  // Desktop view - full component
   return (
     <section className="py-12 md:py-20 bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-32 h-32 md:w-64 md:h-64 bg-white/5 rounded-full -translate-x-16 -translate-y-16 md:-translate-x-32 md:-translate-y-32"></div>
       <div className="absolute bottom-0 right-0 w-32 h-32 md:w-64 md:h-64 bg-white/5 rounded-full translate-x-16 translate-y-16 md:translate-x-32 md:translate-y-32"></div>
-      
+
       <div className="container mx-auto px-4 text-center relative z-10">
         {/* Enhanced Header */}
         <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 font-playfair">
@@ -68,14 +91,14 @@ export default function FinalCTA() {
 
         {/* Enhanced CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-8 md:mb-12">
-          <a 
+          <a
             href="/individuals"
             className="group bg-black hover:bg-gray-900 text-white font-semibold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl border-2 border-transparent flex items-center justify-center space-x-2"
           >
             <span>Start Your Photoshoot</span>
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
           </a>
-          <a 
+          <a
             href="/business"
             className="group bg-white hover:bg-gray-100 text-black font-semibold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl border-2 border-transparent flex items-center justify-center space-x-2"
           >
@@ -139,16 +162,6 @@ export default function FinalCTA() {
               <span>24/7 Support</span>
             </div>
           </div>
-        </div>
-
-        {/* Additional CTA for Mobile */}
-        <div className="mt-6 md:hidden">
-          <a 
-            href="/contact"
-            className="inline-block bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 border border-white/30 text-sm"
-          >
-            Get Custom pricing
-          </a>
         </div>
       </div>
     </section>

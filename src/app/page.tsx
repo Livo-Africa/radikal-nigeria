@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// src/app/page.tsx - UPDATED WITH ALL MOBILE OPTIMIZATIONS
 import Navigation from '@/components/shared/Navigation';
 import Hero from '@/components/homepage/Hero';
 import AudienceSplit from '@/components/homepage/AudienceSplit';
@@ -10,6 +10,7 @@ import Pillars from '@/components/homepage/Pillars';
 import FinalCTA from '@/components/homepage/FinalCTA';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
 import Footer from '@/components/shared/Footer';
+import MobileStickyBar from '@/components/shared/MobileStickyBar'; // NEW
 import { getTestimonials, getTransformations } from '@/lib/google-sheets';
 
 // Add this to prevent build failures if Google Sheets is down
@@ -98,53 +99,53 @@ const mockTransformations = [
 // Performance-optimized data fetching with better error handling
 async function fetchData() {
   const startTime = Date.now();
-  
+
   try {
     // Only fetch in production if credentials exist
     if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
-     
-      
+
+
       const [testimonials, transformations] = await Promise.allSettled([
         getTestimonials(),
         getTransformations()
       ]);
 
       const fetchTime = Date.now() - startTime;
-      
+
 
       // Handle testimonials result
-      const finalTestimonials = testimonials.status === 'fulfilled' 
-        ? testimonials.value 
+      const finalTestimonials = testimonials.status === 'fulfilled'
+        ? testimonials.value
         : (() => {
-            
-            return mockTestimonials;
-          })();
+
+          return mockTestimonials;
+        })();
 
       // Handle transformations result
       const finalTransformations = transformations.status === 'fulfilled'
         ? transformations.value
         : (() => {
-            
-            return mockTransformations;
-          })();
+
+          return mockTransformations;
+        })();
 
       // Validate data structure
-      const validatedTestimonials = Array.isArray(finalTestimonials) && finalTestimonials.length > 0 
-        ? finalTestimonials 
+      const validatedTestimonials = Array.isArray(finalTestimonials) && finalTestimonials.length > 0
+        ? finalTestimonials
         : mockTestimonials;
 
       const validatedTransformations = Array.isArray(finalTransformations) && finalTransformations.length > 0
         ? finalTransformations
         : mockTransformations;
 
-     
+
       return {
         testimonials: validatedTestimonials,
         transformations: validatedTransformations,
         source: testimonials.status === 'fulfilled' && transformations.status === 'fulfilled' ? 'google-sheets' : 'mock-data'
       };
     } else {
-     
+
       return {
         testimonials: mockTestimonials,
         transformations: mockTransformations,
@@ -152,7 +153,7 @@ async function fetchData() {
       };
     }
   } catch (error) {
-    
+
     return {
       testimonials: mockTestimonials,
       transformations: mockTransformations,
@@ -204,36 +205,39 @@ export default async function Home() {
     <>
       <Navigation />
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Hero Section - Mobile optimized with 70vh height */}
         <Hero />
-        
-        {/* Audience Split */}
+
+        {/* Audience Split - Mobile tabs, desktop grid */}
         <AudienceSplit />
-        
-        {/* Transformations - Pass the fetched data */}
+
+        {/* Transformations - Mobile simplified, desktop full */}
         <Transformations transformations={transformations} />
-        
-        {/* Services */}
+
+        {/* Services - Mobile accordion, desktop grid */}
         <Services />
-        
-        {/* Testimonials - Pass the fetched data with mobile optimization */}
+
+        {/* Testimonials - Mobile swipe carousel, desktop grid */}
         <Testimonials testimonials={testimonials} />
-        
-        {/* Process */}
+
+        {/* Process - Mobile accordion steps, desktop grid */}
         <Process />
-        
-        {/* Pillars */}
+
+        {/* Pillars - Mobile simplified icons, desktop cards */}
         <Pillars />
-        
-        {/* Final CTA */}
+
+        {/* Final CTA - Hidden on mobile, visible on desktop */}
         <FinalCTA />
       </main>
-      
+
       {/* Footer */}
       <Footer />
-      
+
       {/* WhatsApp Float */}
       <WhatsAppFloat />
+
+      {/* Mobile Sticky Bar - Only visible on mobile */}
+      <MobileStickyBar />
     </>
   );
 }

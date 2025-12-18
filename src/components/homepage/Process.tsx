@@ -1,6 +1,6 @@
-// src/components/homepage/Process.tsx - ENHANCED
+// src/components/homepage/Process.tsx - MOBILE ACCORDION, DESKTOP GRID
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Upload,
   Sparkles,
@@ -12,80 +12,119 @@ import {
   Users,
   Building2,
   ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export default function Process() {
   const [activeTab, setActiveTab] = useState<'individuals' | 'business'>('individuals');
+  const [expandedSteps, setExpandedSteps] = useState<number[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const individualsProcess = [
     {
+      id: 1,
       step: 1,
       title: 'Upload Your Selfie',
       description: 'Simple photo upload from your phone',
       icon: Upload,
-      details: 'Take a selfie or choose from your gallery',
+      details: 'Take a selfie or choose from your gallery. We recommend good lighting and a clear background for best results.',
       color: 'from-blue-500 to-cyan-500'
     },
     {
+      id: 2,
       step: 2,
       title: 'Magic Happens',
       description: 'Advanced technology enhances your look',
       icon: Sparkles,
-      details: 'Our AI transforms your photo professionally',
+      details: 'Our AI transforms your photo professionally with background replacement, lighting adjustments, and professional retouching.',
       color: 'from-purple-500 to-pink-500'
     },
     {
+      id: 3,
       step: 3,
       title: 'Delivery via WhatsApp',
       description: 'Fast, direct to your phone',
       icon: MessageCircle,
-      details: 'Receive studio-quality photos instantly',
+      details: 'Receive studio-quality photos instantly on WhatsApp. Get 5 edited photos delivered within 1-3 hours.',
       color: 'from-green-500 to-emerald-500'
     }
   ];
 
   const businessProcess = [
     {
+      id: 4,
       step: 1,
       title: 'Consult',
       description: 'Understand your goals',
       icon: Target,
-      details: 'Deep dive into your brand needs',
+      details: 'Deep dive into your brand needs and objectives with our creative team.',
       color: 'from-blue-500 to-blue-600'
     },
     {
+      id: 5,
       step: 2,
       title: 'Create',
       description: 'Develop concepts',
       icon: Palette,
-      details: 'Our team creates stunning concepts',
+      details: 'Our team creates stunning concepts tailored to your brand identity.',
       color: 'from-purple-500 to-purple-600'
     },
     {
+      id: 6,
       step: 3,
       title: 'Enhance',
       description: 'Technology meets creativity',
       icon: Cog,
-      details: 'Advanced digital enhancement',
+      details: 'Advanced digital enhancement and professional editing to perfect every detail.',
       color: 'from-orange-500 to-orange-600'
     },
     {
+      id: 7,
       step: 4,
       title: 'Deliver',
       description: 'Ready to use',
       icon: Rocket,
-      details: 'Premium results delivered fast',
+      details: 'Premium results delivered fast with multiple format options for all platforms.',
       color: 'from-green-500 to-green-600'
     }
   ];
 
   const currentProcess = activeTab === 'individuals' ? individualsProcess : businessProcess;
 
+  const toggleStep = (stepId: number) => {
+    setExpandedSteps(prev =>
+      prev.includes(stepId)
+        ? prev.filter(id => id !== stepId)
+        : [...prev, stepId]
+    );
+  };
+
+  const expandAllSteps = () => {
+    setExpandedSteps(currentProcess.map(step => step.id));
+  };
+
+  const collapseAllSteps = () => {
+    setExpandedSteps([]);
+  };
+
   return (
-    <section className="py-12 md:py-20 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-8 md:py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
-        {/* Enhanced Header */}
+        {/* Header - Same for both */}
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 font-playfair">
             How <span className="text-[#D4AF37]">Radikal</span> Works
@@ -95,41 +134,152 @@ export default function Process() {
           </p>
         </div>
 
-        {/* Enhanced Toggle - Mobile Optimized */}
+        {/* Tab Toggle - Same for both but mobile optimized */}
         <div className="flex justify-center mb-8 md:mb-16">
           <div className="bg-gray-100 rounded-2xl p-1 md:p-2 shadow-inner w-full max-w-md">
             <div className="grid grid-cols-2 gap-1">
               <button
-                onClick={() => setActiveTab('individuals')}
+                onClick={() => {
+                  setActiveTab('individuals');
+                  setExpandedSteps([]); // Reset expanded steps when tab changes
+                }}
                 className={`flex items-center justify-center space-x-2 py-3 md:py-4 rounded-xl font-bold text-sm md:text-lg transition-all duration-300 transform ${activeTab === 'individuals'
                     ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
                     : 'text-gray-600 hover:text-gray-900 hover:scale-102'
                   }`}
               >
                 <Users className="w-4 h-4 md:w-5 md:h-5" />
-                <span className="hidden sm:inline">For Individuals</span>
-                <span className="sm:hidden">Individuals</span>
+                <span>For Individuals</span>
               </button>
               <button
-                onClick={() => setActiveTab('business')}
+                onClick={() => {
+                  setActiveTab('business');
+                  setExpandedSteps([]); // Reset expanded steps when tab changes
+                }}
                 className={`flex items-center justify-center space-x-2 py-3 md:py-4 rounded-xl font-bold text-sm md:text-lg transition-all duration-300 transform ${activeTab === 'business'
                     ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
                     : 'text-gray-600 hover:text-gray-900 hover:scale-102'
                   }`}
               >
                 <Building2 className="w-4 h-4 md:w-5 md:h-5" />
-                <span className="hidden sm:inline">For Business</span>
-                <span className="sm:hidden">Business</span>
+                <span>For Business</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Process Steps */}
-        <div className="max-w-6xl mx-auto">
-          <div className={`grid gap-4 md:gap-8 ${currentProcess.length === 3
-              ? 'grid-cols-1 md:grid-cols-3'
-              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+        {/* =============================================== */}
+        {/* MOBILE VIEW: Accordion Steps */}
+        {/* =============================================== */}
+        <div className="block md:hidden">
+          <div className="max-w-2xl mx-auto">
+            {/* Expand/Collapse All Buttons */}
+            <div className="flex justify-between items-center mb-4">
+              <button
+                onClick={expandAllSteps}
+                className="text-sm text-[#D4AF37] font-medium hover:text-[#b8941f] transition-colors"
+              >
+                Expand All
+              </button>
+              <button
+                onClick={collapseAllSteps}
+                className="text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
+              >
+                Collapse All
+              </button>
+            </div>
+
+            {/* Steps Accordion */}
+            <div className="space-y-3">
+              {currentProcess.map((step) => {
+                const Icon = step.icon;
+                const isExpanded = expandedSteps.includes(step.id);
+
+                return (
+                  <div
+                    key={step.id}
+                    className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-300 ${isExpanded ? 'shadow-xl' : ''
+                      }`}
+                  >
+                    {/* Step Header */}
+                    <button
+                      onClick={() => toggleStep(step.id)}
+                      className="w-full text-left p-4 flex items-center justify-between focus:outline-none"
+                    >
+                      <div className="flex items-center space-x-4">
+                        {/* Step Number */}
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold">
+                          {step.step}
+                        </div>
+
+                        {/* Step Info */}
+                        <div className="flex items-center space-x-3">
+                          {/* Icon */}
+                          <div className={`w-10 h-10 bg-gradient-to-br ${step.color} rounded-xl flex items-center justify-center text-white`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-left">
+                              {step.title}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {step.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Expand/Collapse Icon */}
+                      <div className="text-gray-400">
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Expandable Content */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                        }`}
+                    >
+                      <div className="p-4 pt-0">
+                        <div className="border-t border-gray-100 pt-4">
+                          <h4 className="font-semibold text-gray-800 mb-2">
+                            How it works:
+                          </h4>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {step.details}
+                          </p>
+
+                          {/* Step-specific tip */}
+                          <div className="mt-4 p-3 bg-[#D4AF37]/10 rounded-lg">
+                            <p className="text-xs text-gray-700 font-medium">
+                              💡 {activeTab === 'individuals'
+                                ? 'Usually takes 1-3 hours'
+                                : 'Professional quality guaranteed'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* =============================================== */}
+        {/* DESKTOP VIEW: Original Grid Layout */}
+        {/* =============================================== */}
+        <div className="hidden md:block max-w-6xl mx-auto">
+          {/* Process Steps Grid */}
+          <div className={`grid gap-8 ${currentProcess.length === 3
+            ? 'grid-cols-1 md:grid-cols-3'
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
             }`}>
             {currentProcess.map((step, index) => (
               <div
@@ -142,29 +292,29 @@ export default function Process() {
                 )}
 
                 {/* Step Card */}
-                <div className="relative z-10 bg-white rounded-2xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-500 transform group-hover:-translate-y-2 border border-gray-100">
+                <div className="relative z-10 bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 transform group-hover:-translate-y-2 border border-gray-100">
                   {/* Step Number */}
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold text-lg md:text-xl mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] rounded-full flex items-center justify-center text-black font-bold text-xl mx-auto mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg">
                     {step.step}
                   </div>
 
                   {/* Enhanced Icon */}
-                  <div className={`w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-500 shadow-lg`}>
-                    <step.icon className="w-8 h-8 md:w-10 md:h-10" />
+                  <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-500 shadow-lg`}>
+                    <step.icon className="w-10 h-10" />
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg md:text-xl font-bold mb-2 text-gray-900 group-hover:text-black transition-colors">
+                  <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-black transition-colors">
                     {step.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-gray-600 mb-3 font-semibold text-sm md:text-base">
+                  <p className="text-gray-600 mb-3 font-semibold text-base">
                     {step.description}
                   </p>
 
                   {/* Details */}
-                  <p className="text-xs md:text-sm text-gray-500 group-hover:text-gray-700 transition-colors leading-relaxed">
+                  <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors leading-relaxed">
                     {step.details}
                   </p>
                 </div>
@@ -180,7 +330,7 @@ export default function Process() {
           </div>
         </div>
 
-        {/* Enhanced Process Summary */}
+        {/* Process Summary - Same for both but mobile optimized */}
         <div className="text-center mt-8 md:mt-12 max-w-3xl mx-auto">
           <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl p-6 md:p-8 border border-[#D4AF37]/20">
             <h4 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-900 flex items-center justify-center space-x-2">
@@ -213,27 +363,45 @@ export default function Process() {
               </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>
-
           </div>
         </div>
 
-        {/* Trust Indicators */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-2xl mx-auto mt-8 md:mt-12 text-center">
+        {/* Trust Indicators - Desktop only */}
+        <div className="hidden md:grid grid-cols-4 gap-8 max-w-2xl mx-auto mt-8 md:mt-12 text-center">
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-1">1-3h</div>
-            <div className="text-xs md:text-sm text-gray-600">Avg. Delivery</div>
+            <div className="text-3xl font-bold text-[#D4AF37] mb-1">1-3h</div>
+            <div className="text-sm text-gray-600">Avg. Delivery</div>
           </div>
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-1">4.9/5</div>
-            <div className="text-xs md:text-sm text-gray-600">Satisfaction</div>
+            <div className="text-3xl font-bold text-[#D4AF37] mb-1">4.9/5</div>
+            <div className="text-sm text-gray-600">Satisfaction</div>
           </div>
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-1">700+</div>
-            <div className="text-xs md:text-sm text-gray-600">Happy Clients</div>
+            <div className="text-3xl font-bold text-[#D4AF37] mb-1">700+</div>
+            <div className="text-sm text-gray-600">Happy Clients</div>
           </div>
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl md:text-3xl font-bold text-[#D4AF37] mb-1">24/7</div>
-            <div className="text-xs md:text-sm text-gray-600">Support</div>
+            <div className="text-3xl font-bold text-[#D4AF37] mb-1">24/7</div>
+            <div className="text-sm text-gray-600">Support</div>
+          </div>
+        </div>
+
+        {/* Mobile Trust Indicators - Simplified */}
+        <div className="block md:hidden mt-8">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-[#D4AF37] mb-1">1-3h</div>
+                <div className="text-xs text-gray-600">Avg. Delivery</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-[#D4AF37] mb-1">4.9/5</div>
+                <div className="text-xs text-gray-600">Satisfaction</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Trusted by 700+ clients with 24/7 support
+            </div>
           </div>
         </div>
       </div>
