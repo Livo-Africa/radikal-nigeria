@@ -1,16 +1,25 @@
-// src/app/individuals/page.tsx - UPDATED
+// src/app/individuals/page.tsx
 import Navigation from '@/components/shared/Navigation';
 import Footer from '@/components/shared/Footer';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
+import FAQSection from '@/components/individuals/FAQSection';
+import FinalCTA from '@/components/individuals/FinalCTA';
+import TransformationsGallery from '@/components/individuals/TransformationsGallery';
+
+// Mobile Components
+import MobileHeader from '@/components/individuals/MobileHeader';
+import PackageCarousel from '@/components/individuals/PackageCarousel';
+import ProcessAccordion from '@/components/individuals/ProcessAccordion';
+import StickyBottomBar from '@/components/individuals/StickyBottomBar';
+
+// Desktop Components (for larger screens)
 import HeroSection from '@/components/individuals/HeroSection';
 import PackageShowcase from '@/components/individuals/PackageShowcase';
 import ProcessSection from '@/components/individuals/ProcessSection';
-import TransformationsGallery from '@/components/individuals/TransformationsGallery';
-import FAQSection from '@/components/individuals/FAQSection';
-import FinalCTA from '@/components/individuals/FinalCTA';
+
 import { getTransformations } from '@/lib/google-sheets';
 
-// Mock transformations in case Google Sheets fails
+// Mock transformations
 const mockTransformations = [
   {
     beforeUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&h=600&fit=crop",
@@ -51,12 +60,28 @@ export default async function IndividualsPage() {
     <>
       <Navigation />
       <main className="flex-1">
-        <HeroSection />
-        <PackageShowcase />
-        <ProcessSection />
-        <TransformationsGallery transformations={transformations} />
-        <FAQSection />
-        <FinalCTA />
+        {/* Mobile View (hidden on desktop) */}
+        <div className="block md:hidden">
+          <MobileHeader />
+          <div id="packages">
+            <PackageCarousel />
+          </div>
+          <ProcessAccordion />
+          <TransformationsGallery transformations={transformations} />
+          <FAQSection />
+          <FinalCTA />
+          <StickyBottomBar />
+        </div>
+
+        {/* Desktop View (hidden on mobile) */}
+        <div className="hidden md:block">
+          <HeroSection />
+          <PackageShowcase />
+          <ProcessSection />
+          <TransformationsGallery transformations={transformations} />
+          <FAQSection />
+          <FinalCTA />
+        </div>
       </main>
       <Footer />
       <WhatsAppFloat />
