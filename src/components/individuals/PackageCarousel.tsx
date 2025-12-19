@@ -250,7 +250,7 @@ export default function PackageCarousel() {
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`rounded-full transition-all ${index === currentIndex
+                                className={`dot-indicator rounded-full transition-all ${index === currentIndex
                                     ? 'w-2 h-2 bg-[#D4AF37]'
                                     : 'w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400'
                                     }`}
