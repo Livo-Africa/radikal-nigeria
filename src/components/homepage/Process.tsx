@@ -50,7 +50,7 @@ export default function Process() {
       title: 'Magic Happens',
       description: 'Advanced technology enhances your look',
       icon: Sparkles,
-      details: 'Our AI transforms your photo professionally with background replacement, lighting adjustments, and professional retouching.',
+      details: 'Our technology transforms your photo professionally with background replacement, lighting adjustments, and professional retouching.',
       color: 'from-purple-500 to-pink-500'
     },
     {
@@ -59,7 +59,7 @@ export default function Process() {
       title: 'Delivery via WhatsApp',
       description: 'Fast, direct to your phone',
       icon: MessageCircle,
-      details: 'Receive studio-quality photos instantly on WhatsApp. Get 5 edited photos delivered within 1-3 hours.',
+      details: 'Receive studio-quality photos instantly on WhatsApp. Get edited photos delivered within 1-3 hours.',
       color: 'from-green-500 to-emerald-500'
     }
   ];
@@ -136,8 +136,8 @@ export default function Process() {
                   setExpandedSteps([]);
                 }}
                 className={`flex items-center justify-center space-x-2 py-3 md:py-4 rounded-xl font-bold text-sm md:text-lg transition-all duration-300 transform ${activeTab === 'individuals'
-                    ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
-                    : 'text-gray-600 hover:text-gray-900 hover:scale-102'
+                  ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
+                  : 'text-gray-600 hover:text-gray-900 hover:scale-102'
                   }`}
               >
                 <Users className="w-4 h-4 md:w-5 md:h-5" />
@@ -149,8 +149,8 @@ export default function Process() {
                   setExpandedSteps([]);
                 }}
                 className={`flex items-center justify-center space-x-2 py-3 md:py-4 rounded-xl font-bold text-sm md:text-lg transition-all duration-300 transform ${activeTab === 'business'
-                    ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
-                    : 'text-gray-600 hover:text-gray-900 hover:scale-102'
+                  ? 'bg-[#D4AF37] text-black shadow-lg scale-105'
+                  : 'text-gray-600 hover:text-gray-900 hover:scale-102'
                   }`}
               >
                 <Building2 className="w-4 h-4 md:w-5 md:h-5" />

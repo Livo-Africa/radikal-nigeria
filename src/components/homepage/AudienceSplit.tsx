@@ -1,4 +1,4 @@
-// src/components/homepage/AudienceSplit.tsx - MOBILE TABS (SIMPLIFIED)
+// src/components/homepage/AudienceSplit.tsx - MOBILE TABS (PROFESSIONAL)
 'use client';
 import { useState, useEffect } from 'react';
 import { Camera, Building2, Users, CheckCircle2, ArrowRight } from 'lucide-react';
@@ -32,7 +32,7 @@ export default function AudienceSplit() {
       icon: Camera,
       iconColor: "text-[#D4AF37]",
       buttonColor: "bg-[#D4AF37] hover:bg-[#b8941f]",
-
+      tabColor: "bg-[#D4AF37] text-black"
     },
     business: {
       id: 'business',
@@ -46,7 +46,7 @@ export default function AudienceSplit() {
       icon: Building2,
       iconColor: "text-[#B91C1C]",
       buttonColor: "bg-[#B91C1C] hover:bg-[#991b1b]",
-
+      tabColor: "bg-[#B91C1C] text-white"
     },
     creators: {
       id: 'creators',
@@ -60,7 +60,7 @@ export default function AudienceSplit() {
       icon: Users,
       iconColor: "text-gray-900",
       buttonColor: "bg-gray-900 hover:bg-black",
-
+      tabColor: "bg-gray-900 text-white"
     }
   };
 
@@ -80,50 +80,51 @@ export default function AudienceSplit() {
         </div>
 
         {/* =============================================== */}
-        {/* MOBILE VIEW: Simple Tabbed Interface */}
+        {/* MOBILE VIEW: Professional Tab Interface */}
         {/* =============================================== */}
         <div className="block md:hidden">
           <div className="max-w-md mx-auto">
-            {/* Tab Navigation */}
+            {/* Professional Tab Navigation */}
             <div className="flex justify-between mb-6 bg-gray-100 rounded-2xl p-1 shadow-inner">
-              <button
-                onClick={() => setActiveTab('individuals')}
-                className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${activeTab === 'individuals'
-                  ? 'bg-[#D4AF37] text-black shadow-lg'
-                  : 'text-gray-600 hover:text-gray-900'
-                  }`}
-              >
-                <span className="text-2xl mb-1">📸</span>
-                <span className="text-xs font-semibold">Individuals</span>
-              </button>
+              {Object.values(audiences).map((audience) => {
+                const Icon = audience.icon;
+                const isActive = activeTab === audience.id;
 
-              <button
-                onClick={() => setActiveTab('business')}
-                className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${activeTab === 'business'
-                  ? 'bg-[#B91C1C] text-white shadow-lg'
-                  : 'text-gray-600 hover:text-gray-900'
-                  }`}
-              >
-                <span className="text-2xl mb-1">💼</span>
-                <span className="text-xs font-semibold">Business</span>
-              </button>
+                return (
+                  <button
+                    key={audience.id}
+                    onClick={() => setActiveTab(audience.id as 'individuals' | 'business' | 'creators')}
+                    className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${isActive
+                      ? `${audience.tabColor} shadow-lg`
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                      }`}
+                  >
+                    {/* Professional Lucide Icon */}
+                    <div className={`mb-1 ${isActive
+                      ? audience.id === 'individuals' ? 'text-black' : 'text-white'
+                      : audience.iconColor
+                      }`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
 
-              <button
-                onClick={() => setActiveTab('creators')}
-                className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all duration-300 ${activeTab === 'creators'
-                  ? 'bg-gray-900 text-white shadow-lg'
-                  : 'text-gray-600 hover:text-gray-900'
-                  }`}
-              >
-                <span className="text-2xl mb-1">✨</span>
-                <span className="text-xs font-semibold">Creators</span>
-              </button>
+                    {/* Tab Label */}
+                    <span className={`text-xs font-semibold ${isActive
+                      ? audience.id === 'individuals' ? 'text-black' : 'text-white'
+                      : 'text-gray-700'
+                      }`}>
+                      {audience.id === 'individuals' ? 'Indiv.' :
+                        audience.id === 'business' ? 'Business' :
+                          'Creators'}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Active Tab Content - Always Expanded */}
             <div className={`bg-gradient-to-br ${activeAudience.bgGradient} rounded-2xl p-6 shadow-lg border ${activeAudience.borderColor} overflow-hidden transition-all duration-500`}>
               {/* Header */}
-              <div className="flex items-center space-x-3 mb-4">
+              <div className="flex items-center space-x-4 mb-4">
                 <div className={`w-12 h-12 bg-white rounded-2xl flex items-center justify-center ${activeAudience.iconColor} shadow-md`}>
                   <activeAudience.icon className="w-6 h-6" />
                 </div>
