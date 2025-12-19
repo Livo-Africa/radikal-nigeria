@@ -2,11 +2,19 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Package, X } from 'lucide-react';
+
+// Simple icon components
+const PackageIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+);
 
 export default function StickyBottomBar() {
     const [isVisible, setIsVisible] = useState(false);
-    const [showWhatsAppBanner, setShowWhatsAppBanner] = useState(true);
     const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
     const lastScrollY = useRef(0);
 
@@ -34,7 +42,7 @@ export default function StickyBottomBar() {
         let ticking = false;
         const throttledScroll = () => {
             if (!ticking) {
-                requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => {
                     handleScroll();
                     ticking = false;
                 });
@@ -46,13 +54,6 @@ export default function StickyBottomBar() {
 
         return () => window.removeEventListener('scroll', throttledScroll);
     }, []);
-
-    const handleWhatsAppClick = () => {
-        window.open(
-            'https://wa.me/233207472307?text=Hi%20Radikal!%20I%20have%20questions%20about%20your%20virtual%20photoshoots',
-            '_blank'
-        );
-    };
 
     const handleBookNow = () => {
         // Scroll to packages or start booking flow
@@ -67,69 +68,32 @@ export default function StickyBottomBar() {
     if (!isVisible) return null;
 
     return (
-        <>
-            {/* WhatsApp Banner (Only shows when scrolling up) */}
-            {showWhatsAppBanner && scrollDirection === 'up' && (
-                <div className="fixed bottom-24 left-0 right-0 z-40 px-4 animate-slideUp">
-                    <div className="bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white rounded-xl p-4 shadow-lg relative">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+            <div className="container mx-auto px-4 py-3">
+                <div className="flex items-center justify-between">
+
+                    {/* Action Buttons */}
+                    <div className="flex-1 flex gap-3 sm:justify-end">
                         <button
-                            onClick={() => setShowWhatsAppBanner(false)}
-                            className="absolute top-2 right-2 text-white/80 hover:text-white"
+                            onClick={() => window.location.href = '/individuals/packages'}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors active:scale-95"
                         >
-                            <X className="w-4 h-4" />
+                            <div className="flex items-center">
+                                <PackageIcon />
+                            </div>
+                            <span className="hidden sm:inline">Packages</span>
+                            <span className="sm:hidden">View All</span>
                         </button>
-                        <div className="flex items-center">
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            <div className="flex-1">
-                                <p className="font-semibold text-sm">Need help?</p>
-                                <p className="text-xs opacity-90">Chat with us on WhatsApp</p>
-                            </div>
-                            <button
-                                onClick={handleWhatsAppClick}
-                                className="bg-white text-[#25D366] text-sm font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                Chat Now
-                            </button>
-                        </div>
+
+                        <button
+                            onClick={handleBookNow}
+                            className="flex-1 sm:flex-none bg-[#D4AF37] text-black font-semibold py-3 px-6 rounded-lg hover:bg-[#c19c2d] transition-colors shadow-lg shadow-[#D4AF37]/25 active:scale-95"
+                        >
+                            Book Now
+                        </button>
                     </div>
-                </div>
-            )}
-
-            {/* Main Sticky Bar */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
-                <div className="container mx-auto px-4 py-3">
-                    <div className="flex items-center justify-between">
-                        {/* Quick Info */}
-                        <div className="hidden sm:block">
-                            <div className="flex items-center text-sm">
-                                <span className="text-[#D4AF37] mr-2">⚡</span>
-                                <span className="text-gray-700">1-3h delivery</span>
-                            </div>
-                            <div className="text-xs text-gray-500">100% satisfaction guarantee</div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex-1 flex gap-3 sm:justify-end">
-                            <button
-                                onClick={() => window.location.href = '/individuals/packages'}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors"
-                            >
-                                <Package className="w-4 h-4" />
-                                <span className="hidden sm:inline">Packages</span>
-                                <span className="sm:hidden">View All</span>
-                            </button>
-
-                            <button
-                                onClick={handleBookNow}
-                                className="flex-1 sm:flex-none bg-[#D4AF37] text-black font-semibold py-3 px-6 rounded-lg hover:bg-[#c19c2d] transition-colors shadow-lg shadow-[#D4AF37]/25 active:scale-95 transition-transform"
-                            >
-                                Book Now
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
-        </>
+        </div>
     );
 }

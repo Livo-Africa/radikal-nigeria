@@ -477,3 +477,45 @@ video {
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
 }
+
+/* Mobile Optimizations */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch-friendly tap targets */
+button,
+a {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+/* Mobile-optimized images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Active state feedback */
+button:active {
+  transform: scale(0.98);
+}
+
+/* Prevent text selection on swipe */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
