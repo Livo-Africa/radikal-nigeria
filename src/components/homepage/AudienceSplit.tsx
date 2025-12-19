@@ -164,7 +164,7 @@ export default function AudienceSplit() {
                 <button
                   key={key}
                   onClick={() => setActiveTab(key as 'individuals' | 'business' | 'creators')}
-                  className={`w-2 h-2 rounded-full transition-all ${activeTab === key
+                  className={`w-1 h-1 rounded-full transition-all ${activeTab === key
                     ? key === 'individuals' ? 'bg-[#D4AF37] w-6'
                       : key === 'business' ? 'bg-[#B91C1C] w-6'
                         : 'bg-gray-900 w-6'

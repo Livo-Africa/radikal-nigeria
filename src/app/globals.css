@@ -428,12 +428,6 @@ video {
     height: auto;
   }
 
-  /* Touch-friendly tap targets */
-  button,
-  a {
-    min-height: 44px;
-    min-width: 44px;
-  }
 }
 
 /* Haptic feedback simulation */
