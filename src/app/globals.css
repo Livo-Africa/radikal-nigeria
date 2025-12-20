@@ -819,3 +819,69 @@ button {
       rgba(212, 175, 55, 0.1) 50%,
       rgba(212, 175, 55, 0) 100%);
 }
+
+/* Enhanced Package Carousel Styles */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Glow effect for active elements */
+.glow-active {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Touch-friendly tap targets */
+@media (max-width: 768px) {
+
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Enhanced card hover effects for mobile */
+  .package-card {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  .package-card:hover {
+    transform: translateY(-4px) translateZ(0);
+  }
+}
+
+/* Gradient text for special elements */
+.gradient-text {
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle shadow depth */
+.shadow-depth-1 {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-depth-2 {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.shadow-depth-3 {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
+}
+
+/* Smooth gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
