@@ -62,14 +62,14 @@ export default async function IndividualsPage() {
       <main className="flex-1">
         {/* Mobile View (hidden on desktop) */}
         <div className="block md:hidden">
-          <MobileHeader />
+          {/* <MobileHeader /> */}
           <div id="packages">
             <PackageCarousel />
           </div>
           <ProcessAccordion />
           <TransformationsGallery transformations={transformations} />
           <FAQSection />
-          <FinalCTA />
+          {/* <FinalCTA /> */}
           <StickyBottomBar />
         </div>
 

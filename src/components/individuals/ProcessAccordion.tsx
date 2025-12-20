@@ -1,60 +1,16 @@
-// components/individuals/ProcessAccordion.tsx - Updated
+// components/individuals/ProcessAccordion.tsx - FIXED VERSION
 'use client';
 
-import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-
-// Simple icon components
-const UploadIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>
-);
-
-const ZapIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-  </svg>
-);
-
-const CheckCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
-const ChevronDownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 12 15 18 9" />
-  </svg>
-);
+import { Upload, Users, Zap, ChevronDown, CheckCircle, Clock } from 'lucide-react';
 
 export default function ProcessAccordion() {
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([0]);
+  const [viewedSteps, setViewedSteps] = useState<number[]>([0]); // Track viewed steps
 
   const steps = [
     {
-      id: 1,
+      id: 0, // Changed from 1 to 0
       title: "Upload Selfie",
       description: "Take a clear photo or choose from gallery",
       details: [
@@ -63,12 +19,12 @@ export default function ProcessAccordion() {
         "No hats/sunglasses",
         "Good lighting preferred"
       ],
-      icon: <UploadIcon />,
+      icon: <Upload className="w-5 h-5" />,
       time: "2 minutes",
       color: "bg-green-500"
     },
     {
-      id: 2,
+      id: 1, // Changed from 2 to 1
       title: "We Enhance",
       description: "Professional editing by our team",
       details: [
@@ -77,12 +33,12 @@ export default function ProcessAccordion() {
         "Professional lighting effects",
         "Color correction"
       ],
-      icon: <UsersIcon />,
+      icon: <Users className="w-5 h-5" />,
       time: "1-3 hours",
       color: "bg-blue-500"
     },
     {
-      id: 3,
+      id: 2, // Changed from 3 to 2
       title: "Get Your Photos",
       description: "Photos delivered digitally",
       details: [
@@ -91,7 +47,7 @@ export default function ProcessAccordion() {
         "Unlimited downloads",
         "Instant access"
       ],
-      icon: <ZapIcon />,
+      icon: <Zap className="w-5 h-5" />,
       time: "Instant",
       color: "bg-[#D4AF37]"
     }
@@ -100,11 +56,14 @@ export default function ProcessAccordion() {
   const toggleStep = (stepId: number) => {
     setExpandedStep(expandedStep === stepId ? null : stepId);
 
-    // Mark step as viewed/completed
-    if (!completedSteps.includes(stepId)) {
-      setCompletedSteps([...completedSteps, stepId]);
+    // Mark step as viewed if not already
+    if (!viewedSteps.includes(stepId)) {
+      setViewedSteps([...viewedSteps, stepId]);
     }
   };
+
+  // Calculate progress based on VIEWED steps (0-3)
+  const progressPercentage = Math.round((viewedSteps.length / steps.length) * 100);
 
   return (
     <section className="py-8 bg-gray-50">
@@ -119,17 +78,17 @@ export default function ProcessAccordion() {
           </p>
         </div>
 
-        {/* Progress Bar */}
+        {/* Progress Bar - FIXED */}
         <div className="mb-8 px-4">
           <div className="relative h-1 bg-gray-200 rounded-full">
             <div
               className="absolute top-0 left-0 h-full bg-[#D4AF37] rounded-full transition-all duration-500"
-              style={{ width: `${(completedSteps.length / steps.length) * 100}%` }}
+              style={{ width: `${progressPercentage}%` }}
             />
           </div>
           <div className="flex justify-between mt-2 text-xs text-gray-500">
-            <span>Step {completedSteps.length} of {steps.length}</span>
-            <span>{Math.round((completedSteps.length / steps.length) * 100)}% complete</span>
+            <span>Step {viewedSteps.length} of {steps.length}</span>
+            <span>{progressPercentage}% complete</span>
           </div>
         </div>
 
@@ -148,21 +107,21 @@ export default function ProcessAccordion() {
                 <div className="flex items-center">
                   {/* Step Number with Status */}
                   <div className={`relative w-10 h-10 rounded-full ${step.color} flex items-center justify-center text-white mr-3`}>
-                    {completedSteps.includes(step.id) ? (
-                      <CheckCircleIcon />
+                    {viewedSteps.includes(step.id) ? (
+                      <CheckCircle className="w-5 h-5" />
                     ) : (
                       step.icon
                     )}
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-black text-white text-xs rounded-full flex items-center justify-center">
-                      {step.id}
+                      {step.id + 1} {/* Display 1,2,3 instead of 0,1,2 */}
                     </div>
                   </div>
 
                   <div className="text-left">
                     <h3 className="font-semibold text-gray-900">{step.title}</h3>
                     <div className="flex items-center text-sm text-gray-500 mt-1">
-                      <ClockIcon />
-                      <span className="ml-1">{step.time}</span>
+                      <Clock className="w-3 h-3 mr-1" />
+                      {step.time}
                     </div>
                   </div>
                 </div>
@@ -190,13 +149,6 @@ export default function ProcessAccordion() {
                       ))}
                     </ul>
                   </div>
-
-                  {/* Action Tip */}
-                  <div className="mt-4 text-sm text-gray-500">
-                    {step.id === 1 && "Pro tip: Take photos in natural light for best results"}
-                    {step.id === 2 && "Our editors work on one photo at a time for maximum quality"}
-                    {step.id === 3 && "Download your photos immediately - they're yours to keep forever"}
-                  </div>
                 </div>
               )}
             </div>
@@ -210,7 +162,7 @@ export default function ProcessAccordion() {
             <div className="text-xs text-gray-600 mt-1">Delivery Time</div>
           </div>
           <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="text-xl font-bold text-[#D4AF37]">700+</div>
+            <div className="text-xl font-bold text-[#D4AF37]">500+</div>
             <div className="text-xs text-gray-600 mt-1">Happy Clients</div>
           </div>
           <div className="bg-white rounded-lg p-4 border border-gray-200">
@@ -227,6 +179,9 @@ export default function ProcessAccordion() {
           >
             Start Your Photoshoot
           </a>
+          <p className="text-gray-500 text-sm mt-3">
+            No upfront payment required
+          </p>
         </div>
       </div>
     </section>
