@@ -179,9 +179,6 @@ export default function ProcessAccordion() {
           >
             Start Your Photoshoot
           </a>
-          <p className="text-gray-500 text-sm mt-3">
-            No upfront payment required
-          </p>
         </div>
       </div>
     </section>

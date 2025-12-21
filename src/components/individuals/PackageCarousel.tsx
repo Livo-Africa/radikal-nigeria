@@ -30,10 +30,122 @@ interface Package {
 export default function PackageCarousel() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [touchStartX, setTouchStartX] = useState(0);
-    const [activeCategory, setActiveCategory] = useState<string>('Specialty & Themed');
+    const [activeCategory, setActiveCategory] = useState<string>('Solo');
     const carouselRef = useRef<HTMLDivElement>(null);
 
     const categoryData = {
+        'Solo': {
+            packages: [
+                {
+                    id: "solo-standard",
+                    name: "Solo Standard",
+                    price: "₵50",
+                    photos: 4,
+                    outfits: 1,
+                    features: ["4 Images", "1 Outfit", "Multiple poses"],
+                    popular: true,
+                    category: "Solo",
+                    description: "Personal photos"
+                },
+                {
+                    id: "solo-medium",
+                    name: "Solo Medium",
+                    price: "₵90",
+                    photos: 8,
+                    outfits: 2,
+                    features: ["8 Images", "2 Outfits", "Varied poses"],
+                    popular: false,
+                    category: "Solo",
+                    description: "More variety"
+                },
+                {
+                    id: "solo-supreme",
+                    name: "Solo Supreme",
+                    price: "₵130",
+                    photos: 15,
+                    outfits: 3,
+                    features: ["15 Images", "3 Outfits", "Premium lighting"],
+                    popular: false,
+                    category: "Solo",
+                    description: "Premium portfolio"
+                }
+            ]
+        },
+        'Birthday': {
+            packages: [
+                {
+                    id: "birthday-basic",
+                    name: "Birthday Basic",
+                    price: "₵40",
+                    photos: 4,
+                    outfits: 1,
+                    features: ["4 Images", "Birthday theme", "1 Outfit"],
+                    popular: true,
+                    category: "Birthday",
+                    description: "Simple birthday photos"
+                },
+                {
+                    id: "birthday-deluxe",
+                    name: "Birthday Deluxe",
+                    price: "₵70",
+                    photos: 6,
+                    outfits: 2,
+                    features: ["6 Images", "2 Outfits", "Enhanced layout"],
+                    popular: false,
+                    category: "Birthday",
+                    description: "Enhanced birthday photos"
+                },
+                {
+                    id: "birthday-royal",
+                    name: "Birthday Royal",
+                    price: "₵100",
+                    photos: 10,
+                    outfits: 3,
+                    features: ["10 Images", "3 Outfits", "Luxury layout"],
+                    popular: false,
+                    category: "Birthday",
+                    description: "Premium birthday photos"
+                }
+            ]
+        },
+
+        'Group': {
+            packages: [
+                {
+                    id: "group-standard",
+                    name: "Group Standard",
+                    price: "₵80",
+                    photos: 4,
+                    outfits: 2,
+                    features: ["2 People", "4 Images", "2 Outfits"],
+                    popular: false,
+                    category: "Group",
+                    description: "Couples or friends"
+                },
+                {
+                    id: "group-deluxe",
+                    name: "Group Deluxe",
+                    price: "₵130",
+                    photos: 6,
+                    outfits: 3,
+                    features: ["2 People", "6 Images", "3 Outfits"],
+                    popular: false,
+                    category: "Group",
+                    description: "Creative group photos"
+                },
+                {
+                    id: "group-supreme",
+                    name: "Group Supreme",
+                    price: "₵200",
+                    photos: 10,
+                    outfits: 5,
+                    features: ["2 People", "10 Images", "+1: ₵30"],
+                    popular: false,
+                    category: "Group",
+                    description: "Premium group photos"
+                }
+            ]
+        },
         'Specialty & Themed': {
             packages: [
                 {
@@ -79,117 +191,6 @@ export default function PackageCarousel() {
                     popular: true,
                     category: "Specialty",
                     description: "Graduation celebration"
-                }
-            ]
-        },
-        'Birthday': {
-            packages: [
-                {
-                    id: "birthday-basic",
-                    name: "Birthday Basic",
-                    price: "₵40",
-                    photos: 4,
-                    outfits: 1,
-                    features: ["4 Images", "Birthday theme", "1 Outfit"],
-                    popular: true,
-                    category: "Birthday",
-                    description: "Simple birthday photos"
-                },
-                {
-                    id: "birthday-deluxe",
-                    name: "Birthday Deluxe",
-                    price: "₵70",
-                    photos: 6,
-                    outfits: 2,
-                    features: ["6 Images", "2 Outfits", "Enhanced layout"],
-                    popular: false,
-                    category: "Birthday",
-                    description: "Enhanced birthday photos"
-                },
-                {
-                    id: "birthday-royal",
-                    name: "Birthday Royal",
-                    price: "₵100",
-                    photos: 10,
-                    outfits: 3,
-                    features: ["10 Images", "3 Outfits", "Luxury layout"],
-                    popular: false,
-                    category: "Birthday",
-                    description: "Premium birthday photos"
-                }
-            ]
-        },
-        'Solo': {
-            packages: [
-                {
-                    id: "solo-standard",
-                    name: "Solo Standard",
-                    price: "₵50",
-                    photos: 4,
-                    outfits: 1,
-                    features: ["4 Images", "1 Outfit", "Multiple poses"],
-                    popular: true,
-                    category: "Solo",
-                    description: "Personal photos"
-                },
-                {
-                    id: "solo-medium",
-                    name: "Solo Medium",
-                    price: "₵90",
-                    photos: 8,
-                    outfits: 2,
-                    features: ["8 Images", "2 Outfits", "Varied poses"],
-                    popular: false,
-                    category: "Solo",
-                    description: "More variety"
-                },
-                {
-                    id: "solo-supreme",
-                    name: "Solo Supreme",
-                    price: "₵130",
-                    photos: 15,
-                    outfits: 3,
-                    features: ["15 Images", "3 Outfits", "Premium lighting"],
-                    popular: false,
-                    category: "Solo",
-                    description: "Premium portfolio"
-                }
-            ]
-        },
-        'Group': {
-            packages: [
-                {
-                    id: "group-standard",
-                    name: "Group Standard",
-                    price: "₵80",
-                    photos: 4,
-                    outfits: 2,
-                    features: ["2 People", "4 Images", "2 Outfits"],
-                    popular: false,
-                    category: "Group",
-                    description: "Couples or friends"
-                },
-                {
-                    id: "group-deluxe",
-                    name: "Group Deluxe",
-                    price: "₵130",
-                    photos: 6,
-                    outfits: 3,
-                    features: ["2 People", "6 Images", "3 Outfits"],
-                    popular: false,
-                    category: "Group",
-                    description: "Creative group photos"
-                },
-                {
-                    id: "group-supreme",
-                    name: "Group Supreme",
-                    price: "₵200",
-                    photos: 10,
-                    outfits: 5,
-                    features: ["2 People", "10 Images", "+1: ₵30"],
-                    popular: false,
-                    category: "Group",
-                    description: "Premium group photos"
                 }
             ]
         }
@@ -273,9 +274,9 @@ export default function PackageCarousel() {
                         <button
                             key={category}
                             onClick={() => setActiveCategory(category)}
-                            className={`flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
-                                    ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            className={` .dot-indicatorflex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
+                                ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             <CategoryIcon category={category} />
@@ -392,7 +393,7 @@ export default function PackageCarousel() {
                     {/* Position Indicator */}
                     <div className="text-center mt-4">
                         <div className="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full">
-                            <div className="text-sm font-medium text-gray-600">
+                            <div className=".dot-indicator text-sm font-medium text-gray-600">
                                 {currentIndex + 1} <span className="text-gray-400">/ {currentPackages.length}</span>
                             </div>
                         </div>

@@ -107,7 +107,7 @@ export default function TransformationsGallery({ transformations = [] }: { trans
       <section className="py-16 bg-black">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4 font-playfair text-white">
-            Personal Transformations
+            Individual Results
           </h2>
           <div className="animate-pulse flex justify-center">
             <div className="h-96 w-full max-w-4xl bg-gray-800 rounded-2xl"></div>
@@ -123,9 +123,9 @@ export default function TransformationsGallery({ transformations = [] }: { trans
       <section className="py-16 bg-black">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4 font-playfair text-white">
-            Personal Transformations
+            Individual Results
           </h2>
-          <p className="text-gray-400">No personal transformations available at the moment.</p>
+          <p className="text-gray-400">No individual transformations available at the moment.</p>
         </div>
       </section>
     );
@@ -137,7 +137,7 @@ export default function TransformationsGallery({ transformations = [] }: { trans
     <section className="py-16 bg-black">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-8 font-playfair text-white">
-          Personal Transformations
+          Individual Results
         </h2>
 
         {/* Transformation Display */}
@@ -213,7 +213,7 @@ export default function TransformationsGallery({ transformations = [] }: { trans
                   setCurrentIndex(index);
                   setShowAfter(false);
                 }}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                className={`.dot-indicator w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
                   ? 'bg-[#D4AF37] scale-125 shadow-lg shadow-[#D4AF37]/50'
                   : 'bg-gray-600 hover:bg-gray-400'
                   }`}
