@@ -843,11 +843,6 @@ button {
 /* Touch-friendly tap targets */
 @media (max-width: 768px) {
 
-  button,
-  a {
-    min-height: 44px;
-    min-width: 44px;
-  }
 
   /* Enhanced card hover effects for mobile */
   .package-card {
