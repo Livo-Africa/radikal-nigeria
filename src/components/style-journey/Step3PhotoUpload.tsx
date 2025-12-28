@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAbandonmentTracking } from '@/hooks/useAbandonmentTracking';
 
-import { Camera, Upload, Check, X, AlertCircle, ArrowLeft, MessageCircle, ChevronDown } from 'lucide-react';
+import { Camera, Upload, Check, X, AlertCircle, ArrowLeft, MessageCircle, ChevronDown, User, UserRound } from 'lucide-react';
 import StickyActionButtons from '../shared/StickyActionButtons';
 
 interface Step3PhotoUploadProps {
@@ -64,8 +64,8 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
 
   // Required photos based on package
   const requiredPhotos = [
-    { type: 'face' as const, label: 'Clear Face Selfie', description: 'Front-facing, good lighting, neutral expression', icon: '👤' },
-    { type: 'body' as const, label: 'Full Body Photo', description: 'Stand straight, fitted clothes, simple background', icon: '🧍' }
+    { type: 'face' as const, label: 'Clear Face Selfie', description: 'Front-facing, good lighting, neutral expression', icon: '👤', lucideIcon: <User className="w-8 h-8" /> },
+    { type: 'body' as const, label: 'Full Body Photo', description: 'Stand straight, fitted clothes, simple background', icon: '🧍', lucideIcon: <UserRound className="w-8 h-8" /> }
   ];
 
   // Handle phone number change
@@ -200,6 +200,13 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
   };
 
   const handleContinue = () => {
+    const facePhoto = uploadedPhotos.find(photo => photo.type === 'face' && photo.status === 'success');
+    const bodyPhoto = uploadedPhotos.find(photo => photo.type === 'body' && photo.status === 'success');
+
+    if (!facePhoto || !bodyPhoto || localPhoneNumber.length < 7) {
+      return;
+    }
+
     if (!showNextButton) return;
 
     // Ensure final save of photos
@@ -335,7 +342,8 @@ export default function Step3PhotoUpload({ formData, setFormData, currentStep, s
               <div key={req.type} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
-                    <span className="text-2xl">{req.icon}</span>
+                    <span className="hidden lg:block text-2xl">{req.icon}</span>
+                    <span className="block lg:hidden text-[#D4AF37]">{req.lucideIcon}</span>
                     <h3 className="font-bold text-gray-900">{req.label}</h3>
                   </div>
                   {uploaded && (
