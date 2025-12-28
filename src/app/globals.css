@@ -436,9 +436,16 @@ video {
   }
 }
 
+/* Global Dot Indicator Fix */
 .dot-indicator {
   min-height: 0 !important;
   min-width: 0 !important;
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.dot-indicator.active {
+  width: 24px !important;
 }
 
 /* Haptic feedback simulation */

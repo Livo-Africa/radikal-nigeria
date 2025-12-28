@@ -1,7 +1,8 @@
 'use client';
 import dynamic from 'next/dynamic';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { LayoutGroup, motion, AnimatePresence } from 'framer-motion';
 import {
   CATEGORIES,
@@ -33,8 +34,17 @@ const PaystackHandler = dynamic(
 );
 
 export default function GhanaBookingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BookingContent />
+    </Suspense>
+  );
+}
+
+function BookingContent() {
   // Phone validation (Ghana default)
   const phoneValidation = usePhoneValidation('+233');
+  const searchParams = useSearchParams();
 
   // Core booking state
   const [category, setCategory] = useState<string | null>(null);
@@ -100,6 +110,24 @@ export default function GhanaBookingPage() {
       );
     }
   }, [groupSize, isGroupBooking]);
+
+  // Deep Linking Logic - Handle URL params
+  useEffect(() => {
+    const pkgId = searchParams.get('package');
+    const catId = searchParams.get('category');
+
+    if (pkgId && catId && PACKAGES_BY_CATEGORY[catId]) {
+      const foundPackage = PACKAGES_BY_CATEGORY[catId].find(p => p.id === pkgId);
+
+      if (foundPackage) {
+        setCategory(catId);
+        setSelectedPackage(foundPackage);
+
+        // Ensure state is ready for upload (Step 3)
+        // The existing auto-scroll effect will handle scrolling to photoRef
+      }
+    }
+  }, [searchParams]);
 
   // Preload outfits when page loads
   useEffect(() => {
@@ -378,162 +406,164 @@ export default function GhanaBookingPage() {
     phoneValidation.isValid;
 
   return (
-
     <div className="min-h-screen bg-gray-50 pb-32">
-      <LayoutGroup>
-        <div className="max-w-md mx-auto px-4 py-8 space-y-12">
+      <Navigation />
+      <div className="pt-20"> {/* Add padding for fixed nav */}
+        <LayoutGroup>
+          <div className="max-w-md mx-auto px-4 py-8 space-y-12">
 
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-black bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
-              RADIKAL GHANA
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Premium AI Photoshoots in Accra
-            </p>
-          </div>
-
-          {/* Step 1: Category Selection */}
-          <section>
-            <div className="flex items-center justify-between mb-2">
-              {category && <span className="text-xs font-bold text-gray-400">STEP 1</span>}
-              <HelperSystem section="category" />
+            {/* Header */}
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-black bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] bg-clip-text text-transparent">
+                RADIKAL GHANA
+              </h1>
+              <p className="text-gray-500 text-sm">
+                Premium AI Photoshoots in Accra
+              </p>
             </div>
-            <CategoryGrid
-              selectedId={category}
-              onSelect={handleCategorySelect}
-            />
-          </section>
 
-          {/* Step 2: Package Selection */}
-          <AnimatePresence>
-            {category && (
-              <motion.section
-                ref={packageRef}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-gray-400">STEP 2</span>
-                  <HelperSystem section="package" />
-                </div>
-                <PackageCarousel
-                  category={category}
-                  selectedId={selectedPackage?.id || null}
-                  onSelect={handlePackageSelect}
-                  groupSize={groupSize}
-                  onGroupSizeChange={setGroupSize}
-                />
-              </motion.section>
-            )}
-          </AnimatePresence>
+            {/* Step 1: Category Selection */}
+            <section>
+              <div className="flex items-center justify-between mb-2">
+                {category && <span className="text-xs font-bold text-gray-400">STEP 1</span>}
+                <HelperSystem section="category" />
+              </div>
+              <CategoryGrid
+                selectedId={category}
+                onSelect={handleCategorySelect}
+              />
+            </section>
 
-          {/* Step 3: Photos & Outfits & Details */}
-          <AnimatePresence>
-            {selectedPackage && (
-              <motion.div
-                ref={photoRef}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-12"
-              >
-                {/* Photo Upload */}
-                <section>
+            {/* Step 2: Package Selection */}
+            <AnimatePresence>
+              {category && (
+                <motion.section
+                  ref={packageRef}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-gray-400">STEP 3</span>
-                    <HelperSystem section="photos" />
+                    <span className="text-xs font-bold text-gray-400">STEP 2</span>
+                    <HelperSystem section="package" />
                   </div>
-                  <PhotoUpload
-                    faceState={facePhoto.state}
-                    faceImage={facePhoto.url}
-                    bodyState={bodyPhoto.state}
-                    bodyImage={bodyPhoto.url}
-                    onFaceUpload={handleFaceUpload}
-                    onBodyUpload={handleBodyUpload}
-                    isGroupMode={isGroupBooking}
+                  <PackageCarousel
+                    category={category}
+                    selectedId={selectedPackage?.id || null}
+                    onSelect={handlePackageSelect}
                     groupSize={groupSize}
-                    groupPhotos={groupPhotos}
-                    onGroupPhotoUpload={(index, type, file) => {
-                      // Implement group photo logic if needed
-                      // Simplified for migration first pass
-                    }}
+                    onGroupSizeChange={setGroupSize}
                   />
-                </section>
+                </motion.section>
+              )}
+            </AnimatePresence>
 
-                {/* Outfit Selection */}
-                <section ref={outfitRef}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-gray-400">STEP 4</span>
-                    <HelperSystem section="outfits" />
-                  </div>
-                  <OutfitSelection
-                    packageOutfits={selectedPackage.outfits}
-                    packageName={selectedPackage.name}
-                    category={category!}
-                    selectedOutfits={selectedOutfits}
-                    onOutfitsChange={setSelectedOutfits}
-                    styling={styling}
-                    onStylingChange={(updates) => setStyling(prev => ({ ...prev, ...updates }))}
-                    preloadedOutfits={preloadedOutfits}
-                    outfitsLoading={outfitsLoading}
-                  />
-                </section>
+            {/* Step 3: Photos & Outfits & Details */}
+            <AnimatePresence>
+              {selectedPackage && (
+                <motion.div
+                  ref={photoRef}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-12"
+                >
+                  {/* Photo Upload */}
+                  <section>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-gray-400">STEP 3</span>
+                      <HelperSystem section="photos" />
+                    </div>
+                    <PhotoUpload
+                      faceState={facePhoto.state}
+                      faceImage={facePhoto.url}
+                      bodyState={bodyPhoto.state}
+                      bodyImage={bodyPhoto.url}
+                      onFaceUpload={handleFaceUpload}
+                      onBodyUpload={handleBodyUpload}
+                      isGroupMode={isGroupBooking}
+                      groupSize={groupSize}
+                      groupPhotos={groupPhotos}
+                      onGroupPhotoUpload={(index, type, file) => {
+                        // Implement group photo logic if needed
+                        // Simplified for migration first pass
+                      }}
+                    />
+                  </section>
 
-                {/* Contact Details */}
-                <section>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-gray-400">STEP 5</span>
-                    <HelperSystem section="phone" />
-                  </div>
-                  <ContactStyling
-                    countryCode={phoneValidation.countryCode}
-                    phoneNumber={phoneValidation.localNumber}
-                    onPhoneChange={(code, number) => {
-                      if (code !== phoneValidation.countryCode) {
-                        phoneValidation.setCountryCode(code);
-                      }
-                      phoneValidation.setLocalNumber(number);
-                    }}
-                    isPhoneValid={phoneValidation.isValid}
-                    phoneError={phoneValidation.error}
-                  />
-                </section>
+                  {/* Outfit Selection */}
+                  <section ref={outfitRef}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-gray-400">STEP 4</span>
+                      <HelperSystem section="outfits" />
+                    </div>
+                    <OutfitSelection
+                      packageOutfits={selectedPackage.outfits}
+                      packageName={selectedPackage.name}
+                      category={category!}
+                      selectedOutfits={selectedOutfits}
+                      onOutfitsChange={setSelectedOutfits}
+                      styling={styling}
+                      onStylingChange={(updates) => setStyling(prev => ({ ...prev, ...updates }))}
+                      preloadedOutfits={preloadedOutfits}
+                      outfitsLoading={outfitsLoading}
+                    />
+                  </section>
 
-                {/* Spacer for bottom bar */}
-                <div className="h-24" />
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  {/* Contact Details */}
+                  <section>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-gray-400">STEP 5</span>
+                      <HelperSystem section="phone" />
+                    </div>
+                    <ContactStyling
+                      countryCode={phoneValidation.countryCode}
+                      phoneNumber={phoneValidation.localNumber}
+                      onPhoneChange={(code, number) => {
+                        if (code !== phoneValidation.countryCode) {
+                          phoneValidation.setCountryCode(code);
+                        }
+                        phoneValidation.setLocalNumber(number);
+                      }}
+                      isPhoneValid={phoneValidation.isValid}
+                      phoneError={phoneValidation.error}
+                    />
+                  </section>
 
-          {/* Sticky Payment Bar */}
-          <StickyPaymentBar
-            package={selectedPackage}
-            groupSize={groupSize}
-            selectedAddOns={addOns}
-            onToggleAddOn={toggleAddOn}
-            total={calculateTotal()}
-            isEnabled={isPaymentEnabled}
-            onPay={handlePayment}
-            isLoading={paymentStatus === 'processing'}
-          />
+                  {/* Spacer for bottom bar */}
+                  <div className="h-24" />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          {/* Paystack Integration */}
-          <PaystackHandler
-            key={paystackConfig.reference || 'init'}
-            email={paystackConfig.email}
-            amount={paystackConfig.amount}
-            publicKey={paystackConfig.publicKey}
-            reference={paystackConfig.reference}
-            currency="GHS"
-            onSuccess={handlePaystackSuccess}
-            onClose={handlePaystackClose}
-            trigger={triggerPaystack}
-            setTrigger={setTriggerPaystack}
-          />
+            {/* Sticky Payment Bar */}
+            <StickyPaymentBar
+              package={selectedPackage}
+              groupSize={groupSize}
+              selectedAddOns={addOns}
+              onToggleAddOn={toggleAddOn}
+              total={calculateTotal()}
+              isEnabled={isPaymentEnabled}
+              onPay={handlePayment}
+              isLoading={paymentStatus === 'processing'}
+            />
 
-        </div>
-      </LayoutGroup>
+            {/* Paystack Integration */}
+            <PaystackHandler
+              key={paystackConfig.reference || 'init'}
+              email={paystackConfig.email}
+              amount={paystackConfig.amount}
+              publicKey={paystackConfig.publicKey}
+              reference={paystackConfig.reference}
+              currency="GHS"
+              onSuccess={handlePaystackSuccess}
+              onClose={handlePaystackClose}
+              trigger={triggerPaystack}
+              setTrigger={setTriggerPaystack}
+            />
+
+          </div>
+        </LayoutGroup>
+      </div>
     </div>
   );
 }

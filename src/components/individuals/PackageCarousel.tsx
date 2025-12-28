@@ -237,12 +237,9 @@ export default function PackageCarousel() {
     }, [activeCategory]);
 
     const handlePackageSelect = (pkg: Package) => {
-        localStorage.setItem('radikal_preselected_package', JSON.stringify({
-            package: pkg,
-            selectedAt: new Date().toISOString()
-        }));
-
-        window.location.href = '/individuals/style-journey?step=2';
+        // Use URL parameters for deep linking instead of localStorage
+        // This supports the "skip steps" logic in the booking flow
+        window.location.href = `/individuals/style-journey?package=${pkg.id}&category=${pkg.category.toLowerCase().split(' ')[0]}&step=3`;
     };
 
     const CategoryIcon = ({ category }: { category: string }) => {
@@ -304,11 +301,11 @@ export default function PackageCarousel() {
                                     key={pkg.id}
                                     className="flex-shrink-0 w-[85vw] max-w-sm snap-center"
                                 >
-                                    {/* Package Card */}
-                                    <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl p-6 border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300">
+                                    {/* Package Card - CLEANED UP */}
+                                    <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl p-6 border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                                         {/* Popular Badge */}
                                         {pkg.popular && (
-                                            <div className="inline-flex items-center gap-1 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black text-xs font-bold px-3 py-1.5 rounded-full mb-4">
+                                            <div className="inline-flex items-center gap-1 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black text-xs font-bold px-3 py-1.5 rounded-full mb-4 w-max">
                                                 <Star className="w-3 h-3" />
                                                 MOST POPULAR
                                             </div>
@@ -325,47 +322,45 @@ export default function PackageCarousel() {
                                             <p className="text-sm text-gray-500">{pkg.description}</p>
                                         </div>
 
-                                        {/* Features Grid */}
-                                        <div className="grid grid-cols-2 gap-3 mb-6">
+                                        {/* Features Grid - Consolidated */}
+                                        <div className="grid grid-cols-2 gap-3 mb-6 flex-1">
                                             <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
+                                                <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center flex-shrink-0">
                                                     <Camera className="w-4 h-4 text-white" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-gray-900">{pkg.photos}</div>
+                                                    <div className="font-bold text-gray-900 text-sm">{pkg.photos}</div>
                                                     <div className="text-xs text-gray-500">Images</div>
                                                 </div>
                                             </div>
 
                                             {pkg.outfits && (
                                                 <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2">
-                                                    <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
+                                                    <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center flex-shrink-0">
                                                         <Shirt className="w-4 h-4 text-white" />
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-gray-900">{pkg.outfits}</div>
+                                                        <div className="font-bold text-gray-900 text-sm">{pkg.outfits}</div>
                                                         <div className="text-xs text-gray-500">Outfits</div>
                                                     </div>
                                                 </div>
                                             )}
-                                        </div>
 
-                                        {/* Features List */}
-                                        <div className="mb-8">
-                                            <div className="space-y-2">
-                                                {pkg.features.map((feature, idx) => (
-                                                    <div key={idx} className="flex items-center text-sm text-gray-700">
-                                                        <Check className="w-4 h-4 text-[#D4AF37] mr-2 flex-shrink-0" />
-                                                        <span className="text-sm">{feature}</span>
+                                            {/* Show remaining features that aren't images/outfits */}
+                                            {pkg.features.filter(f => !f.toLowerCase().includes('image') && !f.toLowerCase().includes('outfit')).slice(0, 2).map((feature, idx) => (
+                                                <div key={idx} className="bg-gray-50 rounded-lg p-3 flex items-center gap-2 col-span-2">
+                                                    <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                        <Check className="w-3 h-3 text-gray-600" />
                                                     </div>
-                                                ))}
-                                            </div>
+                                                    <span className="text-xs text-gray-700 font-medium">{feature}</span>
+                                                </div>
+                                            ))}
                                         </div>
 
                                         {/* Select Button */}
                                         <button
                                             onClick={() => handlePackageSelect(pkg)}
-                                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-bold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-bold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 mt-auto"
                                         >
                                             Select Package
                                         </button>
@@ -381,9 +376,9 @@ export default function PackageCarousel() {
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`rounded-full transition-all ${index === currentIndex
-                                    ? 'w-8 h-2 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F]'
-                                    : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                                className={`dot-indicator rounded-full transition-all ${index === currentIndex
+                                    ? 'w-6 h-1.5 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F]'
+                                    : 'w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400'
                                     }`}
                                 aria-label={`Go to package ${index + 1}`}
                             />

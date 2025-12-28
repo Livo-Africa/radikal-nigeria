@@ -213,8 +213,8 @@ export default function TransformationsGallery({ transformations = [] }: { trans
                   setCurrentIndex(index);
                   setShowAfter(false);
                 }}
-                className={`.dot-indicator w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
-                  ? 'bg-[#D4AF37] scale-125 shadow-lg shadow-[#D4AF37]/50'
+                className={`dot-indicator rounded-full transition-all duration-300 ${index === currentIndex
+                  ? 'bg-[#D4AF37] active shadow-lg shadow-[#D4AF37]/50'
                   : 'bg-gray-600 hover:bg-gray-400'
                   }`}
                 aria-label={`View transformation ${index + 1}`}
