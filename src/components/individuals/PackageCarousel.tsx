@@ -274,7 +274,7 @@ export default function PackageCarousel() {
                         <button
                             key={category}
                             onClick={() => setActiveCategory(category)}
-                            className={` .dot-indicatorflex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
+                            className={`.dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
                                 ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
