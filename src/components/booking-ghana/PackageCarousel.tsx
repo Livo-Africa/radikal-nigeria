@@ -206,7 +206,7 @@ export default function PackageCarousel({
                     {packages.map((pkg) => (
                         <div
                             key={pkg.id}
-                            className={`w-2 h-2 rounded-full transition-all ${selectedId === pkg.id ? 'bg-[#D4AF37] w-6' : 'bg-gray-300'
+                            className={`dot-indicator w-2 h-2 rounded-full transition-all ${selectedId === pkg.id ? 'bg-[#D4AF37] w-6' : 'bg-gray-300'
                                 }`}
                         />
                     ))}

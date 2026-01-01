@@ -274,7 +274,7 @@ export default function PackageCarousel() {
                         <button
                             key={category}
                             onClick={() => setActiveCategory(category)}
-                            className={`.dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
+                            className={`dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
                                 ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
@@ -381,7 +381,7 @@ export default function PackageCarousel() {
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`rounded-full transition-all ${index === currentIndex
+                                className={`dot-indicator rounded-full transition-all ${index === currentIndex
                                     ? 'w-8 h-2 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F]'
                                     : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
                                     }`}
@@ -393,7 +393,7 @@ export default function PackageCarousel() {
                     {/* Position Indicator */}
                     <div className="text-center mt-4">
                         <div className="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full">
-                            <div className=".dot-indicator text-sm font-medium text-gray-600">
+                            <div className="dot-indicator text-sm font-medium text-gray-600">
                                 {currentIndex + 1} <span className="text-gray-400">/ {currentPackages.length}</span>
                             </div>
                         </div>
