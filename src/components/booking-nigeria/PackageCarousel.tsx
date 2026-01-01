@@ -135,24 +135,18 @@ export default function PackageCarousel({
                                 </p>
 
                                 {/* Features */}
-                                <div className="space-y-3 mb-6 flex-grow">
-                                    <div className="flex items-center gap-3 text-gray-700">
-                                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                            <Camera className="w-4 h-4 text-blue-600" />
-                                        </div>
-                                        <span>{pkg.images} Professional Photos</span>
+                                <div className="space-y-2 mb-6 flex-grow">
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <Camera className="w-4 h-4 text-[#D4AF37]" />
+                                        <span className="text-sm font-medium">{pkg.images} Professional Photos</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-gray-700">
-                                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                                            <Shirt className="w-4 h-4 text-purple-600" />
-                                        </div>
-                                        <span>{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <Shirt className="w-4 h-4 text-[#D4AF37]" />
+                                        <span className="text-sm font-medium">{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-gray-700">
-                                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                            <Zap className="w-4 h-4 text-orange-600" />
-                                        </div>
-                                        <span>1-3 Hours Delivery</span>
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <Zap className="w-4 h-4 text-[#D4AF37]" />
+                                        <span className="text-sm font-medium">1-3 Hours Delivery</span>
                                     </div>
                                 </div>
 
@@ -168,11 +162,6 @@ export default function PackageCarousel({
                                             </span>
                                         )}
                                     </div>
-                                    {isGroupCategory && (
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            for {groupSize} people
-                                        </p>
-                                    )}
                                 </div>
 
                                 {/* Selection Button */}

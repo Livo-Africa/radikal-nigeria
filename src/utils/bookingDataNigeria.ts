@@ -72,7 +72,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 2500,
             images: 3,
             outfits: 1,
-            description: 'LinkedIn & professional shots'
+            description: 'Professional shots for LinkedIn and more.'
         },
         {
             id: 'occupation-shots',
@@ -81,7 +81,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             images: 3,
             outfits: 1,
             popular: true,
-            description: 'Professional theme, studio background'
+            description: 'Studio background included.'
         }
     ],
     graduation: [
@@ -92,7 +92,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             images: 3,
             outfits: 1,
             popular: true,
-            description: 'Custom gown, custom sash'
+            description: 'Includes custom gown and sash.'
         }
     ],
     birthday: [
@@ -102,7 +102,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 4500,
             images: 4,
             outfits: 1,
-            description: 'Simple birthday layout'
+            description: 'Simple birthday setup.'
         },
         {
             id: 'birthday-deluxe',
@@ -145,7 +145,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             images: 6,
             outfits: 3,
             popular: true,
-            description: 'Creative group poses',
+            description: 'Creative poses for your group.',
             addOns: {
                 '3': 3500,
                 '4': 5500,

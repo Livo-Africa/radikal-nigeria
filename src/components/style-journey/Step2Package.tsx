@@ -214,24 +214,24 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
 
               {/* Features Section */}
               <div className="p-6 flex-1 flex flex-col">
-                <div className="space-y-4 flex-1">
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <Camera className="w-5 h-5 text-[#D4AF37]" />
-                    <span className="font-semibold">{pkg.photos} Professional Photos</span>
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center space-x-2 text-gray-700">
+                    <Camera className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="text-sm font-semibold">{pkg.photos} Professional Photos</span>
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <Shirt className="w-5 h-5 text-[#D4AF37]" />
-                    <span className="font-semibold">{pkg.outfits} Outfit Changes</span>
+                  <div className="flex items-center space-x-2 text-gray-700">
+                    <Shirt className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="text-sm font-semibold">{pkg.outfits} Outfit Changes</span>
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-700">
-                    <Clock className="w-5 h-5 text-[#D4AF37]" />
-                    <span className="font-semibold">{pkg.deliveryTime} Delivery</span>
+                  <div className="flex items-center space-x-2 text-gray-700">
+                    <Clock className="w-4 h-4 text-[#D4AF37]" />
+                    <span className="text-sm font-semibold">{pkg.deliveryTime} Delivery</span>
                   </div>
 
                   <div className="border-t border-gray-100 my-4 pt-4 space-y-2">
                     {pkg.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start space-x-2 text-sm text-gray-600">
-                        <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <Check className="w-3 h-3 text-green-500 mt-1 flex-shrink-0" />
                         <span>{feature}</span>
                       </div>
                     ))}
