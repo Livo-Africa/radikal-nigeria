@@ -138,15 +138,15 @@ export default function PackageCarousel({
                                 <div className="space-y-2 mb-6 flex-grow">
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Camera className="w-4 h-4 text-[#D4AF37]" />
-                                        <span className="text-sm font-medium">{pkg.images} Professional Photos</span>
+                                        <span className="text-sm font-medium">{pkg.images} Photos</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Shirt className="w-4 h-4 text-[#D4AF37]" />
-                                        <span className="text-sm font-medium">{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
+                                        <span className="text-sm font-medium">{pkg.outfits} Outfits</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Zap className="w-4 h-4 text-[#D4AF37]" />
-                                        <span className="text-sm font-medium">1-3 Hours Delivery</span>
+                                        <span className="text-sm font-medium">1-3h Delivery</span>
                                     </div>
                                 </div>
 

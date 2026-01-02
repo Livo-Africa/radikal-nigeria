@@ -72,7 +72,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 2500,
             images: 3,
             outfits: 1,
-            description: 'Professional shots for LinkedIn and more.'
+            description: 'Professional LinkedIn shots.'
         },
         {
             id: 'occupation-shots',
@@ -102,7 +102,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 4500,
             images: 4,
             outfits: 1,
-            description: 'Simple birthday setup.'
+            description: 'Clean setup.'
         },
         {
             id: 'birthday-deluxe',

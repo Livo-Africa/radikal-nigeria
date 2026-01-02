@@ -75,7 +75,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 30,
             images: 3,
             outfits: 1,
-            description: 'Perfect for LinkedIn, social media, or ID cards.'
+            description: 'Perfect for LinkedIn or ID cards.'
         },
         {
             id: 'jersey-shoot',
@@ -109,7 +109,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 40,
             images: 4,
             outfits: 1,
-            description: 'Simple birthday layout with custom background.'
+            description: 'Clean birthday setup.'
         },
         {
             id: 'birthday-deluxe',
@@ -135,7 +135,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 50,
             images: 4,
             outfits: 1,
-            description: 'Multiple poses. Great photos just for you.'
+            description: 'Classic solo poses.'
         },
         {
             id: 'solo-medium',
@@ -152,7 +152,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             images: 15,
             outfits: 3,
             popular: true,
-            description: 'Wide pose variety & Premium lighting look.'
+            description: 'Premium lighting & wide variety.'
         }
     ],
     group: [
