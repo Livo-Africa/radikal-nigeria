@@ -217,15 +217,15 @@ export default function Step2Package({ formData, setFormData, currentStep, setCu
                 <div className="space-y-3 flex-1">
                   <div className="flex items-center space-x-2 text-gray-700">
                     <Camera className="w-4 h-4 text-[#D4AF37]" />
-                    <span className="text-sm font-semibold">{pkg.photos} Photos</span>
+                    <span className="text-sm font-semibold">{pkg.photos} photos</span>
                   </div>
                   <div className="flex items-center space-x-2 text-gray-700">
                     <Shirt className="w-4 h-4 text-[#D4AF37]" />
-                    <span className="text-sm font-semibold">{pkg.outfits} Outfits</span>
+                    <span className="text-sm font-semibold">{pkg.outfits} outfits</span>
                   </div>
                   <div className="flex items-center space-x-2 text-gray-700">
                     <Clock className="w-4 h-4 text-[#D4AF37]" />
-                    <span className="text-sm font-semibold">{pkg.deliveryTime}</span>
+                    <span className="text-sm font-semibold">{pkg.deliveryTime.replace(' hours', 'h')}</span>
                   </div>
                 </div>
 

@@ -129,24 +129,21 @@ export default function PackageCarousel({
                                     {pkg.name}
                                 </h3>
 
-                                {/* Description */}
-                                <p className="text-gray-500 text-sm mb-4">
-                                    {pkg.description}
-                                </p>
+                                {/* Removed Description for Extreme Simplification */}
 
                                 {/* Features */}
                                 <div className="space-y-2 mb-6 flex-grow">
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Camera className="w-4 h-4 text-[#D4AF37]" />
-                                        <span className="text-sm font-medium">{pkg.images} Photos</span>
+                                        <span className="text-sm font-medium">{pkg.images} photos</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Shirt className="w-4 h-4 text-[#D4AF37]" />
-                                        <span className="text-sm font-medium">{pkg.outfits} Outfits</span>
+                                        <span className="text-sm font-medium">{pkg.outfits} outfits</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <Zap className="w-4 h-4 text-[#D4AF37]" />
-                                        <span className="text-sm font-medium">1-3h Delivery</span>
+                                        <span className="text-sm font-medium">1-3h</span>
                                     </div>
                                 </div>
 
