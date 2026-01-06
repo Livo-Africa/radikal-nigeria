@@ -32,7 +32,7 @@ interface PackageCarouselProps {
     country?: 'GH' | 'NG';
 }
 
-// Hardcoded Ghana Data (Preserved)
+// Hardcoded Ghana Data (Cleaned - Removed Redundant Specs)
 const GH_DATA = {
     'Solo': {
         packages: [
@@ -42,7 +42,7 @@ const GH_DATA = {
                 price: "₵50",
                 photos: 4,
                 outfits: 1,
-                features: ["4 Images", "1 Outfit", "Multiple poses"],
+                features: ["Multiple poses", "Basic editing"],
                 popular: true,
                 category: "Solo",
                 description: "Personal photos"
@@ -53,7 +53,7 @@ const GH_DATA = {
                 price: "₵90",
                 photos: 8,
                 outfits: 2,
-                features: ["8 Images", "2 Outfits", "Varied poses"],
+                features: ["Varied poses", "Premium editing"],
                 popular: false,
                 category: "Solo",
                 description: "More variety"
@@ -64,7 +64,7 @@ const GH_DATA = {
                 price: "₵130",
                 photos: 15,
                 outfits: 3,
-                features: ["15 Images", "3 Outfits", "Premium lighting"],
+                features: ["Premium lighting", "Advanced retouching"],
                 popular: false,
                 category: "Solo",
                 description: "Premium portfolio"
@@ -79,7 +79,7 @@ const GH_DATA = {
                 price: "₵40",
                 photos: 4,
                 outfits: 1,
-                features: ["4 Images", "Birthday theme", "1 Outfit"],
+                features: ["Birthday props & theme"],
                 popular: true,
                 category: "Birthday",
                 description: "Simple birthday photos"
@@ -90,7 +90,7 @@ const GH_DATA = {
                 price: "₵70",
                 photos: 6,
                 outfits: 2,
-                features: ["6 Images", "2 Outfits", "Enhanced layout"],
+                features: ["Enhanced set design", "Prop usage"],
                 popular: false,
                 category: "Birthday",
                 description: "Enhanced birthday photos"
@@ -101,7 +101,7 @@ const GH_DATA = {
                 price: "₵100",
                 photos: 10,
                 outfits: 3,
-                features: ["10 Images", "3 Outfits", "Luxury layout"],
+                features: ["Luxury set design", "Balloon arrangement"],
                 popular: false,
                 category: "Birthday",
                 description: "Premium birthday photos"
@@ -117,7 +117,7 @@ const GH_DATA = {
                 price: "₵80",
                 photos: 4,
                 outfits: 2,
-                features: ["2 People", "4 Images", "2 Outfits"],
+                features: ["Up to 2 People", "Group coordination"],
                 popular: false,
                 category: "Group",
                 description: "Couples or friends"
@@ -128,7 +128,7 @@ const GH_DATA = {
                 price: "₵130",
                 photos: 6,
                 outfits: 3,
-                features: ["2 People", "6 Images", "3 Outfits"],
+                features: ["Up to 2 People", "Creative direction"],
                 popular: false,
                 category: "Group",
                 description: "Creative group photos"
@@ -139,7 +139,7 @@ const GH_DATA = {
                 price: "₵200",
                 photos: 10,
                 outfits: 5,
-                features: ["2 People", "10 Images", "+1: ₵30"],
+                features: ["Up to 2 People", "Extra person: ₵30"],
                 popular: false,
                 category: "Group",
                 description: "Premium group photos"
@@ -154,7 +154,7 @@ const GH_DATA = {
                 price: "₵30",
                 photos: 3,
                 outfits: 1,
-                features: ["3 Images", "1 Outfit", "Social media ready", "Perfect for CV"],
+                features: ["Social media ready", "Perfect for CV/LinkedIn"],
                 popular: true,
                 category: "Specialty",
                 description: "Professional profile photos"
@@ -165,7 +165,7 @@ const GH_DATA = {
                 price: "₵20",
                 photos: 3,
                 outfits: 1,
-                features: ["Custom jersey name", "3 Images", "Sports theme"],
+                features: ["Custom jersey name styling", "Sports theme background"],
                 popular: false,
                 category: "Specialty",
                 description: "Team spirit photos"
@@ -176,7 +176,7 @@ const GH_DATA = {
                 price: "₵50",
                 photos: 3,
                 outfits: 1,
-                features: ["Professional theme", "Studio background", "Portfolio ready"],
+                features: ["Professional props included", "Studio background"],
                 popular: true,
                 category: "Specialty",
                 description: "Career-focused photos"
@@ -187,7 +187,7 @@ const GH_DATA = {
                 price: "₵70",
                 photos: 3,
                 outfits: 1,
-                features: ["Custom gown", "Name sash", "School theme"],
+                features: ["Gown styling assistance", "School theme set"],
                 popular: true,
                 category: "Specialty",
                 description: "Graduation celebration"
@@ -221,7 +221,8 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                         price: `₦${pkg.price.toLocaleString()}`,
                         photos: pkg.images,
                         outfits: pkg.outfits,
-                        features: [`${pkg.images} Images`, `${pkg.outfits} Outfit${pkg.outfits > 1 ? 's' : ''}`, pkg.description], // Construct simplified features
+                        // Only add description as a feature, avoid redundancy with photos/outfits
+                        features: [pkg.description],
                         popular: pkg.popular || false,
                         category: cat.label,
                         description: pkg.description
@@ -391,37 +392,27 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                                             <p className="text-sm text-gray-500 font-medium tracking-wide uppercase text-xs">{pkg.category}</p>
                                         </div>
 
-                                        {/* Features Grid */}
-                                        <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
-                                            <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2 border border-[#D4AF37]/10">
-                                                <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
-                                                    <Camera className="w-4 h-4 text-white" />
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-gray-900">{pkg.photos}</div>
-                                                    <div className="text-xs text-gray-500">Images</div>
-                                                </div>
-                                            </div>
-
-                                            {pkg.outfits && (
-                                                <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2 border border-[#D4AF37]/10">
-                                                    <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
-                                                        <Shirt className="w-4 h-4 text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900">{pkg.outfits}</div>
-                                                        <div className="text-xs text-gray-500">Outfits</div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Features List */}
+                                        {/* Combined Features List (Icon + Text) */}
                                         <div className="mb-8 relative z-10">
                                             <div className="space-y-3">
+                                                {/* Photos (Core Spec) */}
+                                                <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                                                    <Camera className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+                                                    <span className="font-medium text-gray-900">{pkg.photos} Professional Photos</span>
+                                                </div>
+
+                                                {/* Outfits (Core Spec) */}
+                                                {pkg.outfits !== undefined && (
+                                                    <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                                                        <Shirt className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+                                                        <span className="font-medium text-gray-900">{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
+                                                    </div>
+                                                )}
+
+                                                {/* Additional Features */}
                                                 {pkg.features.map((feature, idx) => (
                                                     <div key={idx} className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
-                                                        <Check className="w-4 h-4 text-[#D4AF37] mr-3 flex-shrink-0" />
+                                                        <Check className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
                                                         <span className="text-sm font-medium">{feature}</span>
                                                     </div>
                                                 ))}

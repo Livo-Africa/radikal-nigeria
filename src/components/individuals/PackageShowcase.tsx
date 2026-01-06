@@ -20,7 +20,7 @@ interface PackageShowcaseProps {
   country?: 'GH' | 'NG';
 }
 
-// Hardcoded Ghana Packages (Preserved)
+// Hardcoded Ghana Packages (Cleaned - No Redundant Specs in Features)
 const GH_PACKAGES: Package[] = [
   {
     id: "profile-headshots",
@@ -29,7 +29,7 @@ const GH_PACKAGES: Package[] = [
     photos: 2,
     outfits: 1,
     deliveryTime: "1-3 hours",
-    features: ["Professional quality", "LinkedIn ready", "2 edited photos"],
+    features: ["LinkedIn ready", "2 edited photos"],
     popular: false,
     category: "Professional"
   },
@@ -40,7 +40,7 @@ const GH_PACKAGES: Package[] = [
     photos: 4,
     outfits: 1,
     deliveryTime: "1-3 hours",
-    features: ["4 professional photos", "1 outfit", "Basic editing"],
+    features: ["Basic editing", "Multiple poses"],
     popular: true,
     category: "Solo"
   },
@@ -51,7 +51,7 @@ const GH_PACKAGES: Package[] = [
     photos: 4,
     outfits: 1,
     deliveryTime: "1-3 hours",
-    features: ["Birthday theme", "4 photos", "1 outfit"],
+    features: ["Birthday theme", "Props included"],
     popular: false,
     category: "Special Occasions"
   },
@@ -62,7 +62,7 @@ const GH_PACKAGES: Package[] = [
     photos: 3,
     outfits: 1,
     deliveryTime: "1-3 hours",
-    features: ["Graduation theme", "Gown enhancement", "3 photos"],
+    features: ["Graduation theme", "Gown enhancement"],
     popular: true,
     category: "Special Occasions"
   },
@@ -73,7 +73,7 @@ const GH_PACKAGES: Package[] = [
     photos: 8,
     outfits: 2,
     deliveryTime: "1-3 hours",
-    features: ["8 photos", "2 outfits", "Premium editing"],
+    features: ["Premium editing", "Variety of backgrounds"],
     popular: false,
     category: "Solo"
   },
@@ -84,7 +84,7 @@ const GH_PACKAGES: Package[] = [
     photos: 4,
     outfits: 2,
     deliveryTime: "1-3 hours",
-    features: ["Group shots", "2 outfits", "4 photos"],
+    features: ["Group coordination", "Creative direction"],
     popular: false,
     category: "Group"
   },
@@ -96,7 +96,7 @@ const GH_PACKAGES: Package[] = [
     photos: 10,
     outfits: 3,
     deliveryTime: "2-4 hours",
-    features: ["10 professional shots", "3 outfits", "Advanced editing"],
+    features: ["Advanced editing", "Artistic direction"],
     popular: false,
     category: "Professional"
   },
@@ -107,7 +107,7 @@ const GH_PACKAGES: Package[] = [
     photos: 8,
     outfits: 3,
     deliveryTime: "2-4 hours",
-    features: ["Family shots", "3 outfits", "8 photos"],
+    features: ["Family coordination", "Large group lighting"],
     popular: false,
     category: "Group"
   }
@@ -127,13 +127,14 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
         ngPackages.push({
           id: pkg.id,
           name: pkg.name,
-          price: `₦${pkg.price.toLocaleString()} `,
+          price: `₦${pkg.price.toLocaleString()}`,
           // Use dummy values where specific fields are missing in util but required here
           originalPrice: undefined,
           photos: pkg.images,
           outfits: pkg.outfits,
           deliveryTime: "1-3 hours", // Hardcoded default
-          features: [pkg.description, `${pkg.images} Photos`, `${pkg.outfits} Outfits`],
+          // Clean features: Only description, no redundant "X Photos"
+          features: [pkg.description],
           popular: pkg.popular || false,
           category: key.charAt(0).toUpperCase() + key.slice(1) // Capitalize category key
         });
@@ -216,34 +217,31 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
                 </div>
               </div>
 
-              {/* Specs Row */}
-              <div className="flex items-center gap-4 mb-6 relative z-10 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="flex items-center gap-1.5">
-                  <div className="p-1.5 rounded-full bg-[#D4AF37]/10">
-                    <Image className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  </div>
-                  <span className="text-sm font-bold text-gray-800">{pkg.photos}</span>
+              {/* Vertical Features List (Unified) */}
+              <div className="space-y-3 mb-8 relative z-10 px-1">
+                {/* Photos */}
+                <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                  <Image className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+                  <span className="font-medium text-gray-900">{pkg.photos} Professional photos</span>
                 </div>
-                <div className="w-px h-4 bg-gray-300"></div>
-                <div className="flex items-center gap-1.5">
-                  <div className="p-1.5 rounded-full bg-[#D4AF37]/10">
-                    <Shirt className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  </div>
-                  <span className="text-sm font-bold text-gray-800">{pkg.outfits}</span>
-                </div>
-                <div className="w-px h-4 bg-gray-300"></div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-xs text-gray-500">{pkg.deliveryTime.split(' ')[0]}h</span>
-                </div>
-              </div>
 
-              {/* Features */}
-              <div className="space-y-3 mb-8 relative z-10">
+                {/* Outfits */}
+                <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                  <Shirt className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+                  <span className="font-medium text-gray-900">{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
+                </div>
+
+                {/* Delivery Time */}
+                <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                  <Clock className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+                  <span className="font-medium text-gray-900">Delivery in {pkg.deliveryTime}</span>
+                </div>
+
+                {/* Other Features */}
                 {pkg.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-[#D4AF37] mr-3 flex-shrink-0" />
-                    <span>{feature}</span>
+                  <div key={idx} className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                    <Check className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+                    <span className="text-sm font-medium">{feature}</span>
                   </div>
                 ))}
               </div>
@@ -267,8 +265,8 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
               onClick={() => setShowAll(!showAll)}
               className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center space-x-2 mx-auto"
             >
-              <span>{showAll ? 'Show Less' : `View All Packages(${hiddenCount} more)`}</span>
-              <ArrowRight className={`w - 4 h - 4 transform ${showAll ? 'rotate-180' : ''} `} />
+              <span>{showAll ? 'Show Less' : `View All Packages (${hiddenCount} more)`}</span>
+              <ArrowRight className={`w-4 h-4 transform ${showAll ? 'rotate-180' : ''}`} />
             </button>
           </div>
         )}
