@@ -1,7 +1,8 @@
 'use client';
 import dynamic from 'next/dynamic';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { LayoutGroup, motion, AnimatePresence } from 'framer-motion';
 import {
   CATEGORIES,
@@ -32,7 +33,9 @@ const PaystackHandler = dynamic(
   { ssr: false }
 );
 
-export default function GhanaBookingPage() {
+const BookingContent = () => {
+  const searchParams = useSearchParams();
+
   // Phone validation (Ghana default)
   const phoneValidation = usePhoneValidation('+233');
 
@@ -85,6 +88,25 @@ export default function GhanaBookingPage() {
   const packageRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
   const outfitRef = useRef<HTMLDivElement>(null);
+
+  // Deep Linking Effect
+  useEffect(() => {
+    const catId = searchParams.get('category');
+    const pkgId = searchParams.get('packageId');
+
+    if (catId && pkgId && !selectedPackage) {
+      // Find package
+      const categoryPackages = PACKAGES_BY_CATEGORY[catId];
+      if (categoryPackages) {
+        const pkg = categoryPackages.find(p => p.id === pkgId);
+        if (pkg) {
+          setCategory(catId);
+          setSelectedPackage(pkg);
+          // Auto-scroll to photos handled by existing useEffect
+        }
+      }
+    }
+  }, [searchParams]); // Run once on mount/params change
 
   // Check if this is a group booking
   const isGroupBooking = category === 'group';
@@ -378,7 +400,6 @@ export default function GhanaBookingPage() {
     phoneValidation.isValid;
 
   return (
-
     <div className="min-h-screen bg-gray-50 pb-32">
       <LayoutGroup>
         <div className="max-w-md mx-auto px-4 py-8 space-y-12">
@@ -535,5 +556,16 @@ export default function GhanaBookingPage() {
         </div>
       </LayoutGroup>
     </div>
+  );
+};
+
+export default function GhanaBookingPage() {
+  return (
+    <>
+      <Navigation />
+      <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+        <BookingContent />
+      </Suspense>
+    </>
   );
 }

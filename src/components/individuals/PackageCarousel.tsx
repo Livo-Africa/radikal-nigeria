@@ -25,6 +25,7 @@ interface Package {
     features: string[];
     popular: boolean;
     category: string;
+    categoryId: string; // Add ID for deep linking
     description: string;
 }
 
@@ -45,6 +46,7 @@ const GH_DATA = {
                 features: ["Multiple poses", "Basic editing"],
                 popular: true,
                 category: "Solo",
+                categoryId: "solo",
                 description: "Personal photos"
             },
             {
@@ -56,6 +58,7 @@ const GH_DATA = {
                 features: ["Varied poses", "Premium editing"],
                 popular: false,
                 category: "Solo",
+                categoryId: "solo",
                 description: "More variety"
             },
             {
@@ -67,6 +70,7 @@ const GH_DATA = {
                 features: ["Premium lighting", "Advanced retouching"],
                 popular: false,
                 category: "Solo",
+                categoryId: "solo",
                 description: "Premium portfolio"
             }
         ]
@@ -82,6 +86,7 @@ const GH_DATA = {
                 features: ["Birthday props & theme"],
                 popular: true,
                 category: "Birthday",
+                categoryId: "birthday",
                 description: "Simple birthday photos"
             },
             {
@@ -93,6 +98,7 @@ const GH_DATA = {
                 features: ["Enhanced set design", "Prop usage"],
                 popular: false,
                 category: "Birthday",
+                categoryId: "birthday",
                 description: "Enhanced birthday photos"
             },
             {
@@ -104,6 +110,7 @@ const GH_DATA = {
                 features: ["Luxury set design", "Balloon arrangement"],
                 popular: false,
                 category: "Birthday",
+                categoryId: "birthday",
                 description: "Premium birthday photos"
             }
         ]
@@ -120,6 +127,7 @@ const GH_DATA = {
                 features: ["Up to 2 People", "Group coordination"],
                 popular: false,
                 category: "Group",
+                categoryId: "group",
                 description: "Couples or friends"
             },
             {
@@ -131,6 +139,7 @@ const GH_DATA = {
                 features: ["Up to 2 People", "Creative direction"],
                 popular: false,
                 category: "Group",
+                categoryId: "group",
                 description: "Creative group photos"
             },
             {
@@ -142,6 +151,7 @@ const GH_DATA = {
                 features: ["Up to 2 People", "Extra person: ₵30"],
                 popular: false,
                 category: "Group",
+                categoryId: "group",
                 description: "Premium group photos"
             }
         ]
@@ -157,6 +167,7 @@ const GH_DATA = {
                 features: ["Social media ready", "Perfect for CV/LinkedIn"],
                 popular: true,
                 category: "Specialty",
+                categoryId: "specialty",
                 description: "Professional profile photos"
             },
             {
@@ -168,6 +179,7 @@ const GH_DATA = {
                 features: ["Custom jersey name styling", "Sports theme background"],
                 popular: false,
                 category: "Specialty",
+                categoryId: "specialty",
                 description: "Team spirit photos"
             },
             {
@@ -179,6 +191,7 @@ const GH_DATA = {
                 features: ["Professional props included", "Studio background"],
                 popular: true,
                 category: "Specialty",
+                categoryId: "specialty",
                 description: "Career-focused photos"
             },
             {
@@ -190,6 +203,7 @@ const GH_DATA = {
                 features: ["Gown styling assistance", "School theme set"],
                 popular: true,
                 category: "Specialty",
+                categoryId: "specialty",
                 description: "Graduation celebration"
             }
         ]
@@ -225,6 +239,7 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                         features: [pkg.description],
                         popular: pkg.popular || false,
                         category: cat.label,
+                        categoryId: cat.id,
                         description: pkg.description
                     }))
                 };
@@ -290,9 +305,9 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
         }));
 
         if (country === 'NG') {
-            window.location.href = '/individuals/book';
+            window.location.href = `/individuals/book?category=${pkg.categoryId}&packageId=${pkg.id}`;
         } else {
-            window.location.href = '/individuals/style-journey?step=2';
+            window.location.href = `/individuals/style-journey?category=${pkg.categoryId}&packageId=${pkg.id}`;
         }
     };
 
