@@ -448,10 +448,16 @@ const BookingContent = () => {
         );
     }
 
+    // Check if photos are valid
+    const arePhotosValid = isGroupBooking
+        ? groupPhotos.every(p => p.face.state === 'complete' && p.body.state === 'complete')
+        : facePhoto.state === 'complete' && bodyPhoto.state === 'complete';
+
     // Determine if payment is enabled
     const isPaymentEnabled =
         !!category &&
         !!selectedPackage &&
+        arePhotosValid &&
         phoneValidation.isValid;
 
     return (
