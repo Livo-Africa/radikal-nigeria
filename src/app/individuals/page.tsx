@@ -8,13 +8,12 @@ import TransformationsGallery from '@/components/individuals/TransformationsGall
 
 // Mobile Components
 import MobileHeader from '@/components/individuals/MobileHeader';
-import PackageCarousel from '@/components/individuals/PackageCarousel';
+import UnifiedPackageSection from '@/components/individuals/UnifiedPackageSection';
 import ProcessAccordion from '@/components/individuals/ProcessAccordion';
 import StickyBottomBar from '@/components/individuals/StickyBottomBar';
 
 // Desktop Components (for larger screens)
 import HeroSection from '@/components/individuals/HeroSection';
-import PackageShowcase from '@/components/individuals/PackageShowcase';
 import ProcessSection from '@/components/individuals/ProcessSection';
 
 import { getTransformations } from '@/lib/google-sheets';
@@ -64,7 +63,7 @@ export default async function IndividualsPage() {
         <div className="block md:hidden">
           {/* <MobileHeader /> */}
           <div id="packages">
-            <PackageCarousel />
+            <UnifiedPackageSection />
           </div>
           <ProcessAccordion />
           <TransformationsGallery transformations={transformations} />
@@ -76,7 +75,7 @@ export default async function IndividualsPage() {
         {/* Desktop View (hidden on mobile) */}
         <div className="hidden md:block">
           <HeroSection />
-          <PackageShowcase />
+          <UnifiedPackageSection />
           <ProcessSection />
           <TransformationsGallery transformations={transformations} />
           <FAQSection />

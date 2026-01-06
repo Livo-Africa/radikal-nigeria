@@ -2,6 +2,7 @@
 'use client';
 import { useState } from 'react';
 import { ArrowRight, Star, Clock, Image, Shirt } from 'lucide-react';
+import { PACKAGES_BY_CATEGORY as NG_PACKAGES_DATA } from '@/utils/bookingDataNigeria';
 
 interface Package {
   id: string;
@@ -16,103 +17,136 @@ interface Package {
   category: string;
 }
 
-export default function PackageShowcase() {
+interface PackageShowcaseProps {
+  country?: 'GH' | 'NG';
+}
+
+// Hardcoded Ghana Packages (Preserved)
+const GH_PACKAGES: Package[] = [
+  {
+    id: "profile-headshots",
+    name: "Profile Headshots",
+    price: "₵30",
+    photos: 2,
+    outfits: 1,
+    deliveryTime: "1-3 hours",
+    features: ["Professional quality", "LinkedIn ready", "2 edited photos"],
+    popular: false,
+    category: "Professional"
+  },
+  {
+    id: "solo-standard",
+    name: "Solo Standard",
+    price: "₵50",
+    photos: 4,
+    outfits: 1,
+    deliveryTime: "1-3 hours",
+    features: ["4 professional photos", "1 outfit", "Basic editing"],
+    popular: true,
+    category: "Solo"
+  },
+  {
+    id: "birthday-basic",
+    name: "Birthday Basic",
+    price: "₵40",
+    photos: 4,
+    outfits: 1,
+    deliveryTime: "1-3 hours",
+    features: ["Birthday theme", "4 photos", "1 outfit"],
+    popular: false,
+    category: "Special Occasions"
+  },
+  {
+    id: "graduation-shots",
+    name: "Graduation Shots",
+    price: "₵70",
+    photos: 3,
+    outfits: 1,
+    deliveryTime: "1-3 hours",
+    features: ["Graduation theme", "Gown enhancement", "3 photos"],
+    popular: true,
+    category: "Special Occasions"
+  },
+  {
+    id: "solo-medium",
+    name: "Solo Medium",
+    price: "₵90",
+    photos: 8,
+    outfits: 2,
+    deliveryTime: "1-3 hours",
+    features: ["8 photos", "2 outfits", "Premium editing"],
+    popular: false,
+    category: "Solo"
+  },
+  {
+    id: "group-standard",
+    name: "Group Standard",
+    price: "₵80",
+    photos: 4,
+    outfits: 2,
+    deliveryTime: "1-3 hours",
+    features: ["Group shots", "2 outfits", "4 photos"],
+    popular: false,
+    category: "Group"
+  },
+  // Additional packages that will be hidden initially
+  {
+    id: "premium-portfolio",
+    name: "Premium Portfolio",
+    price: "₵120",
+    photos: 10,
+    outfits: 3,
+    deliveryTime: "2-4 hours",
+    features: ["10 professional shots", "3 outfits", "Advanced editing"],
+    popular: false,
+    category: "Professional"
+  },
+  {
+    id: "family-package",
+    name: "Family Package",
+    price: "₵150",
+    photos: 8,
+    outfits: 3,
+    deliveryTime: "2-4 hours",
+    features: ["Family shots", "3 outfits", "8 photos"],
+    popular: false,
+    category: "Group"
+  }
+];
+
+export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps) {
   const [showAll, setShowAll] = useState(false);
-  
-  const allPackages: Package[] = [
-    {
-      id: "profile-headshots",
-      name: "Profile Headshots",
-      price: "₵30",
-      photos: 2,
-      outfits: 1,
-      deliveryTime: "1-3 hours",
-      features: ["Professional quality", "LinkedIn ready", "2 edited photos"],
-      popular: false,
-      category: "Professional"
-    },
-    {
-      id: "solo-standard",
-      name: "Solo Standard", 
-      price: "₵50",
-      photos: 4,
-      outfits: 1,
-      deliveryTime: "1-3 hours",
-      features: ["4 professional photos", "1 outfit", "Basic editing"],
-      popular: true,
-      category: "Solo"
-    },
-    {
-      id: "birthday-basic",
-      name: "Birthday Basic",
-      price: "₵40", 
-      photos: 4,
-      outfits: 1,
-      deliveryTime: "1-3 hours",
-      features: ["Birthday theme", "4 photos", "1 outfit"],
-      popular: false,
-      category: "Special Occasions"
-    },
-    {
-      id: "graduation-shots",
-      name: "Graduation Shots",
-      price: "₵70",
-      photos: 3,
-      outfits: 1,
-      deliveryTime: "1-3 hours", 
-      features: ["Graduation theme", "Gown enhancement", "3 photos"],
-      popular: true,
-      category: "Special Occasions"
-    },
-    {
-      id: "solo-medium",
-      name: "Solo Medium",
-      price: "₵90",
-      photos: 8,
-      outfits: 2,
-      deliveryTime: "1-3 hours",
-      features: ["8 photos", "2 outfits", "Premium editing"],
-      popular: false,
-      category: "Solo"
-    },
-    {
-      id: "group-standard", 
-      name: "Group Standard",
-      price: "₵80",
-      photos: 4,
-      outfits: 2,
-      deliveryTime: "1-3 hours",
-      features: ["Group shots", "2 outfits", "4 photos"],
-      popular: false,
-      category: "Group"
-    },
-    // Additional packages that will be hidden initially
-    {
-      id: "premium-portfolio",
-      name: "Premium Portfolio",
-      price: "₵120",
-      photos: 10,
-      outfits: 3,
-      deliveryTime: "2-4 hours",
-      features: ["10 professional shots", "3 outfits", "Advanced editing"],
-      popular: false,
-      category: "Professional"
-    },
-    {
-      id: "family-package",
-      name: "Family Package", 
-      price: "₵150",
-      photos: 8,
-      outfits: 3,
-      deliveryTime: "2-4 hours",
-      features: ["Family shots", "3 outfits", "8 photos"],
-      popular: false,
-      category: "Group"
-    }
-  ];
+
+  // Dynamic Data Loading
+  let allPackages: Package[];
+
+  if (country === 'NG') {
+    const ngPackages: Package[] = [];
+    Object.keys(NG_PACKAGES_DATA).forEach(key => {
+      const packages = NG_PACKAGES_DATA[key];
+      packages.forEach(pkg => {
+        ngPackages.push({
+          id: pkg.id,
+          name: pkg.name,
+          price: `₦${pkg.price.toLocaleString()}`,
+          // Use dummy values where specific fields are missing in util but required here
+          originalPrice: undefined,
+          photos: pkg.images,
+          outfits: pkg.outfits,
+          deliveryTime: "1-3 hours", // Hardcoded default
+          features: [pkg.description, `${pkg.images} Photos`, `${pkg.outfits} Outfits`],
+          popular: pkg.popular || false,
+          category: key.charAt(0).toUpperCase() + key.slice(1) // Capitalize category key
+        });
+      });
+    });
+    allPackages = ngPackages;
+  } else {
+    allPackages = GH_PACKAGES;
+  }
 
   const displayedPackages = showAll ? allPackages : allPackages.slice(0, 6);
-  const hiddenCount = allPackages.length - 6;
+  const hiddenCount = Math.max(0, allPackages.length - 6);
 
   const handlePackageSelect = (pkg: Package) => {
     // Save package to localStorage for preselection
@@ -121,9 +155,13 @@ export default function PackageShowcase() {
       selectedAt: new Date().toISOString()
     };
     localStorage.setItem('radikal_preselected_package', JSON.stringify(packageData));
-    
+
     // Navigate to style journey with package preselected
-    window.location.href = '/individuals/style-journey?step=2';
+    if (country === 'NG') {
+      window.location.href = '/individuals/book';
+    } else {
+      window.location.href = '/individuals/style-journey?step=2';
+    }
   };
 
   return (
@@ -134,10 +172,10 @@ export default function PackageShowcase() {
             Popular Packages
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Choose from our most popular photoshoot packages
+            Choose from our most popular photoshoot packages in {country === 'GH' ? 'Ghana' : 'Nigeria'}
           </p>
         </div>
-        
+
         {/* Packages Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {displayedPackages.map((pkg) => (
