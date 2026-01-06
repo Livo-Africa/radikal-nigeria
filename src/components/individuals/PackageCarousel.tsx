@@ -307,7 +307,7 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
     if (categories.length === 0) return null;
 
     return (
-        <section id="packages" className="py-8 bg-white">
+        <section id="packages" className="py-8 bg-white overflow-hidden">
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <div className="text-center mb-8">
@@ -326,8 +326,8 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                             key={category}
                             onClick={() => setActiveCategory(category)}
                             className={`dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
-                                ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20 border border-[#D4AF37]'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#D4AF37]/50'
                                 }`}
                         >
                             <CategoryIcon category={category} />
@@ -337,11 +337,11 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                 </div>
 
                 {/* Carousel Container */}
-                <div className="relative">
+                <div className="relative pb-8">
                     {/* Carousel */}
                     <div
                         ref={carouselRef}
-                        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth"
+                        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth py-4"
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         style={{
@@ -353,32 +353,47 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                             {currentPackages.map((pkg, index) => (
                                 <div
                                     key={pkg.id}
-                                    className="flex-shrink-0 w-[85vw] max-w-sm snap-center"
+                                    className="flex-shrink-0 w-[85vw] max-w-sm snap-center pt-6" // pt-6 to allow space for hanging tag/ribbon
                                 >
-                                    {/* Package Card */}
-                                    <div className="bg-gradient-to-b from-white to-gray-50 rounded-2xl p-6 border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300">
-                                        {/* Popular Badge */}
+                                    {/* Package Card - Luxury White design */}
+                                    <div className="relative bg-white rounded-2xl p-6 border-2 border-[#D4AF37] shadow-xl hover:shadow-2xl transition-all duration-300">
+
+                                        {/* Subtle Gold Pattern Background Overlay */}
+                                        <div className="absolute inset-0 rounded-2xl opacity-[0.03] pointer-events-none"
+                                            style={{
+                                                backgroundImage: 'repeating-linear-gradient(45deg, #D4AF37 0, #D4AF37 1px, transparent 0, transparent 50%)',
+                                                backgroundSize: '10px 10px'
+                                            }}
+                                        />
+
+                                        {/* Popular Ribbon - Diagonal Top Left */}
                                         {pkg.popular && (
-                                            <div className="inline-flex items-center gap-1 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black text-xs font-bold px-3 py-1.5 rounded-full mb-4">
-                                                <Star className="w-3 h-3" />
-                                                MOST POPULAR
+                                            <div className="absolute -top-3 -left-3 z-20">
+                                                <div className="bg-[#B91C1C] text-white text-[10px] font-bold px-3 py-1 shadow-md transform -rotate-12 rounded-sm border border-white/20">
+                                                    POPULAR
+                                                </div>
                                             </div>
                                         )}
 
-                                        {/* Package Header */}
-                                        <div className="mb-6">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-xl font-bold text-gray-900">{pkg.name}</h3>
-                                                <div className="text-2xl font-bold text-gray-900 bg-[#D4AF37]/10 px-3 py-1 rounded-lg">
-                                                    {pkg.price}
+                                        {/* Hanging Price Tag - Top Right */}
+                                        <div className="absolute -top-5 -right-2 z-20 shadow-lg transform rotate-3 hover:rotate-6 transition-transform origin-top-right">
+                                            <div className="bg-[#D4AF37] text-white p-1 rounded-sm relative">
+                                                <div className="border border-white/30 rounded-sm px-2 py-1 bg-gradient-to-br from-[#D4AF37] to-[#B8860B]">
+                                                    <div className="text-xl font-bold">{pkg.price}</div>
                                                 </div>
+                                                {/* Simulated string/hook maybe? Keeping it simple for now */}
                                             </div>
-                                            <p className="text-sm text-gray-500">{pkg.description}</p>
+                                        </div>
+
+                                        {/* Package Header */}
+                                        <div className="mb-6 mt-2 relative z-10">
+                                            <h3 className="text-xl font-bold text-gray-900 mb-1">{pkg.name}</h3>
+                                            <p className="text-sm text-gray-500 font-medium tracking-wide uppercase text-xs">{pkg.category}</p>
                                         </div>
 
                                         {/* Features Grid */}
-                                        <div className="grid grid-cols-2 gap-3 mb-6">
-                                            <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2">
+                                        <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
+                                            <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2 border border-[#D4AF37]/10">
                                                 <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
                                                     <Camera className="w-4 h-4 text-white" />
                                                 </div>
@@ -389,7 +404,7 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                                             </div>
 
                                             {pkg.outfits && (
-                                                <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2">
+                                                <div className="bg-[#D4AF37]/5 rounded-lg p-3 flex items-center gap-2 border border-[#D4AF37]/10">
                                                     <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center">
                                                         <Shirt className="w-4 h-4 text-white" />
                                                     </div>
@@ -402,12 +417,12 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                                         </div>
 
                                         {/* Features List */}
-                                        <div className="mb-8">
-                                            <div className="space-y-2">
+                                        <div className="mb-8 relative z-10">
+                                            <div className="space-y-3">
                                                 {pkg.features.map((feature, idx) => (
-                                                    <div key={idx} className="flex items-center text-sm text-gray-700">
-                                                        <Check className="w-4 h-4 text-[#D4AF37] mr-2 flex-shrink-0" />
-                                                        <span className="text-sm">{feature}</span>
+                                                    <div key={idx} className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
+                                                        <Check className="w-4 h-4 text-[#D4AF37] mr-3 flex-shrink-0" />
+                                                        <span className="text-sm font-medium">{feature}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -416,7 +431,7 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                                         {/* Select Button */}
                                         <button
                                             onClick={() => handlePackageSelect(pkg)}
-                                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-bold py-4 rounded-xl hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                                            className="relative z-10 w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 hover:shadow-lg transition-all duration-200 border-2 border-transparent hover:border-[#D4AF37]/30"
                                         >
                                             Select Package
                                         </button>
@@ -427,13 +442,13 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                     </div>
 
                     {/* Navigation Dots */}
-                    <div className="flex justify-center items-center gap-2 mt-8">
+                    <div className="flex justify-center items-center gap-2 mt-4">
                         {currentPackages.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
                                 className={`dot-indicator rounded-full transition-all ${index === currentIndex
-                                    ? 'w-8 h-2 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F]'
+                                    ? 'w-8 h-2 bg-[#D4AF37]'
                                     : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
                                     }`}
                                 aria-label={`Go to package ${index + 1}`}
@@ -441,20 +456,18 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                         ))}
                     </div>
 
-                    {/* Position Indicator */}
+                    {/* Swipe Hint */}
                     <div className="text-center mt-4">
-                        <div className="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full">
-                            <div className="dot-indicator text-sm font-medium text-gray-600">
-                                {currentIndex + 1} <span className="text-gray-400">/ {currentPackages.length}</span>
-                            </div>
+                        <div className="inline-flex items-center gap-2 text-[#D4AF37] text-xs font-medium bg-[#D4AF37]/5 px-3 py-1 rounded-full animate-pulse">
+                            Swipe to see more <ChevronRight className="w-3 h-3" />
                         </div>
                     </div>
 
                     {/* View All Link */}
-                    <div className="text-center mt-8 pt-6 border-t border-gray-100">
+                    <div className="text-center mt-6 pt-6 border-t border-gray-100">
                         <a
                             href="/individuals/packages"
-                            className="inline-flex items-center gap-2 text-[#D4AF37] font-semibold hover:text-[#b8941f] transition-colors text-sm"
+                            className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium"
                         >
                             View all packages
                             <ChevronRight className="w-4 h-4" />

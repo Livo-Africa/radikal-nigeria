@@ -1,7 +1,6 @@
-// components/individuals/PackageShowcase.tsx - UPDATED
 'use client';
 import { useState } from 'react';
-import { ArrowRight, Star, Clock, Image, Shirt } from 'lucide-react';
+import { ArrowRight, Star, Clock, Image, Shirt, Check } from 'lucide-react';
 import { PACKAGES_BY_CATEGORY as NG_PACKAGES_DATA } from '@/utils/bookingDataNigeria';
 
 interface Package {
@@ -128,7 +127,7 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
         ngPackages.push({
           id: pkg.id,
           name: pkg.name,
-          price: `₦${pkg.price.toLocaleString()}`,
+          price: `₦${pkg.price.toLocaleString()} `,
           // Use dummy values where specific fields are missing in util but required here
           originalPrice: undefined,
           photos: pkg.images,
@@ -165,7 +164,7 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
   };
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -176,54 +175,83 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
           </p>
         </div>
 
-        {/* Packages Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Packages Grid - Added top padding for hanging tags */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 pt-8 px-2">
           {displayedPackages.map((pkg) => (
             <div
               key={pkg.id}
-              className="bg-white rounded-2xl p-6 border border-gray-200 hover:border-[#D4AF37] transition-all duration-300 hover:shadow-lg"
+              className="relative bg-white rounded-2xl p-6 border-2 border-[#D4AF37] shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 block"
             >
-              {/* Package Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{pkg.name}</h3>
-                  <p className="text-sm text-gray-500">{pkg.category}</p>
-                </div>
-                {pkg.popular && (
-                  <span className="bg-[#D4AF37] text-black text-xs font-bold px-2 py-1 rounded-full">
+              {/* Subtle Gold Pattern Background Overlay */}
+              <div className="absolute inset-0 rounded-2xl opacity-[0.03] pointer-events-none"
+                style={{
+                  backgroundImage: 'repeating-linear-gradient(45deg, #D4AF37 0, #D4AF37 1px, transparent 0, transparent 50%)',
+                  backgroundSize: '10px 10px'
+                }}
+              />
+
+              {/* Popular Ribbon - Diagonal Top Left */}
+              {pkg.popular && (
+                <div className="absolute -top-3 -left-3 z-20">
+                  <div className="bg-[#B91C1C] text-white text-[10px] font-bold px-3 py-1 shadow-md transform -rotate-12 rounded-sm border border-white/20">
                     POPULAR
-                  </span>
-                )}
+                  </div>
+                </div>
+              )}
+
+              {/* Hanging Price Tag - Top Right */}
+              <div className="absolute -top-5 -right-2 z-20 shadow-lg transform rotate-3 hover:rotate-6 transition-transform origin-top-right">
+                <div className="bg-[#D4AF37] text-white p-1 rounded-sm relative">
+                  <div className="border border-white/30 rounded-sm px-2 py-1 bg-gradient-to-br from-[#D4AF37] to-[#B8860B]">
+                    <div className="text-xl font-bold">{pkg.price}</div>
+                  </div>
+                </div>
               </div>
 
-              {/* Price */}
-              <div className="mb-4">
-                <div className="text-2xl font-bold text-gray-900">{pkg.price}</div>
-                {pkg.originalPrice && (
-                  <div className="text-sm text-gray-500 line-through">{pkg.originalPrice}</div>
-                )}
+              {/* Package Header */}
+              <div className="mb-4 relative z-10 pt-2">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{pkg.name}</h3>
+                  <p className="text-sm text-gray-500 uppercase tracking-wider font-medium text-xs mt-1">{pkg.category}</p>
+                </div>
+              </div>
+
+              {/* Specs Row */}
+              <div className="flex items-center gap-4 mb-6 relative z-10 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="flex items-center gap-1.5">
+                  <div className="p-1.5 rounded-full bg-[#D4AF37]/10">
+                    <Image className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">{pkg.photos}</span>
+                </div>
+                <div className="w-px h-4 bg-gray-300"></div>
+                <div className="flex items-center gap-1.5">
+                  <div className="p-1.5 rounded-full bg-[#D4AF37]/10">
+                    <Shirt className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">{pkg.outfits}</span>
+                </div>
+                <div className="w-px h-4 bg-gray-300"></div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-xs text-gray-500">{pkg.deliveryTime.split(' ')[0]}h</span>
+                </div>
               </div>
 
               {/* Features */}
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center text-sm text-gray-600">
-                  <Image className="w-4 h-4 mr-2 text-[#D4AF37]" />
-                  <span>{pkg.photos} professional photos</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Shirt className="w-4 h-4 mr-2 text-[#D4AF37]" />
-                  <span>{pkg.outfits} outfit{pkg.outfits > 1 ? 's' : ''}</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Clock className="w-4 h-4 mr-2 text-[#D4AF37]" />
-                  <span>Delivery in {pkg.deliveryTime}</span>
-                </div>
+              <div className="space-y-3 mb-8 relative z-10">
+                {pkg.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-center text-sm text-gray-700">
+                    <Check className="w-4 h-4 text-[#D4AF37] mr-3 flex-shrink-0" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Select Button */}
               <button
                 onClick={() => handlePackageSelect(pkg)}
-                className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
+                className="relative z-10 w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2 border-2 border-transparent hover:border-[#D4AF37]/30"
               >
                 <span>Select Package</span>
                 <ArrowRight className="w-4 h-4" />
@@ -239,8 +267,8 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
               onClick={() => setShowAll(!showAll)}
               className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center space-x-2 mx-auto"
             >
-              <span>{showAll ? 'Show Less' : `View All Packages (${hiddenCount} more)`}</span>
-              <ArrowRight className={`w-4 h-4 transform ${showAll ? 'rotate-180' : ''}`} />
+              <span>{showAll ? 'Show Less' : `View All Packages(${hiddenCount} more)`}</span>
+              <ArrowRight className={`w - 4 h - 4 transform ${showAll ? 'rotate-180' : ''} `} />
             </button>
           </div>
         )}
