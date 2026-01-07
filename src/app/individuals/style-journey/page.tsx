@@ -76,11 +76,12 @@ const BookingContent = () => {
   const [outfitsLoading, setOutfitsLoading] = useState(false);
 
   // Paystack Configuration State
+  // SECURITY: No fallback key - must be set in environment variables
   const [paystackConfig, setPaystackConfig] = useState({
     reference: '',
     email: '',
     amount: 0,
-    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_80bc62ffbd037a464869dfcd01dc89b1a901ed33',
+    publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
   });
   const [triggerPaystack, setTriggerPaystack] = useState(false);
 
@@ -345,11 +346,19 @@ const BookingContent = () => {
     const newOrderId = generateOrderId();
     setOrderId(newOrderId);
 
+    // SECURITY: Validate Paystack key exists before proceeding
+    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+    if (!publicKey) {
+      alert('Payment configuration error. Please contact support.');
+      setPaymentStatus('failed');
+      return;
+    }
+
     setPaystackConfig({
       reference: newOrderId,
       email: `order-${newOrderId}@radikal.ng`, // Dummy email matches Nigeria flow
       amount: calculateTotal() * 100, // Paystack uses smallest currency unit (kobo/pesewas)
-      publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_80bc62ffbd037a464869dfcd01dc89b1a901ed33',
+      publicKey,
     });
 
     setTimeout(() => setTriggerPaystack(true), 100);

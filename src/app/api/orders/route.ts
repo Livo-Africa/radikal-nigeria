@@ -28,8 +28,8 @@ async function verifyPaystackPayment(reference: string): Promise<boolean> {
   try {
     const SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
     if (!SECRET_KEY) {
-      console.warn('⚠️ PAYSTACK_SECRET_KEY not set. Skipping server-side verification.');
-      return true; // Allow in dev/test if key missing, or fail? Better to fail safely if critical.
+      console.error('❌ PAYSTACK_SECRET_KEY not configured - payment verification cannot proceed');
+      return false; // SECURITY: Always fail if key is missing to prevent unpaid orders
     }
 
     console.log(`🔍 Verifying payment reference: ${reference}`);
