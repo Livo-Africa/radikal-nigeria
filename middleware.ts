@@ -6,7 +6,7 @@ import {
     getClientIdentifier,
     getRateLimitConfig,
     getRetryAfter
-} from './src/lib/rateLimit';
+} from '@/lib/rateLimit';
 
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;

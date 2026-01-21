@@ -34,7 +34,8 @@ export const RATE_LIMITS = {
  */
 function cleanupExpiredEntries() {
     const now = Date.now();
-    for (const [key, entry] of rateLimitStore.entries()) {
+    const entries = Array.from(rateLimitStore.entries());
+    for (const [key, entry] of entries) {
         if (now > entry.resetTime) {
             rateLimitStore.delete(key);
         }
