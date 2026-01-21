@@ -8,6 +8,7 @@ interface PaystackHandlerProps {
     publicKey: string;
     reference: string;
     currency?: string;
+    metadata?: any;
     onSuccess: (reference: any) => void;
     onClose: () => void;
     trigger: boolean;
@@ -20,6 +21,7 @@ export default function PaystackHandler({
     publicKey,
     reference,
     currency = 'NGN',
+    metadata,
     onSuccess,
     onClose,
     trigger,
@@ -31,6 +33,7 @@ export default function PaystackHandler({
         amount,
         publicKey,
         currency,
+        metadata: metadata || {},
     };
 
     const initializePayment = usePaystackPayment(config);

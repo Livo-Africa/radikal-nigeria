@@ -31,10 +31,10 @@ const nextConfig = {
 
   // Compress responses
   compress: true,
-  
+
   // Remove X-Powered-By header
   poweredByHeader: false,
-  
+
   // React strict mode for better debugging
   reactStrictMode: true,
 
@@ -53,7 +53,35 @@ const nextConfig = {
 
   // FIXED: Less restrictive security headers
   async headers() {
+    // Get allowed origins from environment or use defaults
+    const allowedOrigins = process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(',')
+      : ['http://localhost:3000']; // Default for development
+
     return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Credentials',
+            value: 'true'
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: process.env.NODE_ENV === 'production'
+              ? allowedOrigins[0] || 'https://radikal.com'
+              : '*' // Allow all origins in development
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST,OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-Requested-With, Content-Type, Authorization'
+          },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

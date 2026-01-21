@@ -82,6 +82,7 @@ const BookingContent = () => {
     email: '',
     amount: 0,
     publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+    metadata: {},
   });
   const [triggerPaystack, setTriggerPaystack] = useState(false);
 
@@ -359,11 +360,46 @@ const BookingContent = () => {
       email: `order-${newOrderId}@radikal.ng`, // Dummy email matches Nigeria flow
       amount: calculateTotal() * 100, // Paystack uses smallest currency unit (kobo/pesewas)
       publicKey,
+      metadata: {
+        orderId: newOrderId,
+        shootType: category,
+        shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
+        package: {
+          id: selectedPackage.id,
+          name: selectedPackage.name,
+          price: selectedPackage.price,
+        },
+        groupSize: category === 'group' ? groupSize : undefined,
+        outfits: selectedOutfits.map(o => ({
+          id: o.id,
+          name: o.name,
+          image: o.imageUrl || o.previewUrl,
+          uploaded: o.isUploaded
+        })),
+        style: {
+          makeup: {
+            selectedName: styling.makeup
+              ? (styling.makeupType === 'light' ? 'Light Makeup' :
+                styling.makeupType === 'heavy' ? 'Heavy Makeup' :
+                  styling.makeupType === 'glam' ? 'Glam Makeup' : 'Yes')
+              : 'No'
+          },
+          hairstyle: { customDescription: styling.hairstyle ? styling.hairstyleText : 'Not specified' },
+          background: { customDescription: styling.background ? styling.backgroundText : 'Not specified' }
+        },
+        whatsappNumber: phoneValidation.fullNumber,
+        addOns: addOns,
+        finalTotal: calculateTotal(),
+        timestamp: new Date().toISOString()
+      }
     });
 
     setTimeout(() => setTriggerPaystack(true), 100);
 
-  }, [selectedPackage, calculateTotal]);
+  }, [
+    selectedPackage, calculateTotal, category, groupSize,
+    selectedOutfits, styling, phoneValidation.fullNumber, addOns
+  ]);
 
   // Reset Booking
   const handleNewBooking = () => {
@@ -561,6 +597,7 @@ const BookingContent = () => {
             amount={paystackConfig.amount}
             publicKey={paystackConfig.publicKey}
             reference={paystackConfig.reference}
+            metadata={paystackConfig.metadata}
             currency="GHS"
             onSuccess={handlePaystackSuccess}
             onClose={handlePaystackClose}
