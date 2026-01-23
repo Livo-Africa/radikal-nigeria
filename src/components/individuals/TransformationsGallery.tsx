@@ -17,6 +17,10 @@ export default function TransformationsGallery({ transformations = [] }: { trans
   const [showAfter, setShowAfter] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+
+  // Constants
+  const SWIPE_THRESHOLD = 50;
 
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
   const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
@@ -101,6 +105,53 @@ export default function TransformationsGallery({ transformations = [] }: { trans
     };
   }, [showAfter, personalTransformations.length, isMounted]);
 
+  // Touch handlers for swipe - follows before→after→next cycle
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null || isTransitioning) return;
+
+    const touchEnd = e.changedTouches[0].clientX;
+    const distance = touchStart - touchEnd;
+
+    if (Math.abs(distance) > SWIPE_THRESHOLD) {
+      setIsTransitioning(true);
+
+      if (distance > 0) {
+        // Swipe left - follow the cycle: before → after → next before
+        if (showAfter) {
+          // Currently showing "after", move to next image and show "before"
+          setCurrentIndex(prev => (prev + 1) % personalTransformations.length);
+          setShowAfter(false);
+        } else {
+          // Currently showing "before", show "after" of same image
+          setShowAfter(true);
+        }
+      } else {
+        // Swipe right - reverse cycle: after → before → previous after
+        if (showAfter) {
+          // Currently showing "after", show "before" of same image
+          setShowAfter(false);
+        } else {
+          // Currently showing "before", go to previous image and show "after"
+          setCurrentIndex(prev => (prev - 1 + personalTransformations.length) % personalTransformations.length);
+          setShowAfter(true);
+        }
+      }
+
+      // Reset transitioning state
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsTransitioning(false);
+        });
+      });
+    }
+
+    setTouchStart(null);
+  };
+
   // Handle Loading State
   if (!isMounted) {
     return (
@@ -142,7 +193,11 @@ export default function TransformationsGallery({ transformations = [] }: { trans
 
         {/* Transformation Display */}
         <div className="max-w-4xl mx-auto">
-          <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border-2 border-gray-700 bg-gray-900 shadow-2xl">
+          <div
+            className="relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border-2 border-gray-700 bg-gray-900 shadow-2xl cursor-pointer"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
 
             {/* Before Image */}
             <div className={`absolute inset-0 ${showAfter ? 'hidden' : 'block'}`}>

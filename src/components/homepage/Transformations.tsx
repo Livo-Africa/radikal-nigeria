@@ -243,8 +243,8 @@ export default function Transformations({ transformations = [] }: Transformation
           </p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex justify-start md:justify-center mb-8 md:mb-12 overflow-x-auto pb-4 scrollbar-hide">
+        {/* Filter Tabs - Hidden on mobile, visible on desktop */}
+        <div className="hidden md:flex justify-center mb-8 md:mb-12 overflow-x-auto pb-4 scrollbar-hide">
           <div className="flex space-x-2 md:space-x-4 px-4 md:px-0 min-w-max">
             {filters.map((filter) => (
               <button
