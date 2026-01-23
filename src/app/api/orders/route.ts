@@ -3,6 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { processOrder } from '@/lib/orderUtils';
 import { validateFiles, formatValidationErrors } from '@/lib/fileValidation';
+import { sanitizeOrderData, isValidPhoneNumber } from '@/lib/sanitization';
+import { logger } from '@/lib/logger';
 
 
 
@@ -16,7 +18,7 @@ async function verifyPaystackPayment(reference: string): Promise<boolean> {
       return false; // SECURITY: Always fail if key is missing to prevent unpaid orders
     }
 
-    console.log(`🔍 Verifying payment reference: ${reference}`);
+    logger.info('🔍 Verifying payment', { metadata: { reference: 'REF-***' } });
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       method: 'GET',
       headers: {
@@ -25,9 +27,12 @@ async function verifyPaystackPayment(reference: string): Promise<boolean> {
     });
 
     const data = await response.json();
-    console.log('--- Paystack Verification Response ---');
-    console.log(JSON.stringify(data, null, 2));
-    console.log('--------------------------------------');
+    logger.debug('Paystack verification response received', {
+      metadata: {
+        status: data.status,
+        paymentStatus: data.data?.status
+      }
+    });
 
     return data.status && data.data.status === 'success';
   } catch (error) {
@@ -48,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const orderData = JSON.parse(orderDataString);
-    console.log('📦 Received order data:', orderData);
+    logger.info('📦 Received order', { metadata: { orderId: orderData.orderId } });
 
     // Extract and validate files (User Photos + Outfit Uploads)
     const uploadedFiles = Array.from(formData.entries())
@@ -72,7 +77,12 @@ export async function POST(request: NextRequest) {
 
     // Use only validated files
     const files = validation.validFiles;
-    console.log(`✅ ${files.length} files validated successfully (${(validation.totalSize / 1024 / 1024).toFixed(2)}MB total)`);
+    logger.info(`✅ ${files.length} files validated`, {
+      metadata: {
+        fileCount: files.length,
+        totalSizeMB: (validation.totalSize / 1024 / 1024).toFixed(2)
+      }
+    });
 
     const {
       orderId,
@@ -93,6 +103,21 @@ export async function POST(request: NextRequest) {
     if (!orderId || !whatsappNumber || !pkg?.name) {
       throw new Error('Missing required fields: orderId, whatsappNumber, or package name');
     }
+
+    // SECURITY: Validate phone number format
+    if (!isValidPhoneNumber(whatsappNumber)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid phone number format. Please provide a valid phone number.'
+        },
+        { status: 400 }
+      );
+    }
+
+    // SECURITY: Sanitize all user inputs
+    const sanitizedOrderData = sanitizeOrderData(orderData);
+    logger.info('✅ Order data sanitized', { metadata: { orderId } });
 
 
     // SECURITY: Require payment in production environment
@@ -119,14 +144,14 @@ export async function POST(request: NextRequest) {
 
       // Additional validation: Verify payment amount matches order total
       // This is already done in processOrder via price verification, but we log it here
-      console.log(`✅ Payment verified for order ${orderId}`);
+      logger.info('✅  Payment verified', { metadata: { orderId } });
     } else {
       // Development/testing mode - allow without payment but log it
-      console.warn(`⚠️ Order ${orderId} processed without payment (Development mode)`);
+      logger.warn('⚠️ Order processed without payment (Development mode)', { metadata: { orderId } });
     }
 
     // Process Order (Price check, Telegram, Sheets)
-    const result = await processOrder(orderData, files, 'client_upload');
+    const result = await processOrder(sanitizedOrderData, files, 'client_upload');
 
     if (!result.success) {
       return NextResponse.json(

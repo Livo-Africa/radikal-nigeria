@@ -1,5 +1,6 @@
 // src/lib/telegram.ts
 import { NextResponse } from 'next/server';
+import { escapeHtml } from '@/lib/sanitization';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -100,14 +101,14 @@ export function formatOrderForTelegram(order: any) {
     if (Array.isArray(outfits) && outfits.length > 0) {
         outfitList = outfits.map((o: any) => {
             if (o.uploaded) {
-                return `- 📤 ${o.name} (Uploaded)`;
+                return `- 📤 ${escapeHtml(o.name)} (Uploaded)`;
             } else if (o.autoSelected) {
-                return `- ✨ ${o.name}`;
+                return `- ✨ ${escapeHtml(o.name)}`;
             } else if (o.image) {
-                // Wardrobe selection with link
-                return `- <b>${o.name}</b> (${o.category || 'Wardrobe'})\n   🔗 ${o.image}`;
+                // Wardrobe selection with link - note: URL is not escaped as it's server-provided
+                return `- <b>${escapeHtml(o.name)}</b> (${escapeHtml(o.category || 'Wardrobe')})\n   🔗 ${o.image}`;
             } else {
-                return `- <b>${o.name || 'Unnamed'}</b>`;
+                return `- <b>${escapeHtml(o.name || 'Unnamed')}</b>`;
             }
         }).join('\n');
     }
@@ -127,23 +128,23 @@ export function formatOrderForTelegram(order: any) {
 🆕 <b>NEW ORDER RECEIVED</b>
 
 🆔 <b>Order ID:</b> <code>${orderId}</code>
-📱 <b>Phone:</b> ${whatsappNumber}
-📸 <b>Shoot Type:</b> ${shootTypeName || shootType || 'Not specified'}
-📦 <b>Package:</b> ${pkg?.name || 'Unknown'}
+📱 <b>Phone:</b> ${escapeHtml(whatsappNumber)}
+📸 <b>Shoot Type:</b> ${escapeHtml(shootTypeName || shootType || 'Not specified')}
+📦 <b>Package:</b> ${escapeHtml(pkg?.name || 'Unknown')}
 💰 <b>Total:</b> ${currency} ${finalTotal?.toLocaleString() || 0}${groupInfo}
 
 👗 <b>Outfits Selected:</b>
 ${outfitList}
 
 💇 <b>Style Preferences:</b>
-- Hairstyle: ${style?.hairstyle?.selectedName || style?.hairstyle?.customDescription || 'Not specified'}
-- Makeup: ${style?.makeup?.selectedName || style?.makeup?.customDescription || 'Not specified'}
-- Background: ${style?.background?.selectedName || style?.background?.customDescription || 'Not specified'}
+- Hairstyle: ${escapeHtml(style?.hairstyle?.selectedName || style?.hairstyle?.customDescription || 'Not specified')}
+- Makeup: ${escapeHtml(style?.makeup?.selectedName || style?.makeup?.customDescription || 'Not specified')}
+- Background: ${escapeHtml(style?.background?.selectedName || style?.background?.customDescription || 'Not specified')}
 
-➕ <b>Add-ons:</b> ${addOnsList}
+➕ <b>Add-ons:</b> ${escapeHtml(addOnsList)}
 
 📝 <b>Notes:</b>
-${specialRequests || 'No special requests'}
+${escapeHtml(specialRequests || 'No special requests')}
 
 <i>Please check Google Sheets for full details.</i>
 `;
