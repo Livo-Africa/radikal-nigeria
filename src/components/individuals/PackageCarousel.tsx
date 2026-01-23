@@ -354,6 +354,28 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
 
                 {/* Carousel Container */}
                 <div className="relative pb-8">
+                    {/* Left Arrow Button */}
+                    {currentIndex > 0 && (
+                        <button
+                            onClick={() => setCurrentIndex(prev => prev - 1)}
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:border-[#D4AF37] transition-all duration-200"
+                            aria-label="Previous package"
+                        >
+                            <ChevronLeft className="w-5 h-5 text-gray-700" />
+                        </button>
+                    )}
+
+                    {/* Right Arrow Button */}
+                    {currentIndex < currentPackages.length - 1 && (
+                        <button
+                            onClick={() => setCurrentIndex(prev => prev + 1)}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:border-[#D4AF37] transition-all duration-200"
+                            aria-label="Next package"
+                        >
+                            <ChevronRight className="w-5 h-5 text-gray-700" />
+                        </button>
+                    )}
+
                     {/* Carousel */}
                     <div
                         ref={carouselRef}
