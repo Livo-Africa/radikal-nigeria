@@ -1,7 +1,7 @@
 // src/components/shared/Navigation.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X, Shirt } from 'lucide-react';
+import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X, Shirt, Mail, Info } from 'lucide-react';
 
 export default function Navigation() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -100,6 +100,27 @@ export default function Navigation() {
       }
     ]
   };
+
+  const simpleLinks = [
+    {
+      name: 'Services',
+      href: '/services',
+      description: 'Explore our full range of services',
+      icon: Camera
+    },
+    {
+      name: 'About',
+      href: '/about',
+      description: 'Learn more about our story',
+      icon: Info
+    },
+    {
+      name: 'Contact',
+      href: '/contact',
+      description: 'Get in touch with our team',
+      icon: Mail
+    }
+  ];
 
   // FIXED: Glass morphism styles - Default to dark until we know scroll position
   const getNavStyles = () => {
@@ -352,13 +373,13 @@ export default function Navigation() {
               </div>
 
               {/* Simple Links - Styling matched to dropdowns */}
-              {['Services', 'About', 'Contact'].map((item) => (
+              {simpleLinks.map((item) => (
                 <a
-                  key={item}
-                  href={`/${item.toLowerCase()}`}
+                  key={item.name}
+                  href={item.href}
                   className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}
                 >
-                  <span>{item}</span>
+                  <span>{item.name}</span>
                 </a>
               ))}
             </div>
@@ -402,8 +423,8 @@ export default function Navigation() {
       {/* Mobile Menu Overlay - Enhanced Glass Morphism */}
       <div
         className={`lg:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${mobileMenuOpen
-            ? 'opacity-100 visible'
-            : 'opacity-0 invisible pointer-events-none'
+          ? 'opacity-100 visible'
+          : 'opacity-0 invisible pointer-events-none'
           }`}
         style={{ top: '72px' }}
       >
@@ -455,17 +476,31 @@ export default function Navigation() {
                 </div>
               ))}
 
-              {/* Simple Links */}
-              {['Services', 'About', 'Contact'].map((item) => (
-                <a
-                  key={item}
-                  href={`/${item.toLowerCase()}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-gray-900 hover:text-[#D4AF37] transition-colors py-4 px-4 rounded-xl hover:bg-white/50 text-sm font-medium border-b border-gray-200/50"
-                >
-                  {item}
-                </a>
-              ))}
+
+              {/* Simple Links - Now Using Rich Link Style */}
+              <div className="border-b border-gray-200/50 pb-6">
+                <h3 className="text-[#D4AF37] font-semibold text-sm uppercase tracking-wide mb-4">
+                  General
+                </h3>
+                <div className="space-y-3">
+                  {simpleLinks.map((item) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center space-x-3 text-gray-900 hover:text-[#D4AF37] transition-colors py-3 px-4 rounded-xl hover:bg-white/50"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-lg flex items-center justify-center">
+                        <item.icon className="w-4 h-4 text-[#D4AF37]" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{item.name}</div>
+                        <div className="text-gray-500 text-xs">{item.description}</div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Mobile CTA */}
