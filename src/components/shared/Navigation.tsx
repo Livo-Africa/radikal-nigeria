@@ -1,7 +1,7 @@
 // src/components/shared/Navigation.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X } from 'lucide-react';
+import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X, Shirt } from 'lucide-react';
 
 export default function Navigation() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -18,82 +18,82 @@ export default function Navigation() {
       setScrolled(scrollY > 50);
       setIsAtTop(scrollY < 10);
     };
-    
+
     // Set initial state
     handleScroll();
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const dropdowns = {
     individuals: [
-      { 
-        name: "Studio Shots", 
+      {
+        name: "Studio Shots",
         href: "/individuals",
         description: "Professional studio-style photography",
         icon: Camera
       },
-      { 
-        name: "Headshots", 
-        href: "/individuals",
-        description: "Corporate and professional headshots",
-        icon: Users
-      },
-      { 
-        name: "Occasion & Celebration", 
+      {
+        name: "Occasion & Celebration",
         href: "/individuals",
         description: "Special events and celebrations",
         icon: Sparkles
       },
-      { 
-        name: "Milestone Shots", 
+      {
+        name: "Headshots",
         href: "/individuals",
-        description: "Important life moments captured",
-        icon: Camera
+        description: "Corporate and professional headshots",
+        icon: Users
+      },
+      {
+        name: "Wardrobe",
+        href: "/wardrobe",
+        description: "Explore our fashion collection",
+        icon: Shirt
       }
     ],
     business: [
-      { 
-        name: "Product Shots", 
+      {
+        name: "Product Shots",
         href: "/business",
         description: "Professional product photography",
         icon: Camera
       },
-      { 
-        name: "Brand Identity", 
+      {
+        name: "Brand Identity",
         href: "/business",
         description: "Complete brand visual identity",
         icon: Building2
       },
-      { 
-        name: "Social Media Content", 
+      {
+        name: "Social Media Content",
         href: "/business",
         description: "Engaging social media visuals",
         icon: Sparkles
       },
-      { 
-        name: "Marketing Visuals", 
+      {
+        name: "Marketing Visuals",
         href: "/business",
         description: "Campaign and marketing assets",
         icon: Building2
       }
     ],
     creators: [
-      { 
-        name: "Partnership Programs", 
+      {
+        name: "Partnership Programs",
         href: "/creators",
         description: "Collaborative creator programs",
         icon: Users
       },
-      { 
-        name: "White-label Services", 
+      {
+        name: "White-label Services",
         href: "/creators",
         description: "Private label photography services",
         icon: Building2
       },
-      { 
-        name: "Portfolio Enhancement", 
+      {
+        name: "Portfolio Enhancement",
         href: "/creators",
         description: "Professional portfolio development",
         icon: Camera
@@ -146,9 +146,14 @@ export default function Navigation() {
 
   const navStyles = getNavStyles();
 
+  // Helper to handle dropdown toggle for hybrid touch/mouse
+  const toggleDropdown = (key: string) => {
+    setActiveDropdown(activeDropdown === key ? null : key);
+  };
+
   return (
     <>
-      <nav 
+      <nav
         className="fixed top-0 w-full z-50 transition-all duration-500 ease-out"
         style={{
           background: navStyles.background,
@@ -161,7 +166,7 @@ export default function Navigation() {
           <div className="flex justify-between items-center py-3">
             {/* Enhanced Logo with Glass Effect */}
             <a href="/" className="flex items-center space-x-3 group">
-              <div 
+              <div
                 className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
                 style={{
                   background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(185, 28, 28, 0.9) 100%)',
@@ -175,9 +180,8 @@ export default function Navigation() {
                 <span className={`font-bold text-lg tracking-tight transition-colors duration-300 ${navStyles.textColor} group-hover:text-[#D4AF37]`}>
                   RADIKAL
                 </span>
-                <span className={`text-xs transition-colors duration-300 ${
-                  !mounted || isAtTop ? 'text-white/70' : 'text-gray-600'
-                } group-hover:text-[#D4AF37]`}>
+                <span className={`text-xs transition-colors duration-300 ${!mounted || isAtTop ? 'text-white/70' : 'text-gray-600'
+                  } group-hover:text-[#D4AF37]`}>
                   Creative Technologies
                 </span>
               </div>
@@ -186,20 +190,24 @@ export default function Navigation() {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-6">
               {/* Individuals Dropdown */}
-              <div 
+              <div
                 className="relative"
                 onMouseEnter={() => setActiveDropdown('individuals')}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}>
+                <button
+                  onClick={() => toggleDropdown('individuals')}
+                  aria-expanded={activeDropdown === 'individuals'}
+                  aria-haspopup="true"
+                  className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}
+                >
                   <span>Individuals</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
-                    activeDropdown === 'individuals' ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'individuals' ? 'rotate-180' : ''
+                    }`} />
                 </button>
-                
+
                 {activeDropdown === 'individuals' && (
-                  <div 
+                  <div
                     className="absolute top-full left-0 mt-2 w-80 rounded-2xl py-3 z-50"
                     style={{
                       background: 'rgba(255, 255, 255, 0.95)',
@@ -213,7 +221,7 @@ export default function Navigation() {
                       <p className="text-gray-500 text-xs">Professional photography for personal use</p>
                     </div>
                     {dropdowns.individuals.map((item) => (
-                      <a 
+                      <a
                         key={item.name}
                         href={item.href}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50/80 transition-colors group"
@@ -236,20 +244,24 @@ export default function Navigation() {
               </div>
 
               {/* Business Dropdown */}
-              <div 
+              <div
                 className="relative"
                 onMouseEnter={() => setActiveDropdown('business')}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}>
+                <button
+                  onClick={() => toggleDropdown('business')}
+                  aria-expanded={activeDropdown === 'business'}
+                  aria-haspopup="true"
+                  className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}
+                >
                   <span>Business</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
-                    activeDropdown === 'business' ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'business' ? 'rotate-180' : ''
+                    }`} />
                 </button>
-                
+
                 {activeDropdown === 'business' && (
-                  <div 
+                  <div
                     className="absolute top-full left-0 mt-2 w-80 rounded-2xl py-3 z-50"
                     style={{
                       background: 'rgba(255, 255, 255, 0.95)',
@@ -263,7 +275,7 @@ export default function Navigation() {
                       <p className="text-gray-500 text-xs">Enterprise-grade visual solutions</p>
                     </div>
                     {dropdowns.business.map((item) => (
-                      <a 
+                      <a
                         key={item.name}
                         href={item.href}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50/80 transition-colors group"
@@ -286,20 +298,24 @@ export default function Navigation() {
               </div>
 
               {/* Creators Dropdown */}
-              <div 
+              <div
                 className="relative"
                 onMouseEnter={() => setActiveDropdown('creators')}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}>
+                <button
+                  onClick={() => toggleDropdown('creators')}
+                  aria-expanded={activeDropdown === 'creators'}
+                  aria-haspopup="true"
+                  className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}
+                >
                   <span>Creators</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
-                    activeDropdown === 'creators' ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === 'creators' ? 'rotate-180' : ''
+                    }`} />
                 </button>
-                
+
                 {activeDropdown === 'creators' && (
-                  <div 
+                  <div
                     className="absolute top-full left-0 mt-2 w-80 rounded-2xl py-3 z-50"
                     style={{
                       background: 'rgba(255, 255, 255, 0.95)',
@@ -313,7 +329,7 @@ export default function Navigation() {
                       <p className="text-gray-500 text-xs">Partnership and white-label services</p>
                     </div>
                     {dropdowns.creators.map((item) => (
-                      <a 
+                      <a
                         key={item.name}
                         href={item.href}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50/80 transition-colors group"
@@ -335,22 +351,22 @@ export default function Navigation() {
                 )}
               </div>
 
-              {/* Simple Links */}
+              {/* Simple Links - Styling matched to dropdowns */}
               {['Services', 'About', 'Contact'].map((item) => (
-                <a 
+                <a
                   key={item}
                   href={`/${item.toLowerCase()}`}
-                  className={`transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}
+                  className={`flex items-center space-x-1 transition-all duration-200 font-medium text-sm ${navStyles.textColor} hover:text-[#D4AF37]`}
                 >
-                  {item}
+                  <span>{item}</span>
                 </a>
               ))}
             </div>
 
             {/* CTA Button with Glass Effect */}
             <div className="hidden lg:flex items-center">
-              <a 
-                href="/contact" 
+              <a
+                href="/contact"
                 className="px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105"
                 style={{
                   background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.9) 0%, rgba(185, 28, 28, 0.9) 100%)',
@@ -374,9 +390,8 @@ export default function Navigation() {
             {/* FIXED: Mobile Menu Button - Always visible with proper color */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`lg:hidden p-2 transition-colors ${
-                !mounted || isAtTop ? 'text-white' : 'text-gray-900'
-              }`}
+              className={`lg:hidden p-2 transition-colors ${!mounted || isAtTop ? 'text-white' : 'text-gray-900'
+                }`}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -385,16 +400,15 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile Menu Overlay - Enhanced Glass Morphism */}
-      <div 
-        className={`lg:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${
-          mobileMenuOpen 
-            ? 'opacity-100 visible' 
+      <div
+        className={`lg:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${mobileMenuOpen
+            ? 'opacity-100 visible'
             : 'opacity-0 invisible pointer-events-none'
-        }`} 
+          }`}
         style={{ top: '72px' }}
       >
         {/* Backdrop */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: 'rgba(0, 0, 0, 0.6)',
@@ -402,10 +416,10 @@ export default function Navigation() {
           }}
           onClick={() => setMobileMenuOpen(false)}
         />
-        
+
         {/* Mobile Menu Content */}
-        <div 
-          className="relative h-full max-h-[calc(100vh-72px)] overflow-y-auto"
+        <div
+          className="relative h-full max-h-[calc(100dvh-72px)] overflow-y-auto"
           style={{
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
@@ -440,7 +454,7 @@ export default function Navigation() {
                   </div>
                 </div>
               ))}
-              
+
               {/* Simple Links */}
               {['Services', 'About', 'Contact'].map((item) => (
                 <a
@@ -464,7 +478,7 @@ export default function Navigation() {
                   boxShadow: '0 4px 20px rgba(212, 175, 55, 0.4)'
                 }}
               >
-                Start Your Project
+                Start Project
               </a>
             </div>
           </div>
