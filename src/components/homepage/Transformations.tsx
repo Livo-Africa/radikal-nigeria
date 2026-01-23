@@ -135,15 +135,26 @@ export default function Transformations({ transformations = [] }: Transformation
       setIsPlaying(false);
 
       if (distance > 0) {
-        // Swipe left - next
-        setCurrentIndex(prev => (prev + 1) % filteredTransformations.length);
+        // Swipe left - follow the cycle: before → after → next before
+        if (showAfter) {
+          // Currently showing "after", move to next image and show "before"
+          setCurrentIndex(prev => (prev + 1) % filteredTransformations.length);
+          setShowAfter(false);
+        } else {
+          // Currently showing "before", show "after" of same image
+          setShowAfter(true);
+        }
       } else {
-        // Swipe right - previous
-        setCurrentIndex(prev => (prev - 1 + filteredTransformations.length) % filteredTransformations.length);
+        // Swipe right - reverse cycle: after → before → previous after
+        if (showAfter) {
+          // Currently showing "after", show "before" of same image
+          setShowAfter(false);
+        } else {
+          // Currently showing "before", go to previous image and show "after"
+          setCurrentIndex(prev => (prev - 1 + filteredTransformations.length) % filteredTransformations.length);
+          setShowAfter(true);
+        }
       }
-
-      // DO NOT reset showAfter here - let auto-play handle the before/after toggle
-      // This way, if we're currently showing "after", swiping will show "after" of next image
 
       // Resume auto-play after 5 seconds
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
