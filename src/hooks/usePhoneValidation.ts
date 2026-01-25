@@ -186,8 +186,12 @@ export function usePhoneValidation(defaultCountryCode: string = '+234'): UsePhon
     );
 
     const handleLocalNumberChange = useCallback((number: string) => {
-        // Only allow digits, limit to max length for country
-        const digits = number.replace(/\D/g, '');
+        // Only allow digits, strip leading zeros, limit to max length for country
+        let digits = number.replace(/\D/g, '');
+
+        // Remove leading zeros (e.g., 024 -> 24)
+        digits = digits.replace(/^0+/, '');
+
         const maxLen = countryConfig?.maxLength || 15;
         setLocalNumber(digits.slice(0, maxLen));
     }, [countryConfig]);
