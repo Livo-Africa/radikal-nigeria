@@ -210,6 +210,17 @@ const BookingContent = () => {
         }
     }, [selectedPackage]);
 
+    // Auto-scroll when photos are valid
+    useEffect(() => {
+        // Only scroll if photos are valid AND we have a package selected
+        // We use a small timeout to ensure the DOM is ready and provide a better UX
+        if (arePhotosValid && outfitRef.current) {
+            setTimeout(() => {
+                outfitRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
+    }, [arePhotosValid]);
+
     // Handle category selection
     const handleCategorySelect = useCallback((categoryId: string) => {
         setCategory(categoryId);
