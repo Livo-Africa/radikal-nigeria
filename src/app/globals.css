@@ -877,6 +877,13 @@ button {
 }
 
 /* Smooth gradient backgrounds */
-.gradient-bg {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+/* Ensure dot indicators are not affected by global button sizing */
+.dot-indicator {
+  min-height: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
