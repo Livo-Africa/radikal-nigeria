@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
-import { Eye, Sparkles, User, Camera, Video, Gift, Box, ChevronDown, X } from 'lucide-react';
+import { Eye, Sparkles, ChevronDown, X } from 'lucide-react';
 
 type FilterType = 'All' | 'Birthday' | 'Solo' | 'Headshots' | 'Creative' | 'Products' | 'Video';
 
@@ -23,14 +23,14 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
     const [selectedImage, setSelectedImage] = useState<CollageTransformation | null>(null);
 
     // Filter Logic
-    const filters: { id: FilterType; label: string; icon: any }[] = [
-        { id: 'All', label: 'All', icon: Sparkles },
-        { id: 'Birthday', label: 'Birthday', icon: Gift },
-        { id: 'Solo', label: 'Solo', icon: User },
-        { id: 'Headshots', label: 'Headshots', icon: Camera }, // Business, Corporate, Brand
-        { id: 'Products', label: 'Products', icon: Box },
-        { id: 'Creative', label: 'Creative', icon: Sparkles },
-        { id: 'Video', label: 'Video', icon: Video },
+    const filters: { id: FilterType; label: string }[] = [
+        { id: 'All', label: 'All' },
+        { id: 'Birthday', label: 'Birthday' },
+        { id: 'Solo', label: 'Solo' },
+        { id: 'Headshots', label: 'Headshots' },
+        { id: 'Products', label: 'Products' },
+        { id: 'Creative', label: 'Creative' },
+        { id: 'Video', label: 'Video' },
     ];
 
     const filteredTransformations = useMemo(() => {
@@ -99,12 +99,11 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                             <button
                                 key={filter.id}
                                 onClick={() => handleFilterChange(filter.id)}
-                                className={`flex items-center space-x-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap border ${activeFilter === filter.id
+                                className={`flex items-center justify-center px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap border ${activeFilter === filter.id
                                     ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-lg shadow-[#D4AF37]/20 scale-105'
                                     : 'bg-gray-900 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-white'
                                     }`}
                             >
-                                <filter.icon className="w-4 h-4" />
                                 <span>{filter.label}</span>
                             </button>
                         ))}
