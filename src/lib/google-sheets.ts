@@ -153,6 +153,56 @@ export async function getTransformations() {
   }
 }
 
+export async function getCollageTransformations() {
+  try {
+    const sheets = initializeSheets();
+
+    // Try to fetch from the new sheet first
+    let rows: any[] = [];
+    try {
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'TransformCollage!A:C', // Image_URL, Category, Title(Optional)
+      });
+      rows = response.data.values || [];
+    } catch (e) {
+      console.warn('TransformCollage sheet not found or empty, using mock data');
+    }
+
+    if (!rows || rows.length === 0) {
+      // Fallback Mock Data if sheet is empty or fails
+      // Using placeholder images that look like collages
+      return [
+        { id: '1', imageUrl: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=1000&auto=format&fit=crop', category: 'Birthday', title: 'Birthday Glam' },
+        { id: '2', imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop', category: 'Solo', title: 'Studio Session' },
+        { id: '3', imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop', category: 'Headshots', title: 'Corporate Profile' },
+        { id: '4', imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop', category: 'Products', title: 'Watch Collection' },
+        { id: '5', imageUrl: 'https://images.unsplash.com/photo-1542038784424-48ed7461330d?q=80&w=1000&auto=format&fit=crop', category: 'Creative', title: 'Neon Dreams' },
+        { id: '6', imageUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000&auto=format&fit=crop', category: 'Birthday', title: '21st Celebration' },
+        { id: '7', imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=1000&auto=format&fit=crop', category: 'Solo', title: 'Golden Hour' },
+        { id: '8', imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop', category: 'Headshots', title: 'Executive Portrait' },
+        { id: '9', imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1000&auto=format&fit=crop', category: 'Products', title: 'Audio Gear' },
+        { id: '10', imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000&auto=format&fit=crop', category: 'Video', title: 'Tech Review' },
+        { id: '11', imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1000&auto=format&fit=crop', category: 'Birthday', title: 'Birthday Studio' },
+        { id: '12', imageUrl: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1000&auto=format&fit=crop', category: 'Solo', title: 'Fashion Edit' },
+        { id: '13', imageUrl: 'https://images.unsplash.com/photo-1571781926291-280553facd6d?q=80&w=1000&auto=format&fit=crop', category: 'Creative', title: 'Abstract Art' },
+      ];
+    }
+
+    const transformations = rows.slice(1).map((row, index) => ({
+      id: index.toString(),
+      imageUrl: row[0] || '',
+      category: row[1] || 'General',
+      title: row[2] || '',
+    })).filter(item => item.imageUrl); // Filter out empty rows
+
+    return transformations;
+  } catch (error) {
+    console.error('Error fetching collage transformations:', error);
+    return [];
+  }
+}
+
 
 // ADD NEW OUTFITS FUNCTION
 export async function getOutfits(category?: string, search?: string) {
