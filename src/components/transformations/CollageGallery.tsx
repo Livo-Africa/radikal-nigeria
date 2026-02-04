@@ -99,12 +99,20 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                             <button
                                 key={filter.id}
                                 onClick={() => handleFilterChange(filter.id)}
-                                className={`flex items-center justify-center px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap border ${activeFilter === filter.id
-                                    ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-lg shadow-[#D4AF37]/20 scale-105'
-                                    : 'bg-gray-900 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-white'
-                                    }`}
+                                className={`
+                                    relative px-6 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 border
+                                    ${activeFilter === filter.id
+                                        ? 'bg-black/80 border-[#D4AF37] text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] shadow-[0_0_20px_rgba(212,175,55,0.15)]'
+                                        : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/10'
+                                    }
+                                `}
                             >
-                                <span>{filter.label}</span>
+                                <span className={activeFilter === filter.id ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] bg-clip-text text-transparent' : ''}>
+                                    {filter.label}
+                                </span>
+                                {activeFilter === filter.id && (
+                                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] shadow-[0_0_10px_#D4AF37]" />
+                                )}
                             </button>
                         ))}
                     </div>
