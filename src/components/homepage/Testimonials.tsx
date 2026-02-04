@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Star, MessageCircle, User, Filter, ZoomIn, X, ChevronDown, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Testimonials({ testimonials = [] }: { testimonials?: any[] }) {
   const [activeFilter, setActiveFilter] = useState('All');
@@ -354,13 +355,13 @@ export default function Testimonials({ testimonials = [] }: { testimonials?: any
 
           {/* View More Button (For Mobile & Desktop) */}
           <div className="text-center mt-8 md:mt-12">
-            <a
+            <Link
               href="/testimonials"
               className="inline-flex items-center space-x-2 bg-[#D4AF37] hover:bg-[#b8941f] text-black font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105"
             >
               <span>View All Testimonials</span>
               <ExternalLink className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>

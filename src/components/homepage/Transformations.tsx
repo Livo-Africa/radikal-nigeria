@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Eye, EyeOff, ArrowRight, Play, Pause, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { Transformation } from '@/types';
 
 interface TransformationsProps {
@@ -386,13 +387,13 @@ export default function Transformations({ transformations = [] }: Transformation
 
             {/* View More Button */}
             <div className="text-center">
-              <a
+              <Link
                 href="/transformations"
                 className="inline-flex items-center space-x-2 bg-transparent hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors border border-[#D4AF37] text-sm md:text-base group"
               >
                 <span>View More Work</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </Link>
             </div>
           </div>
         )}

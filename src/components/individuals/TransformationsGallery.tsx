@@ -1,6 +1,7 @@
 // src/components/individuals/TransformationsGallery.tsx - TYPE-SAFE VERSION
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 // Create a more flexible type for the individuals page
 interface GalleryTransformation {
@@ -302,12 +303,12 @@ export default function TransformationsGallery({ transformations = [] }: { trans
 
           {/* View All Transformations Link */}
           <div className="text-center mt-8">
-            <a
+            <Link
               href="/transformations"
               className="inline-block bg-transparent hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black px-6 py-3 rounded-lg font-semibold transition-colors border border-[#D4AF37]"
             >
               View All Transformations →
-            </a>
+            </Link>
           </div>
         </div>
       </div>

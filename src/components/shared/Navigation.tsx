@@ -1,7 +1,7 @@
 // src/components/shared/Navigation.tsx
 'use client';
 import { useState, useEffect } from 'react';
-import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X, Shirt, Mail, Info } from 'lucide-react';
+import { ChevronDown, Sparkles, Building2, Users, Camera, Menu, X, Shirt, Mail, Info, MessageCircle } from 'lucide-react';
 
 export default function Navigation() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -45,6 +45,12 @@ export default function Navigation() {
         href: "/individuals",
         description: "Corporate and professional headshots",
         icon: Users
+      },
+      {
+        name: "Transformations",
+        href: "/transformations",
+        description: "Before & After showcase",
+        icon: Sparkles
       },
       {
         name: "Wardrobe",
@@ -107,6 +113,12 @@ export default function Navigation() {
       href: '/services',
       description: 'Explore our full range of services',
       icon: Camera
+    },
+    {
+      name: 'Testimonials',
+      href: '/testimonials',
+      description: 'Client success stories',
+      icon: MessageCircle
     },
     {
       name: 'About',

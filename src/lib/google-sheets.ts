@@ -91,6 +91,37 @@ export async function getTestimonials() {
   }
 }
 
+export async function getAllTestimonials() {
+  try {
+    const sheets = initializeSheets();
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Testimonials!A:F',
+    });
+
+    const rows = response.data.values;
+
+    if (!rows || rows.length === 0) {
+      return [];
+    }
+
+    // Process all testimonials without limits
+    const allTestimonials = rows.slice(1).map((row) => ({
+      name: row[0] || '',
+      category: row[1] || '',
+      text: row[2] || '',
+      imageUrl: row[3] || '',
+      rating: parseFloat(row[4]) || 5,
+      visible: (row[5] || '').toString().toUpperCase() === 'TRUE',
+    })).filter(item => item.visible && item.name);
+
+    return allTestimonials;
+  } catch (error) {
+    return [];
+  }
+}
+
 export async function getTransformations() {
   try {
     const sheets = initializeSheets();

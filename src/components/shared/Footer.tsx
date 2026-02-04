@@ -23,7 +23,7 @@ export default function Footer() {
           {/* Contact - Primary action on mobile */}
           <div className="mb-6">
             <div className="space-y-3">
-              <a 
+              <a
                 href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
                 className="flex items-center justify-center text-gray-400 hover:text-white transition-colors group bg-white/5 rounded-lg p-3"
               >
@@ -35,7 +35,7 @@ export default function Footer() {
                   <div className="text-xs text-gray-500">Instant response</div>
                 </div>
               </a>
-              <a 
+              <a
                 href="mailto:radikalcreatech@gmail.com"
                 className="flex items-center justify-center text-gray-400 hover:text-white transition-colors group bg-white/5 rounded-lg p-3"
               >
@@ -57,6 +57,8 @@ export default function Footer() {
               <ul className="space-y-2 text-xs">
                 <li><a href="/" className="text-gray-400 hover:text-white transition-colors">Home</a></li>
                 <li><a href="/individuals" className="text-gray-400 hover:text-white transition-colors">Individuals</a></li>
+                <li><a href="/transformations" className="text-gray-400 hover:text-white transition-colors">Transformations</a></li>
+                <li><a href="/testimonials" className="text-gray-400 hover:text-white transition-colors">Testimonials</a></li>
                 <li><a href="/business" className="text-gray-400 hover:text-white transition-colors">Business</a></li>
               </ul>
             </div>
@@ -122,7 +124,7 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4 text-[#D4AF37]">Get In Touch</h4>
             <div className="space-y-4">
-              <a 
+              <a
                 href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
                 className="flex items-center text-gray-400 hover:text-white transition-colors group"
               >
@@ -134,7 +136,7 @@ export default function Footer() {
                   <div className="text-sm text-gray-500">Instant response</div>
                 </div>
               </a>
-              <a 
+              <a
                 href="mailto:radikalcreatech@gmail.com"
                 className="flex items-center text-gray-400 hover:text-white transition-colors group"
               >
