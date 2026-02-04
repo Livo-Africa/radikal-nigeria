@@ -1,64 +1,78 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import Image from 'next/image';
 import { Eye, Sparkles, ChevronDown, X } from 'lucide-react';
 
-type FilterType = 'All' | 'Birthday' | 'Solo' | 'Headshots' | 'Creative' | 'Products' | 'Video';
+type MainFilterType = 'All' | 'Birthday' | 'Solo' | 'Headshots' | 'Products' | 'Creative' | 'Video';
 
 interface CollageTransformation {
     id: string;
     imageUrl: string;
     category: string;
-    title?: string;
+    package?: string;
 }
 
 interface CollageGalleryProps {
     transformations: CollageTransformation[];
 }
 
+// Sub-filter definitions
+const SUB_FILTERS: Record<string, string[]> = {
+    Birthday: ['All', 'Basic', 'Deluxe', 'Royal'],
+    Solo: ['All', 'Standard', 'Medium', 'Supreme'],
+};
+
+const MAIN_FILTERS: MainFilterType[] = ['All', 'Birthday', 'Solo', 'Headshots', 'Products', 'Creative', 'Video'];
+
 export default function CollageGallery({ transformations = [] }: CollageGalleryProps) {
-    const [activeFilter, setActiveFilter] = useState<FilterType>('All');
+    const [activeFilter, setActiveFilter] = useState<MainFilterType>('All');
+    const [activeSubFilter, setActiveSubFilter] = useState<string>('All');
     const [visibleCount, setVisibleCount] = useState(10);
     const [selectedImage, setSelectedImage] = useState<CollageTransformation | null>(null);
 
-    // Filter Logic
-    const filters: { id: FilterType; label: string }[] = [
-        { id: 'All', label: 'All' },
-        { id: 'Birthday', label: 'Birthday' },
-        { id: 'Solo', label: 'Solo' },
-        { id: 'Headshots', label: 'Headshots' },
-        { id: 'Products', label: 'Products' },
-        { id: 'Creative', label: 'Creative' },
-        { id: 'Video', label: 'Video' },
-    ];
+    // Get available sub-filters for the current main filter
+    const currentSubFilters = SUB_FILTERS[activeFilter] || null;
 
+    // Filtering Logic (Case-Insensitive)
     const filteredTransformations = useMemo(() => {
-        if (activeFilter === 'All') return transformations;
+        let filtered = transformations;
 
-        return transformations.filter(t => {
-            const category = (t.category || '').toLowerCase();
-            const title = (t.title || '').toLowerCase();
-            const text = `${category} ${title}`;
+        // Step 1: Filter by main category
+        if (activeFilter !== 'All') {
+            filtered = filtered.filter(t => {
+                const category = (t.category || '').toLowerCase();
+                const filterLower = activeFilter.toLowerCase();
 
-            switch (activeFilter) {
-                case 'Birthday':
-                    return text.includes('birthday');
-                case 'Solo':
-                    return text.includes('solo') || text.includes('personal') || text.includes('individual') || text.includes('portrait');
-                case 'Headshots':
-                    return text.includes('headshot') || text.includes('business') || text.includes('corporate') || text.includes('brand') || text.includes('professional');
-                case 'Products':
-                    return text.includes('product') || text.includes('merch') || text.includes('commercial');
-                case 'Creative':
-                    return text.includes('creative') || text.includes('art') || text.includes('editorial') || text.includes('edit');
-                case 'Video':
-                    return text.includes('video') || text.includes('reel') || text.includes('motion');
-                default:
-                    return true;
-            }
-        });
-    }, [transformations, activeFilter]);
+                // Match category keywords
+                switch (activeFilter) {
+                    case 'Birthday':
+                        return category.includes('birthday');
+                    case 'Solo':
+                        return category.includes('solo') || category.includes('personal') || category.includes('individual');
+                    case 'Headshots':
+                        return category.includes('headshot') || category.includes('corporate') || category.includes('professional') || category.includes('brand') || category.includes('business');
+                    case 'Products':
+                        return category.includes('product') || category.includes('commercial');
+                    case 'Creative':
+                        return category.includes('creative') || category.includes('art') || category.includes('editorial');
+                    case 'Video':
+                        return category.includes('video') || category.includes('reel') || category.includes('motion');
+                    default:
+                        return category.includes(filterLower);
+                }
+            });
+        }
+
+        // Step 2: Filter by sub-filter (package) if applicable
+        if (currentSubFilters && activeSubFilter !== 'All') {
+            filtered = filtered.filter(t => {
+                const pkg = (t.package || '').toLowerCase();
+                return pkg === activeSubFilter.toLowerCase();
+            });
+        }
+
+        return filtered;
+    }, [transformations, activeFilter, activeSubFilter, currentSubFilters]);
 
     const visibleItems = filteredTransformations.slice(0, visibleCount);
     const hasMore = visibleCount < filteredTransformations.length;
@@ -67,10 +81,16 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
         setVisibleCount(prev => prev + 10);
     };
 
-    const handleFilterChange = (filter: FilterType) => {
+    const handleMainFilterChange = (filter: MainFilterType) => {
         setActiveFilter(filter);
-        setVisibleCount(10); // Reset count on filter change
+        setActiveSubFilter('All'); // Reset sub-filter when main filter changes
+        setVisibleCount(10);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleSubFilterChange = (subFilter: string) => {
+        setActiveSubFilter(subFilter);
+        setVisibleCount(10);
     };
 
     // Close lightbox on escape key
@@ -91,31 +111,53 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                 </h1>
             </div>
 
-            {/* Filters - Sticky on Mobile */}
-            <div className="sticky top-16 md:top-0 z-30 bg-black/95 backdrop-blur-sm border-b border-gray-800 py-4 transition-all">
-                <div className="container mx-auto px-4">
-                    <div className="flex overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:justify-center md:flex-wrap gap-3">
-                        {filters.map((filter) => (
-                            <button
-                                key={filter.id}
-                                onClick={() => handleFilterChange(filter.id)}
-                                className={`
-                                    relative px-6 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 border
-                                    ${activeFilter === filter.id
-                                        ? 'bg-black/80 border-[#D4AF37] text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] shadow-[0_0_20px_rgba(212,175,55,0.15)]'
-                                        : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:border-white/30 hover:bg-white/10'
-                                    }
-                                `}
-                            >
-                                <span className={activeFilter === filter.id ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] bg-clip-text text-transparent' : ''}>
-                                    {filter.label}
-                                </span>
-                                {activeFilter === filter.id && (
-                                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] shadow-[0_0_10px_#D4AF37]" />
-                                )}
-                            </button>
-                        ))}
+            {/* Modern Filter Section */}
+            <div className="sticky top-16 md:top-0 z-30 bg-black/95 backdrop-blur-xl border-b border-white/10">
+                <div className="container mx-auto px-4 py-4">
+                    {/* Main Filters - Segmented Control Style */}
+                    <div className="flex justify-center mb-3">
+                        <div className="inline-flex bg-white/5 rounded-2xl p-1.5 backdrop-blur-sm border border-white/10">
+                            {MAIN_FILTERS.map((filter) => (
+                                <button
+                                    key={filter}
+                                    onClick={() => handleMainFilterChange(filter)}
+                                    className={`
+                                        relative px-4 md:px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap
+                                        ${activeFilter === filter
+                                            ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black shadow-lg shadow-[#D4AF37]/25'
+                                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                        }
+                                    `}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
                     </div>
+
+                    {/* Sub-Filters Row (Conditional) */}
+                    {currentSubFilters && (
+                        <div className="flex justify-center animate-fadeIn">
+                            <div className="flex items-center gap-2 text-sm">
+                                <span className="text-gray-500 mr-2 hidden md:inline">Package:</span>
+                                {currentSubFilters.map((subFilter) => (
+                                    <button
+                                        key={subFilter}
+                                        onClick={() => handleSubFilterChange(subFilter)}
+                                        className={`
+                                            px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200
+                                            ${activeSubFilter === subFilter
+                                                ? 'bg-white text-black'
+                                                : 'bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white border border-white/10'
+                                            }
+                                        `}
+                                    >
+                                        {subFilter}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -126,7 +168,6 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                 </div>
 
                 {/* Gallery Layout */}
-                {/* Mobile: Single Column, Desktop: 3 Columns */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {visibleItems.map((item, index) => (
                         <div
@@ -135,11 +176,9 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                             onClick={() => setSelectedImage(item)}
                         >
                             <div className="relative w-full">
-                                {/* Using <img> for better flexibility with varying aspect ratios of collages, 
-                                    or Next.js Image with 'width/height: auto' style */}
                                 <img
                                     src={item.imageUrl}
-                                    alt={item.title || 'Transformation'}
+                                    alt={item.category || 'Transformation'}
                                     className="w-full h-auto object-cover display-block"
                                     loading="lazy"
                                 />
@@ -149,16 +188,18 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                                     </div>
                                 </div>
                             </div>
-                            {(item.title || item.category !== 'General') && (
+                            {(item.category || item.package) && (
                                 <div className="p-4 border-t border-gray-800">
-                                    <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-wider mb-1">
-                                        {item.category}
-                                    </p>
-                                    {item.title && (
-                                        <h3 className="text-white font-medium text-sm md:text-base">
-                                            {item.title}
-                                        </h3>
-                                    )}
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-wider">
+                                            {item.category}
+                                        </p>
+                                        {item.package && (
+                                            <span className="text-gray-500 text-xs bg-gray-800 px-2 py-0.5 rounded">
+                                                {item.package}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -172,7 +213,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                             <Sparkles className="w-8 h-8 text-gray-600" />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-2">No results found</h3>
-                        <p className="text-gray-400">Try selecting a different category.</p>
+                        <p className="text-gray-400">Try selecting a different category or package.</p>
                     </div>
                 )}
 
@@ -212,18 +253,21 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                     >
                         <img
                             src={selectedImage.imageUrl}
-                            alt={selectedImage.title || 'Full size'}
+                            alt={selectedImage.category || 'Full size'}
                             className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
                         />
-                        {(selectedImage.title || selectedImage.category) && (
-                            <div className="mt-4 text-center">
-                                <span className="text-[#D4AF37] text-sm font-bold uppercase tracking-wider mr-2">
+                        {(selectedImage.category || selectedImage.package) && (
+                            <div className="mt-4 text-center flex items-center gap-3">
+                                <span className="text-[#D4AF37] text-sm font-bold uppercase tracking-wider">
                                     {selectedImage.category}
                                 </span>
-                                {selectedImage.title && (
-                                    <span className="text-white text-lg font-medium">
-                                        | {selectedImage.title}
-                                    </span>
+                                {selectedImage.package && (
+                                    <>
+                                        <span className="text-gray-600">•</span>
+                                        <span className="text-white text-sm">
+                                            {selectedImage.package}
+                                        </span>
+                                    </>
                                 )}
                             </div>
                         )}
