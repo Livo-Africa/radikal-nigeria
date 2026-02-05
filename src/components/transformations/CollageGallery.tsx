@@ -131,7 +131,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
     }, [selectedImage, filteredTransformations]);
 
     return (
-        <div className="bg-black min-h-screen">
+        <div className="bg-black min-h-screen overflow-x-hidden">
             {/* Mobile Header */}
             <div className="md:hidden pt-6 pb-3 text-center px-4">
                 <h1 className="text-2xl font-bold font-playfair text-white">
@@ -140,19 +140,26 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
             </div>
 
             {/* Filter Section - Sticky */}
-            <div className="sticky top-16 md:top-0 z-30 bg-gradient-to-b from-black via-black/98 to-black/95 backdrop-blur-xl border-b border-white/5">
-                <div className="container mx-auto px-4 py-3 md:py-4">
+            <div className="sticky top-16 md:top-0 z-30 bg-gradient-to-b from-black via-black/98 to-black/95 backdrop-blur-xl border-b border-white/5 overflow-hidden">
+                <div className="container mx-auto px-4 py-3 md:py-4 overflow-hidden">
                     {/* Main Filters - Horizontal Scroll on Mobile */}
-                    <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-                        <div className="flex md:justify-center gap-2 md:gap-1 min-w-max md:min-w-0">
-                            <div className="md:inline-flex md:bg-white/5 md:rounded-2xl md:p-1 md:backdrop-blur-sm md:border md:border-white/10 flex gap-2 md:gap-0">
+                    <div
+                        className="overflow-x-auto pb-2 md:pb-0 md:overflow-visible"
+                        style={{
+                            WebkitOverflowScrolling: 'touch',
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none'
+                        }}
+                    >
+                        <div className="flex md:justify-center gap-2 md:gap-1 w-max md:w-auto mx-auto">
+                            <div className="flex md:inline-flex md:bg-white/5 md:rounded-2xl md:p-1 md:backdrop-blur-sm md:border md:border-white/10 gap-2 md:gap-0">
                                 {MAIN_FILTERS.map((filter) => (
                                     <button
                                         key={filter}
                                         onClick={() => handleMainFilterChange(filter)}
                                         className={`
                                             relative px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-lg text-sm font-semibold 
-                                            transition-all duration-300 whitespace-nowrap
+                                            transition-all duration-300 whitespace-nowrap flex-shrink-0
                                             ${activeFilter === filter
                                                 ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black shadow-lg shadow-[#D4AF37]/30 scale-[1.02]'
                                                 : 'bg-white/5 md:bg-transparent text-gray-400 hover:text-white hover:bg-white/10 border border-white/10 md:border-0'
@@ -168,8 +175,15 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
 
                     {/* Sub-Filters Row */}
                     {currentSubFilters && (
-                        <div className="mt-3 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-                            <div className="flex md:justify-center items-center gap-2 min-w-max md:min-w-0">
+                        <div
+                            className="mt-3 overflow-x-auto pb-1 md:pb-0 md:overflow-visible"
+                            style={{
+                                WebkitOverflowScrolling: 'touch',
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none'
+                            }}
+                        >
+                            <div className="flex md:justify-center items-center gap-2 w-max md:w-auto mx-auto">
                                 <span className="text-gray-500 text-xs uppercase tracking-wider mr-1 hidden md:inline">Package</span>
                                 <div className="h-4 w-px bg-gray-700 hidden md:block" />
                                 {currentSubFilters.map((subFilter) => (
@@ -178,7 +192,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                                         onClick={() => handleSubFilterChange(subFilter)}
                                         className={`
                                             px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide 
-                                            transition-all duration-200 whitespace-nowrap
+                                            transition-all duration-200 whitespace-nowrap flex-shrink-0
                                             ${activeSubFilter === subFilter
                                                 ? 'bg-white text-black shadow-md'
                                                 : 'bg-white/5 text-gray-400 hover:bg-white/15 hover:text-white border border-white/10'
