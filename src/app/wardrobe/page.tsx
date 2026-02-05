@@ -175,13 +175,19 @@ function WardrobeContent() {
     <>
       <Navigation />
 
-      <main className="pt-20 min-h-screen bg-gray-50/50">
+      <main className="pt-20 min-h-screen bg-gray-50/50 overflow-x-hidden">
 
         {/* Mobile Header (Minified) */}
-        <div className="md:hidden px-4 py-4 bg-white sticky top-16 z-20 border-b border-gray-100">
+        <div className="md:hidden px-4 py-4 bg-white sticky top-16 z-20 border-b border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold">The Wardrobe</h1>
             <div className="flex space-x-2">
+              <button
+                onClick={() => setActiveGender('All')}
+                className={`px-3 py-1 rounded-full text-xs font-bold ${activeGender === 'All' ? 'bg-[#D4AF37] text-white' : 'bg-gray-100'}`}
+              >
+                ALL
+              </button>
               <button
                 onClick={() => setActiveGender('M')}
                 className={`px-3 py-1 rounded-full text-xs font-bold ${activeGender === 'M' ? 'bg-[#D4AF37] text-white' : 'bg-gray-100'}`}
@@ -203,12 +209,19 @@ function WardrobeContent() {
             </div>
           </div>
           {/* Mobile Filters Horizontal Scroll */}
-          <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div
+            className="flex space-x-2 overflow-x-auto pb-2"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'
+                className={`whitespace-nowrap flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === cat ? 'bg-black text-white' : 'bg-gray-100 text-gray-600'
                   }`}
               >
                 {cat}

@@ -54,10 +54,23 @@ export async function GET(request: Request) {
     if (gender && gender !== 'All') {
       const g = gender.toUpperCase();
       outfits = outfits.filter(outfit => {
-        const outfitGender = (outfit.gender || '').toUpperCase();
-        const isUnisex = outfitGender === 'UNISEX' || outfitGender === 'U';
-        if (g === 'M' || g === 'MALE') return outfitGender === 'MALE' || outfitGender === 'M' || isUnisex;
-        if (g === 'F' || g === 'FEMALE') return outfitGender === 'FEMALE' || outfitGender === 'F' || isUnisex;
+        const outfitGender = (outfit.gender || '').toUpperCase().trim();
+        // Check for Unisex - these should show for all genders
+        const isUnisex = outfitGender === 'UNISEX' || outfitGender === 'U' || outfitGender === '';
+        if (isUnisex) return true; // Unisex items always show
+
+        // Match Male variations
+        if (g === 'M' || g === 'MALE' || g === 'MEN') {
+          return outfitGender === 'MALE' || outfitGender === 'M' || outfitGender === 'MEN';
+        }
+        // Match Female variations
+        if (g === 'F' || g === 'FEMALE' || g === 'WOMEN') {
+          return outfitGender === 'FEMALE' || outfitGender === 'F' || outfitGender === 'WOMEN';
+        }
+        // Match Unisex explicitly
+        if (g === 'U' || g === 'UNISEX') {
+          return isUnisex;
+        }
         return true;
       });
     }
@@ -136,6 +149,19 @@ export async function GET(request: Request) {
     let filteredOutfits = mockOutfits;
     if (category && category !== 'All') {
       filteredOutfits = filteredOutfits.filter(outfit => outfit.category === category);
+    }
+    // Apply gender filter to mock data
+    const genderParam = searchParams.get('gender');
+    if (genderParam && genderParam !== 'All') {
+      const g = genderParam.toUpperCase();
+      filteredOutfits = filteredOutfits.filter(outfit => {
+        const og = (outfit.gender || '').toUpperCase();
+        const isUnisex = og === 'UNISEX' || og === 'U' || og === '';
+        if (isUnisex) return true;
+        if (g === 'M' || g === 'MALE') return og === 'MALE' || og === 'M';
+        if (g === 'F' || g === 'FEMALE') return og === 'FEMALE' || og === 'F';
+        return true;
+      });
     }
     if (search) {
       const searchLower = search.toLowerCase();
