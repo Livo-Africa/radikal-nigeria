@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-type MainFilterType = 'All' | 'Birthday' | 'Solo' | 'Headshots' | 'Products' | 'Creative' | 'Video';
+type MainFilterType = 'All' | 'Birthday' | 'Solo' | 'Group' | 'Products' | 'Creative' | 'Video';
 
 interface CollageTransformation {
     id: string;
@@ -23,7 +23,7 @@ const SUB_FILTERS: Record<string, string[]> = {
     Solo: ['All', 'Standard', 'Medium', 'Supreme'],
 };
 
-const MAIN_FILTERS: MainFilterType[] = ['All', 'Birthday', 'Solo', 'Headshots', 'Products', 'Creative', 'Video'];
+const MAIN_FILTERS: MainFilterType[] = ['All', 'Birthday', 'Solo', 'Group', 'Products', 'Creative', 'Video'];
 
 export default function CollageGallery({ transformations = [] }: CollageGalleryProps) {
     const [activeFilter, setActiveFilter] = useState<MainFilterType>('All');
@@ -47,8 +47,8 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                         return category.includes('birthday');
                     case 'Solo':
                         return category.includes('solo') || category.includes('personal') || category.includes('individual');
-                    case 'Headshots':
-                        return category.includes('headshot') || category.includes('corporate') || category.includes('professional') || category.includes('brand') || category.includes('business');
+                    case 'Group':
+                        return category.includes('couple') || category.includes('group') || category.includes('family');
                     case 'Products':
                         return category.includes('product') || category.includes('commercial');
                     case 'Creative':
@@ -106,7 +106,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
             {/* Mobile Header */}
             <div className="md:hidden pt-6 pb-3 text-center px-4">
                 <h1 className="text-2xl font-bold font-playfair text-white">
-                    The RAdikal <span className="text-[#D4AF37]">Difference</span>
+                    The Radikal <span className="text-[#D4AF37]">Difference</span>
                 </h1>
             </div>
 
