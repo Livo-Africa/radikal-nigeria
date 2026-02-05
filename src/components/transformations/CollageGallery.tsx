@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Eye, Sparkles, ChevronDown, X, Loader2 } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import Image from 'next/image';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 type MainFilterType = 'All' | 'Birthday' | 'Solo' | 'Headshots' | 'Products' | 'Creative' | 'Video';
 
@@ -27,19 +28,16 @@ const MAIN_FILTERS: MainFilterType[] = ['All', 'Birthday', 'Solo', 'Headshots', 
 export default function CollageGallery({ transformations = [] }: CollageGalleryProps) {
     const [activeFilter, setActiveFilter] = useState<MainFilterType>('All');
     const [activeSubFilter, setActiveSubFilter] = useState<string>('All');
-    const [visibleCount, setVisibleCount] = useState(10);
+    const [visibleCount, setVisibleCount] = useState(12);
     const [selectedImage, setSelectedImage] = useState<CollageTransformation | null>(null);
-    const [imageLoadStates, setImageLoadStates] = useState<Record<string, boolean>>({});
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     // Get available sub-filters for the current main filter
     const currentSubFilters = SUB_FILTERS[activeFilter] || null;
 
-    // Filtering Logic (Case-Insensitive)
+    // Filtering Logic
     const filteredTransformations = useMemo(() => {
         let filtered = transformations;
 
-        // Step 1: Filter by main category
         if (activeFilter !== 'All') {
             filtered = filtered.filter(t => {
                 const category = (t.category || '').toLowerCase();
@@ -63,7 +61,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
             });
         }
 
-        // Step 2: Filter by sub-filter (package) if applicable
+        // Sub-filter by package
         if (currentSubFilters && activeSubFilter !== 'All') {
             filtered = filtered.filter(t => {
                 const pkg = (t.package || '').toLowerCase();
@@ -78,60 +76,33 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
     const hasMore = visibleCount < filteredTransformations.length;
 
     const handleLoadMore = useCallback(() => {
-        setIsLoadingMore(true);
-        // Simulate smooth loading
-        setTimeout(() => {
-            setVisibleCount(prev => prev + 10);
-            setIsLoadingMore(false);
-        }, 300);
+        setVisibleCount(prev => prev + 12);
     }, []);
 
     const handleMainFilterChange = useCallback((filter: MainFilterType) => {
         setActiveFilter(filter);
         setActiveSubFilter('All');
-        setVisibleCount(10);
+        setVisibleCount(12);
     }, []);
 
     const handleSubFilterChange = useCallback((subFilter: string) => {
         setActiveSubFilter(subFilter);
-        setVisibleCount(10);
+        setVisibleCount(12);
     }, []);
 
-    const handleImageLoad = useCallback((id: string) => {
-        setImageLoadStates(prev => ({ ...prev, [id]: true }));
-    }, []);
-
-    // Keyboard navigation for lightbox
-    useEffect(() => {
+    // Lightbox navigation
+    const navigateImage = useCallback((direction: 'prev' | 'next') => {
         if (!selectedImage) return;
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setSelectedImage(null);
-            } else if (e.key === 'ArrowRight') {
-                const currentIndex = filteredTransformations.findIndex(t => t.id === selectedImage.id);
-                if (currentIndex < filteredTransformations.length - 1) {
-                    setSelectedImage(filteredTransformations[currentIndex + 1]);
-                }
-            } else if (e.key === 'ArrowLeft') {
-                const currentIndex = filteredTransformations.findIndex(t => t.id === selectedImage.id);
-                if (currentIndex > 0) {
-                    setSelectedImage(filteredTransformations[currentIndex - 1]);
-                }
-            }
-        };
-
-        document.body.style.overflow = 'hidden';
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            document.body.style.overflow = '';
-            window.removeEventListener('keydown', handleKeyDown);
-        };
+        const currentIndex = filteredTransformations.findIndex(t => t.id === selectedImage.id);
+        if (direction === 'next' && currentIndex < filteredTransformations.length - 1) {
+            setSelectedImage(filteredTransformations[currentIndex + 1]);
+        } else if (direction === 'prev' && currentIndex > 0) {
+            setSelectedImage(filteredTransformations[currentIndex - 1]);
+        }
     }, [selectedImage, filteredTransformations]);
 
     return (
-        <div className="bg-black min-h-screen overflow-x-hidden">
+        <div className="bg-black min-h-screen">
             {/* Mobile Header */}
             <div className="md:hidden pt-6 pb-3 text-center px-4">
                 <h1 className="text-2xl font-bold font-playfair text-white">
@@ -139,65 +110,42 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                 </h1>
             </div>
 
-            {/* Filter Section - Sticky */}
-            <div className="sticky top-16 md:top-0 z-30 bg-gradient-to-b from-black via-black/98 to-black/95 backdrop-blur-xl border-b border-white/5 overflow-hidden">
-                <div className="container mx-auto px-4 py-3 md:py-4 overflow-hidden">
-                    {/* Main Filters - Horizontal Scroll on Mobile */}
-                    <div
-                        className="overflow-x-auto pb-2 md:pb-0 md:overflow-visible"
-                        style={{
-                            WebkitOverflowScrolling: 'touch',
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none'
-                        }}
-                    >
-                        <div className="flex md:justify-center gap-2 md:gap-1 w-max md:w-auto mx-auto">
-                            <div className="flex md:inline-flex md:bg-white/5 md:rounded-2xl md:p-1 md:backdrop-blur-sm md:border md:border-white/10 gap-2 md:gap-0">
-                                {MAIN_FILTERS.map((filter) => (
-                                    <button
-                                        key={filter}
-                                        onClick={() => handleMainFilterChange(filter)}
-                                        className={`
-                                            relative px-4 md:px-5 py-2.5 md:py-2 rounded-xl md:rounded-lg text-sm font-semibold 
-                                            transition-all duration-300 whitespace-nowrap flex-shrink-0
-                                            ${activeFilter === filter
-                                                ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black shadow-lg shadow-[#D4AF37]/30 scale-[1.02]'
-                                                : 'bg-white/5 md:bg-transparent text-gray-400 hover:text-white hover:bg-white/10 border border-white/10 md:border-0'
-                                            }
-                                        `}
-                                    >
-                                        {filter}
-                                    </button>
-                                ))}
-                            </div>
+            {/* Filters - Sticky */}
+            <div className="sticky top-16 md:top-0 z-30 bg-black border-b border-gray-800 py-3">
+                <div className="container mx-auto px-4">
+                    {/* Main Filters */}
+                    <div className="overflow-x-auto pb-2 md:pb-0" style={{ scrollbarWidth: 'none' }}>
+                        <div className="flex md:justify-center gap-2 w-max md:w-auto mx-auto">
+                            {MAIN_FILTERS.map((filter) => (
+                                <button
+                                    key={filter}
+                                    onClick={() => handleMainFilterChange(filter)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap
+                                        ${activeFilter === filter
+                                            ? 'bg-[#D4AF37] text-black'
+                                            : 'bg-gray-900 text-gray-400 border border-gray-700'
+                                        }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Sub-Filters Row */}
+                    {/* Sub-Filters */}
                     {currentSubFilters && (
-                        <div
-                            className="mt-3 overflow-x-auto pb-1 md:pb-0 md:overflow-visible"
-                            style={{
-                                WebkitOverflowScrolling: 'touch',
-                                scrollbarWidth: 'none',
-                                msOverflowStyle: 'none'
-                            }}
-                        >
-                            <div className="flex md:justify-center items-center gap-2 w-max md:w-auto mx-auto">
-                                <span className="text-gray-500 text-xs uppercase tracking-wider mr-1 hidden md:inline">Package</span>
-                                <div className="h-4 w-px bg-gray-700 hidden md:block" />
+                        <div className="mt-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                            <div className="flex md:justify-center gap-2 w-max md:w-auto mx-auto">
+                                <span className="text-gray-500 text-xs uppercase tracking-wider mr-1 hidden md:flex items-center">Package</span>
                                 {currentSubFilters.map((subFilter) => (
                                     <button
                                         key={subFilter}
                                         onClick={() => handleSubFilterChange(subFilter)}
-                                        className={`
-                                            px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide 
-                                            transition-all duration-200 whitespace-nowrap flex-shrink-0
+                                        className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase
                                             ${activeSubFilter === subFilter
-                                                ? 'bg-white text-black shadow-md'
-                                                : 'bg-white/5 text-gray-400 hover:bg-white/15 hover:text-white border border-white/10'
-                                            }
-                                        `}
+                                                ? 'bg-white text-black'
+                                                : 'bg-gray-900 text-gray-400 border border-gray-700'
+                                            }`}
                                     >
                                         {subFilter}
                                     </button>
@@ -208,10 +156,10 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                 </div>
             </div>
 
-            {/* Gallery Content */}
-            <div className="container mx-auto px-3 md:px-4 py-6 md:py-10">
-                {/* Results Summary */}
-                <div className="flex items-center justify-between mb-6">
+            {/* Gallery */}
+            <div className="container mx-auto px-3 md:px-4 py-6">
+                {/* Results Count */}
+                <div className="flex items-center justify-between mb-4">
                     <p className="text-gray-500 text-sm">
                         <span className="text-white font-semibold">{filteredTransformations.length}</span> results
                         {activeFilter !== 'All' && (
@@ -221,67 +169,37 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                     {activeFilter !== 'All' && (
                         <button
                             onClick={() => handleMainFilterChange('All')}
-                            className="text-xs text-gray-500 hover:text-white transition-colors"
+                            className="text-xs text-gray-500 hover:text-white"
                         >
                             Clear filter
                         </button>
                     )}
                 </div>
 
-                {/* Gallery Grid - Responsive Masonry-like */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {/* Image Grid - Simple, fast loading */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-3">
                     {visibleItems.map((item, index) => (
                         <div
-                            key={`${item.id}-${index}`}
-                            className="group relative bg-gray-900/50 rounded-2xl overflow-hidden cursor-pointer 
-                                       transform transition-all duration-500 hover:scale-[1.02] hover:z-10
-                                       border border-gray-800/50 hover:border-[#D4AF37]/40
-                                       shadow-lg hover:shadow-2xl hover:shadow-[#D4AF37]/10"
+                            key={item.id}
+                            className="relative aspect-[4/5] bg-gray-900 rounded-lg overflow-hidden cursor-pointer border border-gray-800"
                             onClick={() => setSelectedImage(item)}
-                            style={{
-                                animationDelay: `${(index % 10) * 50}ms`,
-                                opacity: 0,
-                                animation: 'fadeSlideUp 0.5s ease-out forwards'
-                            }}
                         >
-                            {/* Image Container */}
-                            <div className="relative aspect-[4/5] overflow-hidden bg-gray-900">
-                                {/* Skeleton Loader */}
-                                {!imageLoadStates[item.id] && (
-                                    <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 animate-pulse flex items-center justify-center">
-                                        <Loader2 className="w-8 h-8 text-gray-700 animate-spin" />
-                                    </div>
-                                )}
-                                <img
-                                    src={item.imageUrl}
-                                    alt={item.category || 'Transformation'}
-                                    className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110
-                                               ${imageLoadStates[item.id] ? 'opacity-100' : 'opacity-0'}`}
-                                    loading="lazy"
-                                    onLoad={() => handleImageLoad(item.id)}
-                                />
-                                {/* Hover Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent 
-                                              opacity-0 group-hover:opacity-100 transition-all duration-300
-                                              flex flex-col justify-end p-4">
-                                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                        <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-wider">
-                                            {item.category}
-                                        </span>
-                                        {item.package && (
-                                            <span className="ml-2 text-white/70 text-xs">
-                                                • {item.package}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                {/* View Icon */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                                              opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
-                                    <div className="bg-white/10 backdrop-blur-xl p-4 rounded-full border border-white/20">
-                                        <Eye className="w-6 h-6 text-white" />
-                                    </div>
-                                </div>
+                            <Image
+                                src={item.imageUrl}
+                                alt={item.category || 'Transformation'}
+                                fill
+                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                                className="object-cover"
+                                loading={index < 6 ? 'eager' : 'lazy'}
+                                quality={60}
+                                placeholder="blur"
+                                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDAwUBAAAAAAAAAAAAAQIDBAURAAYhBxITMUFR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANVu3UHb1LQT1FJDI1wt4qnIJxiUmNQPYGSM4+6jbLpGH/9k="
+                            />
+                            {/* Simple category label */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1">
+                                <span className="text-[#D4AF37] text-xs font-medium truncate block">
+                                    {item.category}
+                                </span>
                             </div>
                         </div>
                     ))}
@@ -289,97 +207,75 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
 
                 {/* Empty State */}
                 {filteredTransformations.length === 0 && (
-                    <div className="text-center py-20">
-                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 mb-6 shadow-xl">
-                            <Sparkles className="w-10 h-10 text-gray-600" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">No results found</h3>
-                        <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                            We couldn't find any transformations matching your criteria. Try a different category.
-                        </p>
+                    <div className="text-center py-16">
+                        <h3 className="text-xl font-bold text-white mb-2">No results found</h3>
+                        <p className="text-gray-400 mb-4">Try a different category.</p>
                         <button
                             onClick={() => handleMainFilterChange('All')}
-                            className="px-6 py-3 bg-[#D4AF37] text-black font-semibold rounded-xl hover:bg-[#F4D03F] transition-colors"
+                            className="px-6 py-2 bg-[#D4AF37] text-black font-semibold rounded-lg"
                         >
-                            View All Work
+                            View All
                         </button>
                     </div>
                 )}
 
                 {/* Load More */}
                 {hasMore && (
-                    <div className="mt-12 mb-8 text-center">
+                    <div className="mt-8 text-center">
                         <button
                             onClick={handleLoadMore}
-                            disabled={isLoadingMore}
-                            className="inline-flex items-center gap-3 bg-white/5 hover:bg-white/10 
-                                     border border-white/10 hover:border-[#D4AF37]/50 
-                                     text-white px-8 py-4 rounded-2xl font-semibold 
-                                     transition-all duration-300 group disabled:opacity-50"
+                            className="px-6 py-3 bg-gray-900 border border-[#D4AF37] text-[#D4AF37] font-semibold rounded-lg"
                         >
-                            {isLoadingMore ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    <span>Loading...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <span>Load More</span>
-                                    <ChevronDown className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
-                                </>
-                            )}
+                            Load More ({filteredTransformations.length - visibleCount} remaining)
                         </button>
-                        <p className="text-gray-600 text-sm mt-3">
-                            Showing {visibleItems.length} of {filteredTransformations.length}
-                        </p>
                     </div>
                 )}
             </div>
 
-            {/* Lightbox Modal */}
+            {/* Lightbox Modal - Simple */}
             {selectedImage && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/98 backdrop-blur-xl"
+                    className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
                     onClick={() => setSelectedImage(null)}
                 >
                     {/* Close Button */}
                     <button
-                        className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-3 rounded-full
-                                 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10
-                                 transition-all duration-200 group"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedImage(null);
-                        }}
+                        className="absolute top-4 right-4 z-50 p-2 bg-white/10 rounded-full"
+                        onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
                     >
-                        <X className="w-6 h-6 text-white group-hover:rotate-90 transition-transform duration-300" />
+                        <X className="w-6 h-6 text-white" />
                     </button>
 
-                    {/* Navigation Hint */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-4 text-gray-500 text-sm">
-                        <span>← → Navigate</span>
-                        <span>•</span>
-                        <span>ESC Close</span>
-                    </div>
+                    {/* Navigation Arrows */}
+                    <button
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 rounded-full hidden md:block"
+                        onClick={(e) => { e.stopPropagation(); navigateImage('prev'); }}
+                    >
+                        <ChevronLeft className="w-6 h-6 text-white" />
+                    </button>
+                    <button
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/10 rounded-full hidden md:block"
+                        onClick={(e) => { e.stopPropagation(); navigateImage('next'); }}
+                    >
+                        <ChevronRight className="w-6 h-6 text-white" />
+                    </button>
 
-                    {/* Image Container */}
+                    {/* Image */}
                     <div
-                        className="relative max-w-6xl w-full mx-4 flex flex-col items-center"
+                        className="relative max-w-4xl w-full mx-4 max-h-[85vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <img
                             src={selectedImage.imageUrl}
-                            alt={selectedImage.category || 'Full size'}
-                            className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
+                            alt={selectedImage.category}
+                            className="max-w-full max-h-[85vh] mx-auto object-contain rounded-lg"
                         />
-
-                        {/* Image Info */}
-                        <div className="mt-6 flex items-center gap-4">
-                            <span className="px-4 py-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-full text-[#D4AF37] text-sm font-bold uppercase tracking-wider">
+                        <div className="mt-4 text-center">
+                            <span className="px-3 py-1 bg-[#D4AF37]/20 border border-[#D4AF37]/50 rounded-full text-[#D4AF37] text-sm font-semibold">
                                 {selectedImage.category}
                             </span>
                             {selectedImage.package && (
-                                <span className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white text-sm">
+                                <span className="ml-2 px-3 py-1 bg-white/10 rounded-full text-white text-sm">
                                     {selectedImage.package}
                                 </span>
                             )}
@@ -387,20 +283,6 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                     </div>
                 </div>
             )}
-
-            {/* Animation Styles */}
-            <style jsx>{`
-                @keyframes fadeSlideUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            `}</style>
         </div>
     );
 }
