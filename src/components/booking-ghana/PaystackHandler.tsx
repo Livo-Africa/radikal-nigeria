@@ -21,7 +21,7 @@ export default function PaystackHandler({
     amount,
     publicKey,
     reference,
-    currency = 'NGN',
+    currency = 'GHS',
     metadata,
     onSuccess,
     onClose,

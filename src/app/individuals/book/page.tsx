@@ -430,7 +430,7 @@ const BookingContent = () => {
         setPaystackConfig({
             reference: newOrderId,
             email: `order-${newOrderId}@radikal.ng`,
-            amount: calculateTotal() * 100,
+            amount: Math.ceil(calculateTotal() * 1.02 * 100), // Apply 2% Service Charge here (Hidden from UI)
             publicKey,
             metadata: {
                 orderId: newOrderId,
@@ -676,6 +676,7 @@ const BookingContent = () => {
                         onClose={handlePaystackClose}
                         trigger={triggerPaystack}
                         setTrigger={setTriggerPaystack}
+                        phone={phoneValidation.fullNumber}
                     />
 
                 </div>

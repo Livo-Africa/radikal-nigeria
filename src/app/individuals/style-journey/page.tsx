@@ -29,7 +29,7 @@ import SuccessScreen from '@/components/booking-ghana/SuccessScreen';
 
 // Dynamic import for Paystack to avoid SSR window issues
 const PaystackHandler = dynamic(
-  () => import('@/components/booking-nigeria/PaystackHandler'),
+  () => import('@/components/booking-ghana/PaystackHandler'),
   { ssr: false }
 );
 
@@ -373,7 +373,7 @@ const BookingContent = () => {
     setPaystackConfig({
       reference: newOrderId,
       email: `order-${newOrderId}@radikal.ng`, // Dummy email matches Nigeria flow
-      amount: calculateTotal() * 100, // Paystack uses smallest currency unit (kobo/pesewas)
+      amount: Math.ceil(calculateTotal() * 1.02 * 100), // Apply 2% Service Charge here (Hidden from UI)
       publicKey,
       metadata: {
         orderId: newOrderId,
@@ -615,6 +615,7 @@ const BookingContent = () => {
             onClose={handlePaystackClose}
             trigger={triggerPaystack}
             setTrigger={setTriggerPaystack}
+            phone={phoneValidation.fullNumber}
           />
 
         </div>

@@ -143,48 +143,54 @@ export async function processOrder(
         warnings.push('Telegram notification failed');
     }
 
+
     // 3. Google Sheets Logging
     try {
         const sheets = initializeSheets();
         if (!process.env.GOOGLE_SHEET_ID) throw new Error('GOOGLE_SHEET_ID missing');
 
+        // Safe access for nested properties
+        const pkgName = pkg?.name || 'Unknown Package';
+
         const outfitsArray = Array.isArray(outfits) ? outfits : [];
         const outfitsString = outfitsArray.length > 0
             ? outfitsArray.map((outfit: any) => {
-                const name = outfit.name || 'Unnamed Outfit';
-                const image = outfit.image || '';
+                const name = outfit?.name || 'Unnamed Outfit';
+                const image = outfit?.image || '';
                 return image ? `${name} (${image})` : name;
             }).join(', ')
             : 'None selected';
 
+        // Safe style access
         const hairstyle = style?.hairstyle?.selectedName || style?.hairstyle?.customDescription || 'Not specified';
         const makeup = style?.makeup?.selectedName || style?.makeup?.customDescription || 'Not specified';
         const background = style?.background?.selectedName || style?.background?.customDescription || 'Not specified';
 
         const addOnsString = Array.isArray(addOns) ? addOns.join(', ') : '';
+
         const photoStatus = files.length > 0
             ? `Uploaded ${files.length} photos`
             : (source === 'webhook' ? 'MISSING (Webhook Recovery)' : 'No photos uploaded');
 
-        const paystackRef = paymentReference?.reference || paymentReference;
-        let status = paystackRef ? `Paid (Ref: ${paystackRef})` : 'Received';
+        const paystackRef = paymentReference?.reference || paymentReference || 'N/A';
+        let status = paystackRef !== 'N/A' ? `Paid (Ref: ${paystackRef})` : 'Received';
         if (source === 'webhook') status += ' [WEBHOOK RECOVERY]';
 
-        // Row Data
+        // Row Data - Ensure all fields are strings or numbers, no objects/undefined that could break Sheets
         const rowData = [
-            orderId,
-            whatsappNumber,
-            pkg.name,
+            orderId || 'N/A',
+            whatsappNumber || 'N/A',
+            pkgName,
             outfitsString,
             finalTotal || 0,
             hairstyle,
             makeup,
             background,
             status,
-            timestamp,
+            timestamp || new Date().toISOString(),
             shootTypeName || shootType || 'Not specified',
             addOnsString,
-            specialRequests,
+            specialRequests || '',
             photoStatus
         ];
 
@@ -198,9 +204,15 @@ export async function processOrder(
 
         console.log('✅ Logged to Google Sheet');
 
-    } catch (sheetError) {
-        console.error('❌ Failed to log to Google Sheets:', sheetError);
-        warnings.push('Google Sheets logging failed');
+    } catch (sheetError: any) {
+        // Detailed error logging
+        console.error('❌ Failed to log to Google Sheets:', sheetError?.message || sheetError);
+        console.error('Diagnostic Data:', {
+            orderId,
+            hasPkg: !!pkg,
+            hasSheetId: !!process.env.GOOGLE_SHEET_ID
+        });
+        warnings.push(`Google Sheets logging failed: ${sheetError?.message || 'Unknown error'}`);
     }
 
     return {
@@ -210,3 +222,4 @@ export async function processOrder(
         warnings
     };
 }
+
