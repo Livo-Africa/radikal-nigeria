@@ -1,7 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { processOrder } from '@/lib/orderUtils';
+import { processOrder, confirmOrder } from '@/lib/orderUtils';
 
 export async function POST(req: NextRequest) {
     try {
@@ -36,22 +36,36 @@ export async function POST(req: NextRequest) {
 
             if (!metadata || !metadata.orderId) {
                 console.warn('⚠️ Webhook received for successful charge but NO metadata/orderId found.', reference);
-                // We could log this to a "Lost & Found" sheet if we wanted, but for now just acknowledge
                 return NextResponse.json({ received: true, status: 'no_metadata' });
             }
 
-            console.log(`✅ Processing order recovery for ${metadata.orderId} via Webhook`);
+            console.log(`✅ Processing webhook for ${metadata.orderId}`);
 
-            // Inject payment reference if not present in metadata
+            // Strategy: Try to confirm a pending order first.
+            // If the client already uploaded files as "pending", we just need to confirm payment.
+            // If the pending upload never happened (client crashed before upload), we fall back
+            // to the full processOrder with webhook_recovery status (no photos available).
+            try {
+                const confirmResult = await confirmOrder(metadata.orderId, reference);
+                if (confirmResult.success) {
+                    console.log(`✅ Webhook confirmed pending order ${metadata.orderId}`);
+                    return NextResponse.json({ received: true, status: 'confirmed' });
+                }
+            } catch (confirmError) {
+                console.warn(`⚠️ confirmOrder failed for ${metadata.orderId}, falling back to full processOrder:`, confirmError);
+            }
+
+            // Fallback: Full processOrder with webhook_recovery status
+            // This handles the case where the pending upload never completed
             const orderData = {
                 ...metadata,
                 paymentReference: reference
             };
 
-            const result = await processOrder(orderData, [], 'webhook');
+            const result = await processOrder(orderData, [], 'webhook', 'webhook_recovery');
 
             if (result.success) {
-                console.log(`✅ Webhook successfully processed order ${metadata.orderId}`);
+                console.log(`✅ Webhook processed order ${metadata.orderId} (full recovery)`);
                 return NextResponse.json({ received: true, status: 'processed' });
             } else {
                 console.error(`❌ Webhook failed to process order ${metadata.orderId}:`, result.error);

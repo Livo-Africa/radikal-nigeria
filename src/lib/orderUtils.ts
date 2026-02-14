@@ -21,6 +21,8 @@ function initializeSheets() {
     }
 }
 
+export type OrderStatus = 'pending' | 'confirmed' | 'webhook_recovery';
+
 export interface ProcessingResult {
     success: boolean;
     orderId?: string;
@@ -32,11 +34,17 @@ export interface ProcessingResult {
 /**
  * Centrally process an order
  * usable by both the main order endpoint and the Paystack webhook
+ * 
+ * orderStatus:
+ *   - 'pending': Files uploaded before payment. Skip payment verification.
+ *   - 'confirmed': Payment confirmed after pending upload (called from /api/orders/confirm).
+ *   - 'webhook_recovery': Paystack webhook fired (backup confirmation).
  */
 export async function processOrder(
     orderData: any,
     files: File[] = [],
-    source: 'client_upload' | 'webhook' = 'client_upload'
+    source: 'client_upload' | 'webhook' = 'client_upload',
+    orderStatus: OrderStatus = 'confirmed'
 ): Promise<ProcessingResult> {
     const warnings: string[] = [];
     const {
@@ -56,45 +64,56 @@ export async function processOrder(
 
     console.log(`🔄 Processing Order ${orderId} from ${source}`);
 
-    // 1. Price Verification
-    const priceVerification = verifyOrderPrice(
-        {
-            orderId,
-            shootType,
-            package: pkg,
-            groupSize: orderData.groupSize,
-            addOns
-        },
-        finalTotal
-    );
+    // 1. Price Verification (skip for pending orders — no payment yet)
+    let priceVerification = { valid: true, serverTotal: finalTotal, difference: 0 };
+    if (orderStatus !== 'pending') {
+        priceVerification = verifyOrderPrice(
+            {
+                orderId,
+                shootType,
+                package: pkg,
+                groupSize: orderData.groupSize,
+                addOns
+            },
+            finalTotal
+        );
 
-    if (!priceVerification.valid) {
-        console.error(`❌ Price mismatch for ${orderId}: Client=${finalTotal}, Server=${priceVerification.serverTotal}`);
-        // For webhooks, we mark it but don't fail, we want to log the fraud attempt
-        // For client uploads, we might want to fail hard? 
-        // Logic: if money is paid (webhook), we log it. if client is trying to submit, we block.
-        if (source === 'client_upload') {
-            return {
-                success: false,
-                error: 'Order validation failed. Price mismatch.',
-                priceVerified: false
-            };
+        if (!priceVerification.valid) {
+            console.error(`❌ Price mismatch for ${orderId}: Client=${finalTotal}, Server=${priceVerification.serverTotal}`);
+            if (source === 'client_upload' && orderStatus === 'confirmed') {
+                return {
+                    success: false,
+                    error: 'Order validation failed. Price mismatch.',
+                    priceVerified: false
+                };
+            }
+            warnings.push(`Price mismatch detected! Paid: ${finalTotal}, Should be: ${priceVerification.serverTotal}`);
+        } else {
+            console.log(`✅ Price verified: ${finalTotal}`);
         }
-        warnings.push(`Price mismatch detected! Paid: ${finalTotal}, Should be: ${priceVerification.serverTotal}`);
     } else {
-        console.log(`✅ Price verified: ${finalTotal}`);
+        console.log(`⏳ Skipping price verification for pending order ${orderId}`);
     }
 
     // 2. Telegram Notifications
     try {
         let telegramMessage = formatOrderForTelegram(orderData);
 
+        // Prefix with order status
+        if (orderStatus === 'pending') {
+            telegramMessage = `⏳ <b>PENDING PAYMENT — Files Received</b>\n` + telegramMessage;
+            telegramMessage += `\n\n⏳ <b>Status:</b> Awaiting payment. Files have been uploaded and saved.`;
+        } else if (orderStatus === 'webhook_recovery') {
+            telegramMessage = `🔔 <b>WEBHOOK RECOVERY</b>\n` + telegramMessage;
+            telegramMessage += `\n\nℹ️ <b>Source:</b> Paystack Webhook (Backup Log)\n⚠️ <b>Note:</b> Photos should have been uploaded during pending step. If missing, contact client.`;
+        }
+
         // Add warnings to message
         if (warnings.length > 0) {
             telegramMessage += `\n\n⚠️ <b>WARNINGS:</b>\n${warnings.join('\n')}`;
         }
 
-        if (source === 'webhook') {
+        if (source === 'webhook' && orderStatus !== 'webhook_recovery') {
             telegramMessage += `\n\nℹ️ <b>Source:</b> Paystack Webhook (Backup Log)\n⚠️ <b>Note:</b> User photos may be missing if they didn't complete the upload. Contact client if photos are needed.`;
         }
 
@@ -173,8 +192,13 @@ export async function processOrder(
             : (source === 'webhook' ? 'MISSING (Webhook Recovery)' : 'No photos uploaded');
 
         const paystackRef = paymentReference?.reference || paymentReference || 'N/A';
-        let status = paystackRef !== 'N/A' ? `Paid (Ref: ${paystackRef})` : 'Received';
-        if (source === 'webhook') status += ' [WEBHOOK RECOVERY]';
+        let status: string;
+        if (orderStatus === 'pending') {
+            status = 'PENDING PAYMENT';
+        } else {
+            status = paystackRef !== 'N/A' ? `Paid (Ref: ${paystackRef})` : 'Received';
+            if (orderStatus === 'webhook_recovery') status += ' [WEBHOOK RECOVERY]';
+        }
 
         // Row Data - Ensure all fields are strings or numbers, no objects/undefined that could break Sheets
         const rowData = [
@@ -223,3 +247,76 @@ export async function processOrder(
     };
 }
 
+/**
+ * Confirm a pending order after payment.
+ * Sends a confirmation update to Telegram and logs to Sheets.
+ */
+export async function confirmOrder(
+    orderId: string,
+    paymentReference: string
+): Promise<ProcessingResult> {
+    const warnings: string[] = [];
+
+    console.log(`✅ Confirming order ${orderId} with ref ${paymentReference}`);
+
+    // 1. Telegram Confirmation
+    try {
+        const confirmMessage = `
+✅ <b>PAYMENT CONFIRMED</b>
+
+🆔 <b>Order ID:</b> <code>${orderId}</code>
+💳 <b>Payment Ref:</b> <code>${paymentReference}</code>
+🕐 <b>Confirmed At:</b> ${new Date().toISOString()}
+
+<i>This order was previously uploaded as PENDING. Payment is now verified.</i>
+`.trim();
+
+        await sendTelegramMessage(confirmMessage);
+    } catch (telegramError) {
+        console.error('❌ Telegram confirmation failed:', telegramError);
+        warnings.push('Telegram confirmation notification failed');
+    }
+
+    // 2. Log confirmation row to Sheets
+    try {
+        const sheets = initializeSheets();
+        if (!process.env.GOOGLE_SHEET_ID) throw new Error('GOOGLE_SHEET_ID missing');
+
+        const rowData = [
+            orderId,
+            'N/A', // whatsappNumber already logged in pending row
+            'N/A', // package already logged
+            'N/A', // outfits already logged
+            0,     // finalTotal already logged
+            'N/A', // hairstyle
+            'N/A', // makeup
+            'N/A', // background
+            `CONFIRMED (Ref: ${paymentReference})`,
+            new Date().toISOString(),
+            'N/A', // shootType
+            'N/A', // addOns
+            'N/A', // specialRequests
+            'Payment confirmed' // photoStatus
+        ];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId: process.env.GOOGLE_SHEET_ID,
+            range: 'Orders!A:N',
+            valueInputOption: 'RAW',
+            insertDataOption: 'INSERT_ROWS',
+            requestBody: { values: [rowData] },
+        });
+
+        console.log('✅ Confirmation logged to Google Sheet');
+    } catch (sheetError: any) {
+        console.error('❌ Failed to log confirmation to Google Sheets:', sheetError?.message || sheetError);
+        warnings.push(`Sheets confirmation logging failed: ${sheetError?.message || 'Unknown error'}`);
+    }
+
+    return {
+        success: true,
+        orderId,
+        priceVerified: true,
+        warnings
+    };
+}

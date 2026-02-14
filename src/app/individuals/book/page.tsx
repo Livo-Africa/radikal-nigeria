@@ -17,6 +17,7 @@ import {
     SuccessScreen
 } from '@/components/booking-nigeria';
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
+import { useRetryFetch } from '@/hooks/useRetryFetch';
 import { Package, generateOrderId, calculateGroupPrice, ADD_ONS, PACKAGES_BY_CATEGORY } from '@/utils/bookingDataNigeria';
 import dynamic from 'next/dynamic';
 
@@ -44,7 +45,7 @@ interface StylingOptions {
 }
 
 type PhotoState = 'empty' | 'uploading' | 'processing' | 'complete';
-type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
+type PaymentStatus = 'idle' | 'uploading' | 'processing' | 'success' | 'failed';
 
 interface PhotoData {
     file: File | null;
@@ -98,6 +99,9 @@ const BookingContent = () => {
 
     // Phone validation (multi-country)
     const phoneValidation = usePhoneValidation('+234');
+
+    // Retry fetch hook
+    const { fetchWithRetry } = useRetryFetch();
 
     // Payment
     const [orderId, setOrderId] = useState<string | null>(null);
@@ -298,19 +302,81 @@ const BookingContent = () => {
         );
     };
 
-    // Submit Order logic
-    const submitOrder = useCallback(async (paymentReference?: any) => {
-        console.log('🚀 submitOrder called with reference:', paymentReference);
+    // Submit Order Confirmation (called after Paystack payment success)
+    const confirmOrder = useCallback(async (paymentReference: any) => {
+        console.log('🚀 confirmOrder called with reference:', paymentReference);
 
-        if (!selectedPackage || !orderId) {
-            console.error('❌ Missing package or orderId', { selectedPackage, orderId });
+        if (!orderId) {
+            console.error('❌ Missing orderId for confirmation');
             return;
         }
 
         try {
+            const refString = typeof paymentReference === 'object'
+                ? paymentReference.reference || paymentReference.trxref
+                : paymentReference;
+
+            const response = await fetchWithRetry('/api/orders/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId,
+                    paymentReference: refString
+                })
+            }, { maxRetries: 3, silent: true });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setPaymentStatus('success');
+            } else {
+                // Payment was successful (Paystack confirmed), but our confirmation API had issues.
+                // The webhook will handle this as backup. Show success to user.
+                console.warn('Confirm API returned error, but payment was successful. Webhook will handle:', result.error);
+                setPaymentStatus('success');
+            }
+
+        } catch (error) {
+            // Network error on confirm call. Payment was already successful.
+            // Webhook will confirm the order. Show success to user.
+            console.warn('Confirm call failed (network), but payment was successful. Webhook will handle:', error);
+            setPaymentStatus('success');
+        }
+    }, [orderId, fetchWithRetry]);
+
+    // Handle Paystack Callbacks
+    const handlePaystackSuccess = useCallback((reference: any) => {
+        confirmOrder(reference);
+    }, [confirmOrder]);
+
+    const handlePaystackClose = useCallback(() => {
+        // Payment was cancelled or closed. Files are already uploaded as pending.
+        // Don't set to 'failed' — keep as 'idle' so user can retry easily.
+        setPaymentStatus('idle');
+        alert('Payment was not completed. Your details have been saved. You can try again or contact us on WhatsApp for help.');
+    }, []);
+
+    // Handle Payment Button Click — Upload-First Flow
+    const handlePayment = useCallback(async () => {
+        if (!selectedPackage) return;
+
+        const newOrderId = generateOrderId();
+        setOrderId(newOrderId);
+        setPaymentStatus('uploading');
+
+        // SECURITY: Validate Paystack key exists before proceeding
+        const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+        if (!publicKey) {
+            alert('Payment configuration error. Please contact support.');
+            setPaymentStatus('failed');
+            return;
+        }
+
+        // Step 1: Upload files + order data as PENDING
+        try {
             const orderData = {
-                orderId,
-                paymentReference,
+                orderId: newOrderId,
+                status: 'pending', // Mark as pending — no payment yet
                 shootType: category,
                 shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
                 package: {
@@ -349,7 +415,7 @@ const BookingContent = () => {
             const formData = new FormData();
             formData.append('orderData', JSON.stringify(orderData));
 
-            // Append photos based on mode
+            // Append photos
             if (isGroupBooking) {
                 groupPhotos.forEach((person, index) => {
                     if (person.face.file) {
@@ -375,57 +441,32 @@ const BookingContent = () => {
                 }
             });
 
-            const response = await fetch('/api/orders', {
+            // Upload with retry
+            const uploadResponse = await fetchWithRetry('/api/orders', {
                 method: 'POST',
                 body: formData
-            });
+            }, { maxRetries: 3, baseDelay: 1500 });
 
-            const result = await response.json();
+            const uploadResult = await uploadResponse.json();
 
-            if (result.success) {
-                setPaymentStatus('success');
-            } else {
-                console.error('Order submission failed:', result.error);
+            if (!uploadResult.success) {
+                console.error('Pending upload failed:', uploadResult.error);
                 setPaymentStatus('failed');
-                alert(`Order failed: ${result.error}. If you were charged, please contact support with Order ID: ${orderId}`);
+                alert(`Upload failed: ${uploadResult.error}. Please try again.`);
+                return;
             }
 
-        } catch (error) {
-            console.error('Payment error:', error);
+            console.log('✅ Pending upload successful, opening Paystack...');
+
+        } catch (uploadError) {
+            console.error('Upload error:', uploadError);
             setPaymentStatus('failed');
-            alert('Network error. Please check your connection. If payment was deducted, do NOT pay again. Contact support.');
-        }
-    }, [
-        selectedPackage, category, groupSize, selectedOutfits,
-        styling, phoneValidation.fullNumber, addOns,
-        calculateTotal, facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking, orderId
-    ]);
-
-    // Handle Paystack Callbacks
-    const handlePaystackSuccess = useCallback((reference: any) => {
-        submitOrder(reference);
-    }, [submitOrder]);
-
-    const handlePaystackClose = useCallback(() => {
-        setPaymentStatus('failed');
-        alert('Payment cancelled. Please try again.');
-    }, []);
-
-    // Handle Payment Button Click
-    const handlePayment = useCallback(() => {
-        if (!selectedPackage) return;
-
-        setPaymentStatus('processing');
-        const newOrderId = generateOrderId();
-        setOrderId(newOrderId);
-
-        // SECURITY: Validate Paystack key exists before proceeding
-        const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-        if (!publicKey) {
-            alert('Payment configuration error. Please contact support.');
-            setPaymentStatus('failed');
+            alert('Failed to upload your files. Please check your internet connection and try again. You have not been charged.');
             return;
         }
+
+        // Step 2: Open Paystack payment modal
+        setPaymentStatus('processing');
 
         setPaystackConfig({
             reference: newOrderId,
@@ -470,7 +511,8 @@ const BookingContent = () => {
 
     }, [
         selectedPackage, calculateTotal, category, groupSize,
-        selectedOutfits, styling, phoneValidation.fullNumber, addOns
+        selectedOutfits, styling, phoneValidation.fullNumber, addOns,
+        facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking, fetchWithRetry
     ]);
 
     // Reset Booking
@@ -660,7 +702,7 @@ const BookingContent = () => {
                         total={calculateTotal()}
                         isEnabled={isPaymentEnabled}
                         onPay={handlePayment}
-                        isLoading={paymentStatus === 'processing'}
+                        isLoading={paymentStatus === 'uploading' || paymentStatus === 'processing'}
                     />
 
                     {/* Paystack Integration */}

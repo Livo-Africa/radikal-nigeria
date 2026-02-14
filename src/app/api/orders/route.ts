@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
       paymentReference,
       addOns = [],
       finalTotal,
+      status: orderStatus = 'confirmed', // 'pending' or 'confirmed'
       timestamp = new Date().toISOString()
     } = orderData;
 
@@ -119,39 +120,40 @@ export async function POST(request: NextRequest) {
     const sanitizedOrderData = sanitizeOrderData(orderData);
     logger.info('✅ Order data sanitized', { metadata: { orderId } });
 
-
-    // SECURITY: Require payment in production environment
-    if (process.env.NODE_ENV === 'production' && !paymentReference) {
-      console.error('❌ Production order attempted without payment reference');
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Payment required. Please complete payment before submitting your order.'
-        },
-        { status: 402 } // 402 Payment Required
-      );
-    }
-
-    // Verify Paystack Payment (Server-side)
-    if (paymentReference) {
-      const isVerified = await verifyPaystackPayment(paymentReference.reference || paymentReference);
-      if (!isVerified) {
+    // SECURITY: Require payment in production environment (skip for pending orders)
+    if (orderStatus !== 'pending') {
+      if (process.env.NODE_ENV === 'production' && !paymentReference) {
+        console.error('❌ Production order attempted without payment reference');
         return NextResponse.json(
-          { success: false, error: 'Payment verification failed. Please contact support.' },
-          { status: 400 }
+          {
+            success: false,
+            error: 'Payment required. Please complete payment before submitting your order.'
+          },
+          { status: 402 } // 402 Payment Required
         );
       }
 
-      // Additional validation: Verify payment amount matches order total
-      // This is already done in processOrder via price verification, but we log it here
-      logger.info('✅  Payment verified', { metadata: { orderId } });
+      // Verify Paystack Payment (Server-side)
+      if (paymentReference) {
+        const isVerified = await verifyPaystackPayment(paymentReference.reference || paymentReference);
+        if (!isVerified) {
+          return NextResponse.json(
+            { success: false, error: 'Payment verification failed. Please contact support.' },
+            { status: 400 }
+          );
+        }
+
+        logger.info('✅  Payment verified', { metadata: { orderId } });
+      } else {
+        // Development/testing mode - allow without payment but log it
+        logger.warn('⚠️ Order processed without payment (Development mode)', { metadata: { orderId } });
+      }
     } else {
-      // Development/testing mode - allow without payment but log it
-      logger.warn('⚠️ Order processed without payment (Development mode)', { metadata: { orderId } });
+      logger.info('⏳ Pending order — skipping payment verification', { metadata: { orderId } });
     }
 
     // Process Order (Price check, Telegram, Sheets)
-    const result = await processOrder(sanitizedOrderData, files, 'client_upload');
+    const result = await processOrder(sanitizedOrderData, files, 'client_upload', orderStatus === 'pending' ? 'pending' : 'confirmed');
 
     if (!result.success) {
       return NextResponse.json(

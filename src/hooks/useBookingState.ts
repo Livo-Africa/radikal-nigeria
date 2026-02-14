@@ -17,7 +17,7 @@ export interface PhotoData {
 type OutfitMethod = 'upload' | 'wardrobe' | 'auto' | null;
 
 // Payment status types
-export type PaymentStatus = 'idle' | 'processing' | 'success' | 'failed';
+export type PaymentStatus = 'idle' | 'uploading' | 'processing' | 'success' | 'failed';
 
 export interface Outfit {
     id: string;
