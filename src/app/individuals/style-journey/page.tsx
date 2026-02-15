@@ -11,11 +11,13 @@ import {
   Category,
   Package,
   calculateGroupPrice,
-  generateOrderId
+  generateOrderId,
+  findBestPackageForOutfits
 } from '@/utils/bookingDataGhana';
 import { PaymentStatus, PhotoData, PhotoState, Outfit, StylingOptions } from '@/hooks/useBookingState';
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
 import { useRetryFetch } from '@/hooks/useRetryFetch';
+import { compressImage } from '@/utils/imageCompression';
 
 // Components
 import Navigation from '@/components/shared/Navigation';
@@ -27,6 +29,46 @@ import OutfitSelection from '@/components/booking-ghana/OutfitSelection';
 import StickyPaymentBar from '@/components/booking-ghana/StickyPaymentBar';
 import HelperSystem from '@/components/booking-ghana/HelperSystem';
 import SuccessScreen from '@/components/booking-ghana/SuccessScreen';
+
+// localStorage key for pending order persistence (Ghana)
+const PENDING_ORDER_KEY_GH = 'radikal_pending_order_gh';
+const PENDING_ORDER_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+interface PendingOrderState {
+  orderId: string;
+  createdAt: string;
+  orderDataSent: boolean;
+  uploadedFiles: string[];
+  expiresAt: string;
+}
+
+function savePendingOrder(state: PendingOrderState) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(PENDING_ORDER_KEY_GH, JSON.stringify(state));
+  }
+}
+
+function loadPendingOrder(): PendingOrderState | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const saved = localStorage.getItem(PENDING_ORDER_KEY_GH);
+    if (!saved) return null;
+    const state: PendingOrderState = JSON.parse(saved);
+    if (new Date(state.expiresAt) < new Date()) {
+      localStorage.removeItem(PENDING_ORDER_KEY_GH);
+      return null;
+    }
+    return state;
+  } catch {
+    return null;
+  }
+}
+
+function clearPendingOrder() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(PENDING_ORDER_KEY_GH);
+  }
+}
 
 // Dynamic import for Paystack to avoid SSR window issues
 const PaystackHandler = dynamic(
@@ -95,24 +137,46 @@ const BookingContent = () => {
   const photoRef = useRef<HTMLDivElement>(null);
   const outfitRef = useRef<HTMLDivElement>(null);
 
-  // Deep Linking Effect
+  // Deep Linking Effect (supports both direct links and wardrobe flow)
   useEffect(() => {
     const catId = searchParams.get('category');
     const pkgId = searchParams.get('packageId');
+    const fromWardrobe = searchParams.get('fromWardrobe');
+    const outfitCountParam = searchParams.get('outfitCount');
 
     if (catId && pkgId && !selectedPackage) {
-      // Find package
       const categoryPackages = PACKAGES_BY_CATEGORY[catId];
       if (categoryPackages) {
         const pkg = categoryPackages.find(p => p.id === pkgId);
         if (pkg) {
           setCategory(catId);
           setSelectedPackage(pkg);
-          // Auto-scroll to photos handled by existing useEffect
         }
       }
+    } else if (fromWardrobe === 'true' && outfitCountParam && !selectedPackage) {
+      const outfitCount = parseInt(outfitCountParam);
+      if (outfitCount > 0) {
+        const match = findBestPackageForOutfits(outfitCount);
+        if (match) {
+          setCategory(match.category);
+          setSelectedPackage(match.package);
+        }
+      }
+
+      // Load saved outfits from localStorage
+      try {
+        const saved = localStorage.getItem('radikal_selected_outfits');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.outfits && Array.isArray(parsed.outfits)) {
+            setSelectedOutfits(parsed.outfits);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load wardrobe selections:', e);
+      }
     }
-  }, [searchParams]); // Run once on mount/params change
+  }, [searchParams]);
 
   // Check if this is a group booking
   const isGroupBooking = category === 'group';
@@ -210,30 +274,22 @@ const BookingContent = () => {
     setSelectedOutfits([]);
   }, []);
 
-  // Handle face photo upload (single mode)
-  const handleFaceUpload = useCallback((file: File) => {
-    setFacePhoto({ file: null, url: '', state: 'uploading' });
-
+  // Handle face photo upload — with background compression
+  const handleFaceUpload = useCallback(async (file: File) => {
     const url = URL.createObjectURL(file);
+    setFacePhoto({ file: null, url, state: 'uploading' });
 
-    setTimeout(() => {
-      setFacePhoto({ file, url, state: 'processing' });
-      setTimeout(() => {
-        setFacePhoto({ file, url, state: 'complete' });
-      }, 1000); // Simulate processing
-    }, 1500); // Simulate upload
+    const compressed = await compressImage(file);
+    setFacePhoto({ file: compressed, url, state: 'complete' });
   }, []);
 
-  // Handle body photo upload (single mode)
-  const handleBodyUpload = useCallback((file: File) => {
-    setBodyPhoto({ file: null, url: '', state: 'uploading' });
+  // Handle body photo upload — with background compression
+  const handleBodyUpload = useCallback(async (file: File) => {
     const url = URL.createObjectURL(file);
-    setTimeout(() => {
-      setBodyPhoto({ file, url, state: 'processing' });
-      setTimeout(() => {
-        setBodyPhoto({ file, url, state: 'complete' });
-      }, 1000);
-    }, 1500);
+    setBodyPhoto({ file: null, url, state: 'uploading' });
+
+    const compressed = await compressImage(file);
+    setBodyPhoto({ file: compressed, url, state: 'complete' });
   }, []);
 
   // Handle Add-on Toggle
@@ -287,22 +343,18 @@ const BookingContent = () => {
 
   // Handle Paystack Callbacks
   const handlePaystackSuccess = useCallback((reference: any) => {
+    clearPendingOrder();
     confirmOrder(reference);
   }, [confirmOrder]);
 
   const handlePaystackClose = useCallback(() => {
-    // Files already uploaded as pending. User can retry or contact support.
     setPaymentStatus('idle');
-    alert('Payment was not completed. Your details have been saved. You can try again or contact us on WhatsApp for help.');
+    alert('Payment cancelled. Tap Pay when you\'re ready to try again.');
   }, []);
 
-  // Handle Payment Button Click — Upload-First Flow
+  // Handle Payment Button Click — Split Upload Flow
   const handlePayment = useCallback(async () => {
     if (!selectedPackage) return;
-
-    const newOrderId = generateOrderId();
-    setOrderId(newOrderId);
-    setPaymentStatus('uploading');
 
     // SECURITY: Validate Paystack key exists before proceeding
     const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
@@ -312,109 +364,153 @@ const BookingContent = () => {
       return;
     }
 
-    // Step 1: Upload files + order data as PENDING
-    try {
-      const orderData = {
-        orderId: newOrderId,
-        status: 'pending',
-        shootType: category,
-        shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
-        package: {
-          id: selectedPackage.id,
-          name: selectedPackage.name,
-          price: selectedPackage.price,
-          images: selectedPackage.images,
-          outfits: selectedPackage.outfits
-        },
-        groupSize: category === 'group' ? groupSize : undefined,
-        outfits: selectedOutfits.map(o => ({
-          id: o.id,
-          name: o.name,
-          image: o.imageUrl || o.previewUrl,
-          category: o.category,
-          uploaded: o.isUploaded || false
-        })),
-        style: {
-          makeup: {
-            selectedName: styling.makeup
-              ? (styling.makeupType === 'light' ? 'Light Makeup' :
-                styling.makeupType === 'heavy' ? 'Heavy Makeup' :
-                  styling.makeupType === 'glam' ? 'Glam Makeup' : 'Yes')
-              : 'No'
-          },
-          hairstyle: { customDescription: styling.hairstyle ? styling.hairstyleText : 'Not specified' },
-          background: { customDescription: styling.background ? styling.backgroundText : 'Not specified' }
-        },
-        whatsappNumber: phoneValidation.fullNumber,
-        specialRequests: '',
-        addOns: addOns,
-        finalTotal: calculateTotal(),
-        timestamp: new Date().toISOString()
-      };
+    // Check if we have a pending order from a previous attempt (localStorage)
+    let pending = loadPendingOrder();
+    let currentOrderId = pending?.orderId || orderId;
+    let orderDataSent = pending?.orderDataSent || false;
+    let uploadedFiles = new Set(pending?.uploadedFiles || []);
 
-      const formData = new FormData();
-      formData.append('orderData', JSON.stringify(orderData));
-
-      // Append photos
-      if (isGroupBooking) {
-        groupPhotos.forEach((person, index) => {
-          if (person.face.file) {
-            formData.append(`photo_face_${index}`, person.face.file);
-          }
-          if (person.body.file) {
-            formData.append(`photo_body_${index}`, person.body.file);
-          }
-        });
-      } else {
-        if (facePhoto.file) {
-          formData.append('photo_face', facePhoto.file);
-        }
-        if (bodyPhoto.file) {
-          formData.append('photo_body', bodyPhoto.file);
-        }
-      }
-
-      // Append uploaded outfit files
-      selectedOutfits.forEach((outfit, index) => {
-        if (outfit.isUploaded && outfit.file) {
-          formData.append(`outfit_upload_${index}`, outfit.file);
-        }
-      });
-
-      // Upload with retry
-      const uploadResponse = await fetchWithRetry('/api/orders', {
-        method: 'POST',
-        body: formData
-      }, { maxRetries: 3, baseDelay: 1500 });
-
-      const uploadResult = await uploadResponse.json();
-
-      if (!uploadResult.success) {
-        console.error('Pending upload failed:', uploadResult.error);
-        setPaymentStatus('failed');
-        alert(`Upload failed: ${uploadResult.error}. Please try again.`);
-        return;
-      }
-
-      console.log('✅ Pending upload successful, opening Paystack...');
-
-    } catch (uploadError) {
-      console.error('Upload error:', uploadError);
-      setPaymentStatus('failed');
-      alert('Failed to upload your files. Please check your internet connection and try again. You have not been charged.');
-      return;
+    // Generate new orderId only if we don't have one
+    if (!currentOrderId) {
+      currentOrderId = generateOrderId();
     }
 
-    // Step 2: Open Paystack payment modal
+    setOrderId(currentOrderId);
+    setPaymentStatus('uploading');
+
+    // Build order data
+    const orderData = {
+      orderId: currentOrderId,
+      status: 'pending',
+      shootType: category,
+      shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
+      package: {
+        id: selectedPackage.id,
+        name: selectedPackage.name,
+        price: selectedPackage.price,
+        images: selectedPackage.images,
+        outfits: selectedPackage.outfits
+      },
+      groupSize: category === 'group' ? groupSize : undefined,
+      outfits: selectedOutfits.map(o => ({
+        id: o.id,
+        name: o.name,
+        image: o.imageUrl || o.previewUrl,
+        category: o.category,
+        uploaded: o.isUploaded || false
+      })),
+      style: {
+        makeup: {
+          selectedName: styling.makeup
+            ? (styling.makeupType === 'light' ? 'Light Makeup' :
+              styling.makeupType === 'heavy' ? 'Heavy Makeup' :
+                styling.makeupType === 'glam' ? 'Glam Makeup' : 'Yes')
+            : 'No'
+        },
+        hairstyle: { customDescription: styling.hairstyle ? styling.hairstyleText : 'Not specified' },
+        background: { customDescription: styling.background ? styling.backgroundText : 'Not specified' }
+      },
+      whatsappNumber: phoneValidation.fullNumber,
+      specialRequests: '',
+      addOns: addOns,
+      finalTotal: calculateTotal(),
+      timestamp: new Date().toISOString()
+    };
+
+    // --- Step 1: Send order data (JSON only, no files) ---
+    if (!orderDataSent) {
+      try {
+        const response = await fetchWithRetry('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        }, { maxRetries: 3, baseDelay: 1000 });
+
+        const result = await response.json();
+        if (!result.success) {
+          setPaymentStatus('failed');
+          alert(`Something went wrong: ${result.error}. Please try again.`);
+          return;
+        }
+
+        orderDataSent = true;
+        savePendingOrder({
+          orderId: currentOrderId,
+          createdAt: new Date().toISOString(),
+          orderDataSent: true,
+          uploadedFiles: [],
+          expiresAt: new Date(Date.now() + PENDING_ORDER_TTL).toISOString()
+        });
+      } catch (error) {
+        console.error('Order creation failed:', error);
+        setPaymentStatus('failed');
+        alert('Upload failed. Please check your connection and try again.');
+        return;
+      }
+    }
+
+    // --- Step 2: Upload files individually ---
+    const filesToUpload: { key: string; file: File }[] = [];
+
+    if (isGroupBooking) {
+      groupPhotos.forEach((person, index) => {
+        if (person.face.file) filesToUpload.push({ key: `photo_face_${index}`, file: person.face.file });
+        if (person.body.file) filesToUpload.push({ key: `photo_body_${index}`, file: person.body.file });
+      });
+    } else {
+      if (facePhoto.file) filesToUpload.push({ key: 'photo_face', file: facePhoto.file });
+      if (bodyPhoto.file) filesToUpload.push({ key: 'photo_body', file: bodyPhoto.file });
+    }
+
+    selectedOutfits.forEach((outfit, index) => {
+      if (outfit.isUploaded && outfit.file) {
+        filesToUpload.push({ key: `outfit_upload_${index}`, file: outfit.file });
+      }
+    });
+
+    // Upload only files that haven't been uploaded yet
+    const pendingFiles = filesToUpload.filter(f => !uploadedFiles.has(f.key));
+
+    for (const { key, file } of pendingFiles) {
+      try {
+        const formData = new FormData();
+        formData.append('orderId', currentOrderId);
+        formData.append('fileKey', key);
+        formData.append('file', file);
+
+        const response = await fetchWithRetry('/api/orders/upload-file', {
+          method: 'POST',
+          body: formData
+        }, { maxRetries: 3, baseDelay: 1500 });
+
+        const result = await response.json();
+        if (result.success) {
+          uploadedFiles.add(key);
+          savePendingOrder({
+            orderId: currentOrderId,
+            createdAt: pending?.createdAt || new Date().toISOString(),
+            orderDataSent: true,
+            uploadedFiles: Array.from(uploadedFiles),
+            expiresAt: new Date(Date.now() + PENDING_ORDER_TTL).toISOString()
+          });
+        }
+      } catch (error) {
+        console.error(`Failed to upload ${key}:`, error);
+      }
+    }
+
+    console.log(`✅ Upload complete. ${uploadedFiles.size}/${filesToUpload.length} files sent.`);
+
+    // --- Step 3: Open Paystack payment modal ---
     setPaymentStatus('processing');
 
     setPaystackConfig({
-      reference: newOrderId,
-      email: `order-${newOrderId}@radikal.ng`,
+      reference: currentOrderId,
+      email: `order-${currentOrderId}@radikal.ng`,
       amount: Math.ceil(calculateTotal() * 1.02 * 100),
       publicKey,
       metadata: {
-        orderId: newOrderId,
+        orderId: currentOrderId,
         shootType: category,
         shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
         package: {
@@ -452,7 +548,7 @@ const BookingContent = () => {
   }, [
     selectedPackage, calculateTotal, category, groupSize,
     selectedOutfits, styling, phoneValidation.fullNumber, addOns,
-    facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking, fetchWithRetry
+    facePhoto.file, bodyPhoto.file, groupPhotos, isGroupBooking, fetchWithRetry, orderId
   ]);
 
   // Reset Booking
@@ -474,6 +570,7 @@ const BookingContent = () => {
     setAddOns([]);
     setPaymentStatus('idle');
     setOrderId(null);
+    clearPendingOrder();
     phoneValidation.reset();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

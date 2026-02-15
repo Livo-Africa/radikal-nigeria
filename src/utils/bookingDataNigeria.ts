@@ -260,6 +260,35 @@ export function generateOrderId(): string {
     return `RAD-${timestamp}-${random}`;
 }
 
+// Find the best package for a given number of outfits (used by wardrobe → booking flow)
+export function findBestPackageForOutfits(outfitCount: number): { category: string; package: Package } | null {
+    if (outfitCount <= 0) return null;
+
+    // Search solo categories (not group, not jersey)
+    const searchCategories = ['professional', 'birthday', 'graduation'];
+    let bestMatch: { category: string; package: Package } | null = null;
+
+    for (const catId of searchCategories) {
+        const packages = PACKAGES_BY_CATEGORY[catId];
+        if (!packages) continue;
+
+        for (const pkg of packages) {
+            if (pkg.outfits >= outfitCount) {
+                // Prefer exact match, then smallest that fits
+                if (!bestMatch || pkg.outfits < bestMatch.package.outfits) {
+                    bestMatch = { category: catId, package: pkg };
+                }
+                // Exact match — return immediately
+                if (pkg.outfits === outfitCount) {
+                    return bestMatch;
+                }
+            }
+        }
+    }
+
+    return bestMatch;
+}
+
 // WhatsApp deep link generator - Message FROM client TO team
 export function generateWhatsAppLink(orderId: string, packageName: string, amount: number, businessNumber: string = '233207472307'): string {
     const message = `Hi Radikal Team!

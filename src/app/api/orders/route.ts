@@ -43,46 +43,55 @@ async function verifyPaystackPayment(reference: string): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse FormData instead of JSON to handle files
-    const formData = await request.formData();
+    const contentType = request.headers.get('content-type') || '';
+    let orderData: any;
+    let files: File[] = [];
 
-    // Extract JSON data string
-    const orderDataString = formData.get('orderData') as string;
-    if (!orderDataString) {
-      return NextResponse.json({ success: false, error: 'Missing orderData' }, { status: 400 });
+    if (contentType.includes('application/json')) {
+      // JSON-only request (new split upload flow — files uploaded separately)
+      orderData = await request.json();
+    } else {
+      // FormData request (legacy flow — files bundled with order data)
+      const formData = await request.formData();
+
+      const orderDataString = formData.get('orderData') as string;
+      if (!orderDataString) {
+        return NextResponse.json({ success: false, error: 'Missing orderData' }, { status: 400 });
+      }
+
+      orderData = JSON.parse(orderDataString);
+
+      // Extract files
+      files = Array.from(formData.entries())
+        .filter(([key]) => key.startsWith('photo_') || key.startsWith('outfit_upload_'))
+        .map(([_, file]) => file as File);
     }
 
-    const orderData = JSON.parse(orderDataString);
     logger.info('📦 Received order', { metadata: { orderId: orderData.orderId } });
 
-    // Extract and validate files (User Photos + Outfit Uploads)
-    const uploadedFiles = Array.from(formData.entries())
-      .filter(([key]) => key.startsWith('photo_') || key.startsWith('outfit_upload_'))
-      .map(([_, file]) => file as File);
-
-    // SECURITY: Validate all uploaded files
-    const validation = validateFiles(uploadedFiles);
-
-    if (!validation.valid) {
-      const errorMessage = formatValidationErrors(validation.errors);
-      console.warn('❌ File validation failed:', errorMessage);
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'File validation failed: ' + errorMessage
-        },
-        { status: 400 }
-      );
-    }
-
-    // Use only validated files
-    const files = validation.validFiles;
-    logger.info(`✅ ${files.length} files validated`, {
-      metadata: {
-        fileCount: files.length,
-        totalSizeMB: (validation.totalSize / 1024 / 1024).toFixed(2)
+    // Validate files only if present (split upload flow sends files separately)
+    if (files.length > 0) {
+      // SECURITY: Validate all uploaded files
+      const validation = validateFiles(files);
+      if (!validation.valid) {
+        const errorMessage = formatValidationErrors(validation.errors);
+        console.warn('❌ File validation failed:', errorMessage);
+        return NextResponse.json(
+          { success: false, error: 'File validation failed: ' + errorMessage },
+          { status: 400 }
+        );
       }
-    });
+
+      files = validation.validFiles;
+      logger.info(`✅ ${files.length} files validated`, {
+        metadata: {
+          fileCount: files.length,
+          totalSizeMB: (validation.totalSize / 1024 / 1024).toFixed(2)
+        }
+      });
+    } else {
+      logger.info('📋 JSON-only order (files uploaded separately)', { metadata: { orderId: orderData.orderId } });
+    }
 
     const {
       orderId,
