@@ -58,11 +58,11 @@ export default function RootLayout({
               "logo": "https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg",
               "sameAs": [
                 "https://www.instagram.com/radikal.io",
-                "https://wa.me/2349027065853"
+                "https://wa.me/233207472307"
               ],
               "contactPoint": {
                 "@type": "ContactPoint",
-                "telephone": "+2349027065853",
+                "telephone": "+233207472307",
                 "contactType": "customer service",
                 "areaServed": ["GH", "NG"],
                 "availableLanguage": "en"

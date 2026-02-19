@@ -161,7 +161,7 @@ export default function ServicesPage() {
     ];
 
     const getWhatsAppUrl = (bundleTitle: string) => {
-        return `https://wa.me/2349027065853?text=Hi%20Radikal!%20I'm%20interested%20in%20the%20${encodeURIComponent(bundleTitle)}`;
+        return `https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20the%20${encodeURIComponent(bundleTitle)}`;
     };
 
     return (
@@ -206,7 +206,7 @@ export default function ServicesPage() {
                                 </a>
 
                                 <a
-                                    href="https://wa.me/2349027065853?text=Hi%20Radikal!%20I%20need%20a%20custom%20quote%20for%20my%20project."
+                                    href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20need%20a%20custom%20quote%20for%20my%20project."
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 border border-white/30 flex items-center space-x-2"
@@ -250,8 +250,8 @@ export default function ServicesPage() {
                                         key={filter.value}
                                         onClick={() => setActiveFilter(filter.value)}
                                         className={`px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 ${activeFilter === filter.value
-                                                ? 'bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white shadow-lg'
-                                                : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                                            ? 'bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white shadow-lg'
+                                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                                             }`}
                                     >
                                         {filter.label}
@@ -590,7 +590,7 @@ export default function ServicesPage() {
                             {/* CTA Buttons */}
                             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                                 <a
-                                    href="https://wa.me/2349027065853?text=Hi%20Radikal!%20I%20need%20personalized%20service%20recommendations."
+                                    href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20need%20personalized%20service%20recommendations."
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="group bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center space-x-2"
