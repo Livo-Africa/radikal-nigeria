@@ -242,16 +242,17 @@ export default async function Home() {
   );
 }
 
-// Enhanced metadata for better SEO
+// Enhanced metadata for better SEO targeting West Africa
 export const metadata = {
-  title: 'Radikal Creative Technologies - Virtual Photography Studio',
-  description: 'Class • Technology • Future - Professional virtual photoshoots, graphic design, and creative technology solutions in Ghana. Transform your visuals with our premium services.',
-  keywords: 'virtual photography, photoshoot Ghana,virtual photoshoot, AI photoshoot, graphic design, video production, creative technology, professional headshots, social media content',
+  title: 'Radikal Creative Technologies | Virtual Photography Studio West Africa',
+  description: 'Radikal offers professional virtual photoshoots, graphic design, and creative technology solutions in Lagos, Accra, Abuja, and beyond. Transform Your Brand Vision into Visual Reality.',
+  keywords: 'virtual photography Nigeria, photoshoot Lagos, virtual photoshoot Ghana, AI photoshoot Nigeria, professional headshots Lagos, graphic design Accra, creative technology Africa, photography studio Abuja, motion graphics agency Lagos, branding agency Ghana, digital advertising Nigeria',
   authors: [{ name: 'Radikal Creative Technologies' }],
   openGraph: {
-    title: 'Radikal Creative Technologies - Virtual Photography Studio',
-    description: 'Class • Technology • Future - Transforming Visions into Visual Reality',
+    title: 'Radikal Creative Technologies | Virtual Photography Studio West Africa',
+    description: 'Class • Technology • Future - Transforming Visions into Visual Reality in Ghana and Nigeria.',
     type: 'website',
+    url: 'https://radikalcreatech.com',
     locale: 'en_GH',
     siteName: 'Radikal Creative Technologies',
     images: [
@@ -266,7 +267,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Radikal Creative Technologies',
-    description: 'Class • Technology • Future - Virtual Photography Studio',
+    description: 'Virtual Photography Studio transforming visuals across Africa.',
     images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
   },
   robots: {
