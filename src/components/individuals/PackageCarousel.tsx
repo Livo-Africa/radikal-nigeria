@@ -84,7 +84,7 @@ const GH_DATA = {
                 photos: 4,
                 outfits: 1,
                 features: ["Birthday props & theme"],
-                popular: true,
+                popular: false,
                 category: "Birthday",
                 categoryId: "birthday",
                 description: "Simple birthday photos"
@@ -96,7 +96,7 @@ const GH_DATA = {
                 photos: 6,
                 outfits: 2,
                 features: ["Enhanced set design", "Prop usage"],
-                popular: false,
+                popular: true,
                 category: "Birthday",
                 categoryId: "birthday",
                 description: "Enhanced birthday photos"
@@ -137,7 +137,7 @@ const GH_DATA = {
                 photos: 6,
                 outfits: 3,
                 features: ["Up to 2 People", "Creative direction"],
-                popular: false,
+                popular: true,
                 category: "Group",
                 categoryId: "group",
                 description: "Creative group photos"
@@ -327,21 +327,22 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                     </p>
                 </div>
 
-                {/* Category Filter - Glass Segmented Buttons */}
-                <div className="flex overflow-x-auto pb-4 mb-6 gap-2 scrollbar-hide -mx-4 px-4">
-                    {categories.map((category) => (
-                        <button
-                            key={category}
-                            onClick={() => setActiveCategory(category)}
-                            className={`dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeCategory === category
-                                ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                                : 'bg-white/5 text-white/50 border border-white/10 hover:border-white/20 hover:text-white/70'
-                                }`}
-                        >
-                            <CategoryIcon category={category} />
-                            {category}
-                        </button>
-                    ))}
+                {/* Category Filter - Glass Segmented Controls */}
+                <div className="mb-6 overflow-x-auto scrollbar-hide -mx-4 px-4">
+                    <div className="flex space-x-2 pb-2 min-w-max">
+                        {categories.map((category) => (
+                            <button
+                                key={category}
+                                onClick={() => setActiveCategory(category)}
+                                className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${activeCategory === category
+                                    ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.1)]'
+                                    : 'bg-white/5 text-white/40 border border-white/10 hover:border-white/20 hover:text-white/60'
+                                    }`}
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Carousel Container */}

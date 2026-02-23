@@ -194,10 +194,10 @@ function WardrobeContent() {
       <main className="pt-20 min-h-screen bg-gray-50/50 overflow-x-hidden">
 
         {/* Mobile Header (Minified) */}
-        <div className="md:hidden px-4 py-4 bg-white sticky top-16 z-20 border-b border-gray-100 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold">The Wardrobe</h1>
-            <div className="flex space-x-2">
+        <div className="md:hidden px-4 py-4 bg-white sticky top-20 z-20 border-b border-gray-100 overflow-hidden">
+          <div className="flex flex-col gap-3 mb-4">
+            <h1 className="text-xl font-bold">Style Curations</h1>
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setActiveGender('All')}
                 className={`px-3 py-1 rounded-full text-xs font-bold ${activeGender === 'All' ? 'bg-[#D4AF37] text-white' : 'bg-gray-100'}`}
