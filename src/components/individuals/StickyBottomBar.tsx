@@ -1,4 +1,4 @@
-// components/individuals/StickyBottomBar.tsx
+// components/individuals/StickyBottomBar.tsx - PREMIUM DARK MODE REDESIGN
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -22,7 +22,6 @@ export default function StickyBottomBar() {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
 
-            // Determine scroll direction
             if (currentScrollY > lastScrollY.current) {
                 setScrollDirection('down');
             } else {
@@ -30,7 +29,6 @@ export default function StickyBottomBar() {
             }
             lastScrollY.current = currentScrollY;
 
-            // Show sticky bar after user scrolls past 300px
             if (currentScrollY > 300) {
                 setIsVisible(true);
             } else {
@@ -38,7 +36,6 @@ export default function StickyBottomBar() {
             }
         };
 
-        // Throttle scroll events
         let ticking = false;
         const throttledScroll = () => {
             if (!ticking) {
@@ -56,7 +53,6 @@ export default function StickyBottomBar() {
     }, []);
 
     const handleBookNow = () => {
-        // Scroll to packages or start booking flow
         const packagesSection = document.getElementById('packages');
         if (packagesSection) {
             packagesSection.scrollIntoView({ behavior: 'smooth' });
@@ -68,7 +64,7 @@ export default function StickyBottomBar() {
     if (!isVisible) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0F]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_30px_rgba(0,0,0,0.5)]">
             <div className="container mx-auto px-4 py-3">
                 <div className="flex items-center justify-between">
 
@@ -76,7 +72,7 @@ export default function StickyBottomBar() {
                     <div className="flex-1 flex gap-3 sm:justify-end">
                         <button
                             onClick={() => window.location.href = '/individuals/packages'}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors active:scale-95"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white/10 text-white/80 font-semibold py-3 px-4 rounded-xl hover:bg-white/15 transition-all active:scale-95 border border-white/10"
                         >
                             <div className="flex items-center">
                                 <PackageIcon />
@@ -87,7 +83,7 @@ export default function StickyBottomBar() {
 
                         <button
                             onClick={handleBookNow}
-                            className="flex-1 sm:flex-none bg-[#D4AF37] text-black font-semibold py-3 px-6 rounded-lg hover:bg-[#c19c2d] transition-colors shadow-lg shadow-[#D4AF37]/25 active:scale-95"
+                            className="flex-1 sm:flex-none bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold py-3 px-6 rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.25)] active:scale-95"
                         >
                             Book Now
                         </button>

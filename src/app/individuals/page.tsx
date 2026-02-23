@@ -58,7 +58,7 @@ export default async function IndividualsPage() {
   return (
     <>
       <Navigation />
-      <main className="flex-1">
+      <main className="flex-1 bg-[#0A0A0F]">
         {/* Mobile View (hidden on desktop) */}
         <div className="block md:hidden">
           {/* <MobileHeader /> */}

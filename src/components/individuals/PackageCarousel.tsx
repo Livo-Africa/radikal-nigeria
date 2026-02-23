@@ -1,4 +1,4 @@
-// components/individuals/PackageCarousel.tsx
+// components/individuals/PackageCarousel.tsx - PREMIUM DARK MODE REDESIGN
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -25,7 +25,7 @@ interface Package {
     features: string[];
     popular: boolean;
     category: string;
-    categoryId: string; // Add ID for deep linking
+    categoryId: string;
     description: string;
 }
 
@@ -33,7 +33,7 @@ interface PackageCarouselProps {
     country?: 'GH' | 'NG';
 }
 
-// Hardcoded Ghana Data (Cleaned - Removed Redundant Specs)
+// Hardcoded Ghana Data
 const GH_DATA = {
     'Solo': {
         packages: [
@@ -213,7 +213,6 @@ const GH_DATA = {
 export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [touchStartX, setTouchStartX] = useState(0);
-    // Initialize activeCategory based on available categories for the country
     const [activeCategory, setActiveCategory] = useState<string>('');
     const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -222,9 +221,8 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
 
     if (country === 'NG') {
         const transformedData: any = {};
-        // Use NG_CATEGORIES_DATA to order and label the tabs correctly
         NG_CATEGORIES_DATA.forEach(cat => {
-            const catKey = cat.id; // e.g., 'professional'
+            const catKey = cat.id;
             const packages = NG_PACKAGES_DATA[catKey] || [];
 
             if (packages.length > 0) {
@@ -235,7 +233,6 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                         price: `₦${pkg.price.toLocaleString()}`,
                         photos: pkg.images,
                         outfits: pkg.outfits,
-                        // Only add description as a feature, avoid redundancy with photos/outfits
                         features: [pkg.description],
                         popular: pkg.popular || false,
                         category: cat.label,
@@ -252,7 +249,6 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
 
     const categories = Object.keys(categoryData);
 
-    // Ensure activeCategory is valid when country changes
     useEffect(() => {
         if (!categories.includes(activeCategory)) {
             setActiveCategory(categories[0] || '');
@@ -261,7 +257,6 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
 
     const currentPackages = categoryData[activeCategory as keyof typeof categoryData]?.packages || [];
 
-    // Handle touch events for swipe
     const handleTouchStart = (e: React.TouchEvent) => {
         setTouchStartX(e.touches[0].clientX);
     };
@@ -280,7 +275,6 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
         }
     };
 
-    // Scroll carousel to current index
     useEffect(() => {
         if (carouselRef.current) {
             const cardWidth = carouselRef.current.clientWidth * 0.85;
@@ -293,7 +287,6 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
         }
     }, [currentIndex, currentPackages]);
 
-    // Reset index when category changes
     useEffect(() => {
         setCurrentIndex(0);
     }, [activeCategory]);
@@ -312,7 +305,6 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
     };
 
     const CategoryIcon = ({ category }: { category: string }) => {
-        // Simple heuristic for icons based on text
         if (category.includes('Specialty') || category.includes('Jersey')) return <Trophy className="w-4 h-4" />;
         if (category.includes('Birthday')) return <Cake className="w-4 h-4" />;
         if (category.includes('Solo') || category.includes('Professional') || category.includes('Graduation')) return <User className="w-4 h-4" />;
@@ -323,27 +315,27 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
     if (categories.length === 0) return null;
 
     return (
-        <section id="packages" className="py-8 bg-white overflow-hidden">
+        <section id="packages" className="py-8 bg-[#0A0A0F] overflow-hidden">
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2 font-playfair">
+                    <h2 className="text-2xl font-bold text-white mb-2 font-playfair">
                         Choose Your Package
                     </h2>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-white/40 text-sm">
                         Swipe to see options
                     </p>
                 </div>
 
-                {/* Category Filter */}
+                {/* Category Filter - Glass Segmented Buttons */}
                 <div className="flex overflow-x-auto pb-4 mb-6 gap-2 scrollbar-hide -mx-4 px-4">
                     {categories.map((category) => (
                         <button
                             key={category}
                             onClick={() => setActiveCategory(category)}
-                            className={`dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category
-                                ? 'bg-[#D4AF37] text-white shadow-lg shadow-[#D4AF37]/20 border border-[#D4AF37]'
-                                : 'bg-white text-gray-600 border border-gray-200 hover:border-[#D4AF37]/50'
+                            className={`dot-indicator flex items-center gap-2 flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeCategory === category
+                                ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                                : 'bg-white/5 text-white/50 border border-white/10 hover:border-white/20 hover:text-white/70'
                                 }`}
                         >
                             <CategoryIcon category={category} />
@@ -358,10 +350,10 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                     {currentIndex > 0 && (
                         <button
                             onClick={() => setCurrentIndex(prev => prev - 1)}
-                            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:border-[#D4AF37] transition-all duration-200"
+                            className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-xl hover:bg-white/20 shadow-lg rounded-full p-2 border border-white/10 hover:border-amber-500/30 transition-all duration-200"
                             aria-label="Previous package"
                         >
-                            <ChevronLeft className="w-5 h-5 text-gray-700" />
+                            <ChevronLeft className="w-5 h-5 text-white" />
                         </button>
                     )}
 
@@ -369,10 +361,10 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                     {currentIndex < currentPackages.length - 1 && (
                         <button
                             onClick={() => setCurrentIndex(prev => prev + 1)}
-                            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 border border-gray-200 hover:border-[#D4AF37] transition-all duration-200"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-white/10 backdrop-blur-xl hover:bg-white/20 shadow-lg rounded-full p-2 border border-white/10 hover:border-amber-500/30 transition-all duration-200"
                             aria-label="Next package"
                         >
-                            <ChevronRight className="w-5 h-5 text-gray-700" />
+                            <ChevronRight className="w-5 h-5 text-white" />
                         </button>
                     )}
 
@@ -391,75 +383,69 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                             {currentPackages.map((pkg, index) => (
                                 <div
                                     key={pkg.id}
-                                    className="flex-shrink-0 w-[85vw] max-w-sm snap-center pt-6" // pt-6 to allow space for hanging tag/ribbon
+                                    className="flex-shrink-0 w-[85vw] max-w-sm snap-center pt-6"
                                 >
-                                    {/* Package Card - Luxury White design */}
-                                    <div className="relative bg-white rounded-2xl p-6 border-2 border-[#D4AF37] shadow-xl hover:shadow-2xl transition-all duration-300">
+                                    {/* Package Card - Dark Glass Design */}
+                                    <div className="relative bg-white/[0.04] backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-amber-500/30 shadow-xl hover:shadow-[0_0_40px_rgba(245,158,11,0.1)] transition-all duration-500 group">
 
-                                        {/* Subtle Gold Pattern Background Overlay */}
-                                        <div className="absolute inset-0 rounded-2xl opacity-[0.03] pointer-events-none"
-                                            style={{
-                                                backgroundImage: 'repeating-linear-gradient(45deg, #D4AF37 0, #D4AF37 1px, transparent 0, transparent 50%)',
-                                                backgroundSize: '10px 10px'
-                                            }}
-                                        />
+                                        {/* Subtle Gradient Overlay on Hover */}
+                                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                                        {/* Popular Ribbon - Diagonal Top Left */}
+                                        {/* Popular Badge */}
                                         {pkg.popular && (
-                                            <div className="absolute -top-3 -left-3 z-20">
-                                                <div className="bg-[#B91C1C] text-white text-[10px] font-bold px-3 py-1 shadow-md transform -rotate-12 rounded-sm border border-white/20">
-                                                    POPULAR
+                                            <div className="absolute -top-3 -left-1 z-20">
+                                                <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white text-[10px] font-bold px-3 py-1 shadow-[0_0_15px_rgba(244,114,182,0.4)] transform -rotate-3 rounded-lg">
+                                                    ✨ POPULAR
                                                 </div>
                                             </div>
                                         )}
 
-                                        {/* Hanging Price Tag - Top Right */}
-                                        <div className="absolute -top-5 -right-2 z-20 shadow-lg transform rotate-3 hover:rotate-6 transition-transform origin-top-right">
-                                            <div className="bg-[#D4AF37] text-white p-1 rounded-sm relative">
-                                                <div className="border border-white/30 rounded-sm px-2 py-1 bg-gradient-to-br from-[#D4AF37] to-[#B8860B]">
-                                                    <div className="text-xl font-bold">{pkg.price}</div>
+                                        {/* Price Tag */}
+                                        <div className="absolute -top-4 -right-1 z-20">
+                                            <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-black p-0.5 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                                                <div className="px-3 py-1.5 rounded-[10px]">
+                                                    <div className="text-xl font-black">{pkg.price}</div>
                                                 </div>
-                                                {/* Simulated string/hook maybe? Keeping it simple for now */}
                                             </div>
                                         </div>
 
                                         {/* Package Header */}
                                         <div className="mb-6 mt-2 relative z-10">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-1">{pkg.name}</h3>
-                                            <p className="text-sm text-gray-500 font-medium tracking-wide uppercase text-xs">{pkg.category}</p>
+                                            <h3 className="text-xl font-bold text-white mb-1">{pkg.name}</h3>
+                                            <p className="text-xs text-white/40 font-medium tracking-wider uppercase">{pkg.category}</p>
                                         </div>
 
-                                        {/* Combined Features List (Icon + Text) */}
+                                        {/* Features List */}
                                         <div className="mb-8 relative z-10">
-                                            <div className="space-y-3">
-                                                {/* Photos (Core Spec) */}
-                                                <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
-                                                    <Camera className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
-                                                    <span className="font-medium text-gray-900">{pkg.photos} Professional Photos</span>
+                                            <div className="space-y-2.5">
+                                                {/* Photos */}
+                                                <div className="flex items-center text-sm bg-white/[0.04] p-2.5 rounded-xl border border-white/5">
+                                                    <Camera className="w-4 h-4 text-amber-400 mr-3 flex-shrink-0" />
+                                                    <span className="font-medium text-white/80">{pkg.photos} Professional Photos</span>
                                                 </div>
 
-                                                {/* Outfits (Core Spec) */}
+                                                {/* Outfits */}
                                                 {pkg.outfits !== undefined && (
-                                                    <div className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
-                                                        <Shirt className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
-                                                        <span className="font-medium text-gray-900">{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
+                                                    <div className="flex items-center text-sm bg-white/[0.04] p-2.5 rounded-xl border border-white/5">
+                                                        <Shirt className="w-4 h-4 text-amber-400 mr-3 flex-shrink-0" />
+                                                        <span className="font-medium text-white/80">{pkg.outfits} Outfit{pkg.outfits > 1 ? 's' : ''}</span>
                                                     </div>
                                                 )}
 
                                                 {/* Additional Features */}
                                                 {pkg.features.map((feature, idx) => (
-                                                    <div key={idx} className="flex items-center text-sm text-gray-700 bg-gray-50/50 p-2 rounded-lg">
-                                                        <Check className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
-                                                        <span className="text-sm font-medium">{feature}</span>
+                                                    <div key={idx} className="flex items-center text-sm bg-white/[0.04] p-2.5 rounded-xl border border-white/5">
+                                                        <Check className="w-4 h-4 text-amber-400 mr-3 flex-shrink-0" />
+                                                        <span className="text-sm font-medium text-white/70">{feature}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        {/* Select Button */}
+                                        {/* Select Button - Gradient CTA */}
                                         <button
                                             onClick={() => handlePackageSelect(pkg)}
-                                            className="relative z-10 w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 hover:shadow-lg transition-all duration-200 border-2 border-transparent hover:border-[#D4AF37]/30"
+                                            className="relative z-10 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold py-4 rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] active:scale-[0.98]"
                                         >
                                             Select Package
                                         </button>
@@ -475,9 +461,9 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`dot-indicator rounded-full transition-all ${index === currentIndex
-                                    ? 'w-8 h-2 bg-[#D4AF37]'
-                                    : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                                className={`dot-indicator rounded-full transition-all duration-300 ${index === currentIndex
+                                    ? 'w-8 h-2 bg-gradient-to-r from-amber-400 to-orange-400 shadow-[0_0_8px_rgba(245,158,11,0.4)]'
+                                    : 'w-2 h-2 bg-white/20 hover:bg-white/40'
                                     }`}
                                 aria-label={`Go to package ${index + 1}`}
                             />
@@ -486,16 +472,16 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
 
                     {/* Swipe Hint */}
                     <div className="text-center mt-4">
-                        <div className="inline-flex items-center gap-2 text-[#D4AF37] text-xs font-medium bg-[#D4AF37]/5 px-3 py-1 rounded-full animate-pulse">
+                        <div className="inline-flex items-center gap-2 text-amber-400/70 text-xs font-medium bg-amber-500/5 border border-amber-500/10 px-3 py-1 rounded-full animate-pulse">
                             Swipe to see more <ChevronRight className="w-3 h-3" />
                         </div>
                     </div>
 
                     {/* View All Link */}
-                    <div className="text-center mt-6 pt-6 border-t border-gray-100">
+                    <div className="text-center mt-6 pt-6 border-t border-white/5">
                         <a
                             href="/individuals/packages"
-                            className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium"
+                            className="inline-flex items-center gap-2 text-white/30 hover:text-amber-400 transition-colors text-sm font-medium"
                         >
                             View all packages
                             <ChevronRight className="w-4 h-4" />

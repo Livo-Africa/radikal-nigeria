@@ -1,4 +1,4 @@
-// src/components/individuals/FAQSection.tsx - FIXED VERSION
+// src/components/individuals/FAQSection.tsx - PREMIUM DARK MODE REDESIGN
 'use client';
 import { useState, useMemo } from 'react';
 import { Search, ChevronDown, X, MessageCircle } from 'lucide-react';
@@ -51,15 +51,12 @@ export default function FAQSection() {
     }
   ];
 
-  // Get unique categories - FIXED: Use Array.from() instead of spread operator on Set
   const uniqueCategories = Array.from(new Set(faqs.map(faq => faq.category)));
   const categories = ['All', ...uniqueCategories];
 
-  // Filter FAQs based on search and category
   const filteredFaqs = useMemo(() => {
     let filtered = faqs;
 
-    // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(faq =>
@@ -69,7 +66,6 @@ export default function FAQSection() {
       );
     }
 
-    // Apply category filter
     if (activeCategory && activeCategory !== 'All') {
       filtered = filtered.filter(faq => faq.category === activeCategory);
     }
@@ -87,53 +83,53 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-12 bg-gradient-to-b from-[#0A0A0F] to-[#0D0D15]">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-2 font-playfair">
+        <h2 className="text-3xl font-bold text-center mb-2 font-playfair text-white">
           Frequently Asked Questions
         </h2>
-        <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
+        <p className="text-white/40 text-center mb-8 max-w-2xl mx-auto">
           Everything you need to know about our virtual photoshoots
         </p>
 
         <div className="max-w-4xl mx-auto">
-          {/* Search Bar */}
+          {/* Search Bar - Dark Glass */}
           <div className="mb-6 relative">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white/30 w-5 h-5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for a question..."
-                className="w-full pl-12 pr-10 py-4 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent"
+                className="w-full pl-12 pr-10 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/30 text-white placeholder:text-white/30 transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/30 hover:text-white/60"
                 >
                   <X className="w-5 h-5" />
                 </button>
               )}
             </div>
             {searchQuery && (
-              <div className="text-sm text-gray-500 mt-2">
+              <div className="text-sm text-white/30 mt-2">
                 Found {filteredFaqs.length} result{filteredFaqs.length !== 1 ? 's' : ''}
               </div>
             )}
           </div>
 
-          {/* Category Filter Tabs */}
+          {/* Category Filter - Glass Segmented Controls */}
           <div className="mb-8 overflow-x-auto">
             <div className="flex space-x-2 pb-2 min-w-max">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category === 'All' ? null : category)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${(category === 'All' && !activeCategory) || activeCategory === category
-                      ? 'bg-[#D4AF37] text-black'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${(category === 'All' && !activeCategory) || activeCategory === category
+                    ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.1)]'
+                    : 'bg-white/5 text-white/40 border border-white/10 hover:border-white/20 hover:text-white/60'
                     }`}
                 >
                   {category}
@@ -144,45 +140,45 @@ export default function FAQSection() {
 
           {/* Filter Info */}
           {(searchQuery || activeCategory) && (
-            <div className="mb-6 flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-              <span className="text-sm text-gray-600">
+            <div className="mb-6 flex items-center justify-between bg-white/[0.03] p-3 rounded-xl border border-white/5">
+              <span className="text-sm text-white/40">
                 Showing {filteredFaqs.length} question{filteredFaqs.length !== 1 ? 's' : ''}
                 {searchQuery && ` for "${searchQuery}"`}
                 {activeCategory && activeCategory !== 'All' && ` in ${activeCategory}`}
               </span>
               <button
                 onClick={clearFilters}
-                className="text-sm text-[#D4AF37] hover:text-[#b8941f] font-medium"
+                className="text-sm text-amber-400 hover:text-amber-300 font-medium"
               >
                 Clear all filters
               </button>
             </div>
           )}
 
-          {/* FAQ List */}
+          {/* FAQ List - Glass Cards */}
           {filteredFaqs.length > 0 ? (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
               {filteredFaqs.map((faq, index) => (
                 <div
                   key={index}
-                  className={`border-b border-gray-100 last:border-b-0 ${openIndex === index ? 'bg-gray-50' : ''
+                  className={`border-b border-white/5 last:border-b-0 ${openIndex === index ? 'bg-white/[0.02]' : ''
                     }`}
                 >
                   <button
                     onClick={() => toggleFAQ(index)}
-                    className="w-full px-6 py-6 text-left flex justify-between items-start hover:bg-gray-50 transition-colors duration-300"
+                    className="w-full px-6 py-6 text-left flex justify-between items-start hover:bg-white/[0.02] transition-colors duration-300"
                   >
                     <div className="flex-1 pr-4">
                       <div className="flex items-center mb-1">
-                        <span className="inline-block bg-[#D4AF37]/10 text-[#D4AF37] text-xs font-medium px-2 py-1 rounded mr-3">
+                        <span className="inline-block bg-amber-500/10 text-amber-400 text-xs font-medium px-2.5 py-1 rounded-lg mr-3 border border-amber-500/20">
                           {faq.category}
                         </span>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-white">
                         {faq.question}
                       </h3>
                     </div>
-                    <span className={`text-[#D4AF37] transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''
+                    <span className={`text-white/30 transform transition-all duration-300 ${openIndex === index ? 'rotate-180 text-amber-400' : ''
                       }`}>
                       <ChevronDown className="w-5 h-5" />
                     </span>
@@ -190,7 +186,7 @@ export default function FAQSection() {
 
                   <div className={`px-6 pb-6 transition-all duration-300 ${openIndex === index ? 'block' : 'hidden'
                     }`}>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-white/50 leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>
@@ -198,21 +194,20 @@ export default function FAQSection() {
               ))}
             </div>
           ) : (
-            // No results state
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
-              <div className="text-gray-400 mb-4">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 p-12 text-center">
+              <div className="text-white/20 mb-4">
                 <Search className="w-12 h-12 mx-auto opacity-50" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-white mb-2">
                 No questions found
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-white/40 mb-6">
                 We couldn't find any questions matching "{searchQuery}"
                 {activeCategory && activeCategory !== 'All' && ` in ${activeCategory}`}
               </p>
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center bg-[#D4AF37] hover:bg-[#b8941f] text-black font-semibold py-3 px-6 rounded-lg transition-all duration-300"
+                className="inline-flex items-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-semibold py-3 px-6 rounded-xl transition-all duration-300"
               >
                 Clear search & filters
               </button>
@@ -221,21 +216,24 @@ export default function FAQSection() {
 
           {/* Still have questions - WhatsApp CTA */}
           <div className="text-center mt-12">
-            <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl p-8 border border-[#D4AF37]/20">
-              <div className="flex items-center justify-center mb-4">
-                <MessageCircle className="w-8 h-8 text-[#D4AF37] mr-3" />
-                <h4 className="text-2xl font-bold text-gray-900">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-8 border border-white/10 relative overflow-hidden">
+              {/* Ambient Glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-green-500/10 rounded-full blur-[60px] pointer-events-none"></div>
+
+              <div className="flex items-center justify-center mb-4 relative z-10">
+                <MessageCircle className="w-8 h-8 text-amber-400 mr-3" />
+                <h4 className="text-2xl font-bold text-white">
                   Still have questions?
                 </h4>
               </div>
-              <p className="text-gray-600 mb-6">
+              <p className="text-white/50 mb-6 relative z-10">
                 Chat with us on WhatsApp for instant answers and support.
               </p>
               <a
                 href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20have%20a%20question%20about%20your%20virtual%20photoshoots"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                className="relative z-10 inline-flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-[0_0_20px_rgba(37,211,102,0.25)]"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Chat on WhatsApp

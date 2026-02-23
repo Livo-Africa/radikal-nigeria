@@ -1,4 +1,4 @@
-// components/individuals/ProcessAccordion.tsx - FIXED VERSION
+// components/individuals/ProcessAccordion.tsx - PREMIUM DARK MODE REDESIGN
 'use client';
 
 import { useState } from 'react';
@@ -6,11 +6,11 @@ import { Upload, Users, Zap, ChevronDown, CheckCircle, Clock } from 'lucide-reac
 
 export default function ProcessAccordion() {
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
-  const [viewedSteps, setViewedSteps] = useState<number[]>([0]); // Track viewed steps
+  const [viewedSteps, setViewedSteps] = useState<number[]>([0]);
 
   const steps = [
     {
-      id: 0, // Changed from 1 to 0
+      id: 0,
       title: "Upload Selfie",
       description: "Take a clear photo or choose from gallery",
       details: [
@@ -21,10 +21,10 @@ export default function ProcessAccordion() {
       ],
       icon: <Upload className="w-5 h-5" />,
       time: "2 minutes",
-      color: "bg-green-500"
+      color: "bg-gradient-to-br from-green-500 to-emerald-500"
     },
     {
-      id: 1, // Changed from 2 to 1
+      id: 1,
       title: "We Enhance",
       description: "Professional editing by our team",
       details: [
@@ -35,10 +35,10 @@ export default function ProcessAccordion() {
       ],
       icon: <Users className="w-5 h-5" />,
       time: "1-3 hours",
-      color: "bg-blue-500"
+      color: "bg-gradient-to-br from-blue-500 to-cyan-500"
     },
     {
-      id: 2, // Changed from 3 to 2
+      id: 2,
       title: "Get Your Photos",
       description: "Photos delivered digitally",
       details: [
@@ -49,77 +49,73 @@ export default function ProcessAccordion() {
       ],
       icon: <Zap className="w-5 h-5" />,
       time: "Instant",
-      color: "bg-[#D4AF37]"
+      color: "bg-gradient-to-br from-amber-400 to-orange-500"
     }
   ];
 
   const toggleStep = (stepId: number) => {
     setExpandedStep(expandedStep === stepId ? null : stepId);
-
-    // Mark step as viewed if not already
     if (!viewedSteps.includes(stepId)) {
       setViewedSteps([...viewedSteps, stepId]);
     }
   };
 
-  // Calculate progress based on VIEWED steps (0-3)
   const progressPercentage = Math.round((viewedSteps.length / steps.length) * 100);
 
   return (
-    <section className="py-8 bg-gray-50">
+    <section className="py-8 bg-[#0A0A0F]">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 font-playfair">
+          <h2 className="text-2xl font-bold text-white mb-2 font-playfair">
             How It Works
           </h2>
-          <p className="text-gray-600">
+          <p className="text-white/50">
             3 simple steps to professional photos
           </p>
         </div>
 
-        {/* Progress Bar - FIXED */}
+        {/* Progress Bar */}
         <div className="mb-8 px-4">
-          <div className="relative h-1 bg-gray-200 rounded-full">
+          <div className="relative h-1 bg-white/10 rounded-full overflow-hidden">
             <div
-              className="absolute top-0 left-0 h-full bg-[#D4AF37] rounded-full transition-all duration-500"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
-          <div className="flex justify-between mt-2 text-xs text-gray-500">
+          <div className="flex justify-between mt-2 text-xs text-white/30">
             <span>Step {viewedSteps.length} of {steps.length}</span>
             <span>{progressPercentage}% complete</span>
           </div>
         </div>
 
-        {/* Steps Accordion */}
-        <div className="space-y-4">
+        {/* Steps Accordion - Glass Cards */}
+        <div className="space-y-3">
           {steps.map((step) => (
             <div
               key={step.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+              className="bg-white/[0.04] backdrop-blur-xl rounded-xl border border-white/10 overflow-hidden hover:border-white/15 transition-colors"
             >
               {/* Step Header */}
               <button
                 onClick={() => toggleStep(step.id)}
-                className="w-full px-4 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
               >
                 <div className="flex items-center">
-                  {/* Step Number with Status */}
-                  <div className={`relative w-10 h-10 rounded-full ${step.color} flex items-center justify-center text-white mr-3`}>
+                  <div className={`relative w-10 h-10 rounded-xl ${step.color} flex items-center justify-center text-white mr-3 shadow-lg`}>
                     {viewedSteps.includes(step.id) ? (
                       <CheckCircle className="w-5 h-5" />
                     ) : (
                       step.icon
                     )}
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-black text-white text-xs rounded-full flex items-center justify-center">
-                      {step.id + 1} {/* Display 1,2,3 instead of 0,1,2 */}
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white text-black text-xs rounded-full flex items-center justify-center font-bold shadow-md">
+                      {step.id + 1}
                     </div>
                   </div>
 
                   <div className="text-left">
-                    <h3 className="font-semibold text-gray-900">{step.title}</h3>
-                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                    <h3 className="font-semibold text-white">{step.title}</h3>
+                    <div className="flex items-center text-sm text-white/30 mt-1">
                       <Clock className="w-3 h-3 mr-1" />
                       {step.time}
                     </div>
@@ -127,23 +123,23 @@ export default function ProcessAccordion() {
                 </div>
 
                 <ChevronDown
-                  className={`w-5 h-5 text-gray-400 transition-transform ${expandedStep === step.id ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-white/30 transition-transform duration-300 ${expandedStep === step.id ? 'rotate-180 text-amber-400' : ''}`}
                 />
               </button>
 
               {/* Step Content (Expandable) */}
               {expandedStep === step.id && (
                 <div className="px-4 pb-4 animate-slideDown">
-                  <p className="text-gray-600 mb-4">{step.description}</p>
+                  <p className="text-white/60 mb-4">{step.description}</p>
 
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                  <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+                    <h4 className="font-semibold text-white/80 mb-2 text-sm">
                       Includes:
                     </h4>
                     <ul className="space-y-2">
                       {step.details.map((detail, idx) => (
-                        <li key={idx} className="flex items-start text-sm text-gray-600">
-                          <div className={`w-2 h-2 rounded-full ${step.color} mt-1 mr-2 flex-shrink-0`} />
+                        <li key={idx} className="flex items-start text-sm text-white/50">
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 mr-2 flex-shrink-0" />
                           {detail}
                         </li>
                       ))}
@@ -155,19 +151,19 @@ export default function ProcessAccordion() {
           ))}
         </div>
 
-        {/* Quick Stats */}
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="text-xl font-bold text-[#D4AF37]">1-3h</div>
-            <div className="text-xs text-gray-600 mt-1">Delivery Time</div>
+        {/* Quick Stats - Glass Cards */}
+        <div className="mt-8 grid grid-cols-3 gap-3 text-center">
+          <div className="bg-white/[0.04] backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">1-3h</div>
+            <div className="text-xs text-white/40 mt-1">Delivery Time</div>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="text-xl font-bold text-[#D4AF37]">500+</div>
-            <div className="text-xs text-gray-600 mt-1">Happy Clients</div>
+          <div className="bg-white/[0.04] backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">500+</div>
+            <div className="text-xs text-white/40 mt-1">Happy Clients</div>
           </div>
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="text-xl font-bold text-[#D4AF37]">24/7</div>
-            <div className="text-xs text-gray-600 mt-1">Support</div>
+          <div className="bg-white/[0.04] backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">24/7</div>
+            <div className="text-xs text-white/40 mt-1">Support</div>
           </div>
         </div>
 
@@ -175,7 +171,7 @@ export default function ProcessAccordion() {
         <div className="mt-8 text-center">
           <a
             href="/individuals/style-journey"
-            className="inline-block bg-black text-white font-semibold py-3 px-8 rounded-lg hover:bg-gray-800 transition-colors"
+            className="inline-block bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold py-3 px-8 rounded-xl hover:from-amber-400 hover:to-orange-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.25)]"
           >
             Start Your Photoshoot
           </a>
