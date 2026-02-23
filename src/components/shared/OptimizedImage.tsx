@@ -1,7 +1,8 @@
-// src/components/shared/OptimizedImage.tsx - NEW FILE
+// src/components/shared/OptimizedImage.tsx
 'use client';
 import { useState } from 'react';
-import { Loader, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
+import { Image as ImageIcon } from 'lucide-react';
 
 interface OptimizedImageProps {
   src: string;
@@ -10,52 +11,98 @@ interface OptimizedImageProps {
   width?: number;
   height?: number;
   priority?: boolean;
+  sizes?: string;
 }
 
-export default function OptimizedImage({ 
-  src, 
-  alt, 
-  className = "", 
-  width = 400, 
-  height = 500,
-  priority = false 
+// Tiny shimmer SVG placeholder for blur effect
+const shimmer = (w: number, h: number) => `
+<svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g">
+      <stop stop-color="#f3f4f6" offset="20%" />
+      <stop stop-color="#e5e7eb" offset="50%" />
+      <stop stop-color="#f3f4f6" offset="70%" />
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#f3f4f6" />
+  <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1.2s" repeatCount="indefinite"  />
+</svg>`;
+
+const toBase64 = (str: string) =>
+  typeof window === 'undefined'
+    ? Buffer.from(str).toString('base64')
+    : window.btoa(str);
+
+/**
+ * Transform Cloudinary URLs to serve optimized thumbnails.
+ * Appends resize/format params so the CDN delivers a smaller image.
+ */
+function getOptimizedSrc(src: string, width: number, height: number): string {
+  if (!src) return src;
+
+  // Cloudinary: insert transformation before the upload path
+  if (src.includes('res.cloudinary.com')) {
+    // Pattern: https://res.cloudinary.com/<cloud>/image/upload/<version>/<path>
+    // Insert transforms after /upload/
+    return src.replace(
+      /\/upload\//,
+      `/upload/c_fill,w_${width},h_${height},q_auto,f_auto/`
+    );
+  }
+
+  // Unsplash: use URL params
+  if (src.includes('images.unsplash.com')) {
+    const url = new URL(src);
+    url.searchParams.set('w', String(width));
+    url.searchParams.set('h', String(height));
+    url.searchParams.set('fit', 'crop');
+    url.searchParams.set('q', '80');
+    url.searchParams.set('fm', 'webp');
+    return url.toString();
+  }
+
+  return src;
+}
+
+export default function OptimizedImage({
+  src,
+  alt,
+  className = "",
+  width = 400,
+  height = 533,
+  priority = false,
+  sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw'
 }: OptimizedImageProps) {
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 animate-pulse">
-          <div className="flex flex-col items-center space-y-2">
-            <Loader className="w-6 h-6 text-gray-400 animate-spin" />
-            <span className="text-xs text-gray-500">Loading...</span>
-          </div>
-        </div>
-      )}
-      
-      {error ? (
+  const optimizedSrc = getOptimizedSrc(src, width, height);
+
+  if (error || !src) {
+    return (
+      <div className={`relative overflow-hidden ${className}`}>
         <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center">
           <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
           <span className="text-xs text-gray-500 text-center">Failed to load image</span>
         </div>
-      ) : (
-        <img
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          loading={priority ? "eager" : "lazy"}
-          onLoad={() => setIsLoading(false)}
-          onError={() => {
-            setIsLoading(false);
-            setError(true);
-          }}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoading ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`relative overflow-hidden ${className}`}>
+      <Image
+        src={optimizedSrc}
+        alt={alt}
+        fill
+        sizes={sizes}
+        priority={priority}
+        quality={80}
+        placeholder="blur"
+        blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(width, height))}`}
+        className="object-cover transition-opacity duration-300"
+        onError={() => setError(true)}
+      />
     </div>
   );
 }

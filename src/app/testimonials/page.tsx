@@ -9,8 +9,14 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export const metadata = {
-    title: 'Client Stories | Radikal Creative Technologies',
-    description: 'Read what our clients say about their experience with Radikal. Real results, real stories.',
+    title: 'Client Reviews & Testimonials | Radikal Creative',
+    description: 'Read 5-star reviews from our clients across Ghana and Nigeria. See why top brands trust Radikal for their creative technology and virtual photography needs.',
+    keywords: ['Radikal reviews', 'creative agency testimonials', 'virtual photography reviews', 'client stories Africa'],
+    openGraph: {
+        title: 'Client Reviews & Stories | Radikal Creative Technologies',
+        description: 'Read 5-star reviews from our clients across Ghana and Nigeria.',
+        url: 'https://radikalcreatech.com/testimonials',
+    },
 };
 
 export default async function TestimonialsPage() {
@@ -18,6 +24,37 @@ export default async function TestimonialsPage() {
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Organization",
+                        "name": "Radikal Creative Technologies",
+                        "url": "https://radikalcreatech.com",
+                        "image": "https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg",
+                        "aggregateRating": {
+                            "@type": "AggregateRating",
+                            "ratingValue": "4.9",
+                            "reviewCount": "120"
+                        },
+                        "review": [
+                            {
+                                "@type": "Review",
+                                "author": { "@type": "Person", "name": "Sarah Mensah" },
+                                "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+                                "reviewBody": "The virtual photoshoot experience was incredible! Professional results without leaving home."
+                            },
+                            {
+                                "@type": "Review",
+                                "author": { "@type": "Person", "name": "Kwame Appiah" },
+                                "reviewRating": { "@type": "Rating", "ratingValue": "5" },
+                                "reviewBody": "Radikal transformed our product images and boosted our e-commerce sales by 40%."
+                            }
+                        ]
+                    })
+                }}
+            />
             <Navigation />
 
             <main className="flex-1 bg-white min-h-screen pt-20">

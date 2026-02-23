@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navigation from '@/components/shared/Navigation';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
@@ -34,16 +34,35 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+// Preconnect to image CDNs for faster initial loads
+function PreconnectHints() {
+  return (
+    <>
+      <link rel="preconnect" href="https://res.cloudinary.com" />
+      <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      <link rel="preconnect" href="https://i.postimg.cc" />
+      <link rel="dns-prefetch" href="https://i.postimg.cc" />
+    </>
+  );
+}
+
+const ITEMS_PER_PAGE = 12;
+
 // Create a separate component that uses useSearchParams
 function WardrobeContent() {
   const [outfits, setOutfits] = useState<Outfit[]>([]);
-  const [filteredOutfits, setFilteredOutfits] = useState<Outfit[]>([]);
   const [selectedOutfits, setSelectedOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeGender, setActiveGender] = useState<'All' | 'M' | 'F' | 'U'>('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalOutfits, setTotalOutfits] = useState(0);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -80,38 +99,56 @@ function WardrobeContent() {
     }
   }, []);
 
-  // Load outfits from API
-  const fetchOutfits = useCallback(async () => {
+  // Load outfits from API (page 1 = fresh load)
+  const fetchOutfits = useCallback(async (page: number = 1) => {
     try {
-      setLoading(true);
+      if (page === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
       const params = new URLSearchParams();
       if (activeCategory !== 'All') params.append('category', activeCategory);
       if (activeGender !== 'All') params.append('gender', activeGender);
       if (debouncedSearch) params.append('search', debouncedSearch);
+      params.append('page', String(page));
+      params.append('limit', String(ITEMS_PER_PAGE));
 
       const response = await fetch(`/api/outfits?${params.toString()}`);
       const data = await response.json();
 
       if (data.outfits) {
-        setOutfits(data.outfits);
-        setFilteredOutfits(data.outfits); // Server does the filtering
+        if (page === 1) {
+          setOutfits(data.outfits);
+        } else {
+          // Append to existing outfits for "Load More"
+          setOutfits(prev => [...prev, ...data.outfits]);
+        }
+        setHasMore(data.hasMore ?? false);
+        setTotalOutfits(data.total ?? 0);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Failed to load outfits:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [activeCategory, activeGender, debouncedSearch]);
 
+  // Reset to page 1 when filters change
   useEffect(() => {
-    fetchOutfits();
+    setCurrentPage(1);
+    fetchOutfits(1);
   }, [fetchOutfits]);
 
-  // Filter logic handled by server primarily, but we can keep minimal client-side sync if needed
-  // For now, we rely on the fetchOutfits hook to update filteredOutfits directly.
-
-
+  // Handle "Load More"
+  const handleLoadMore = useCallback(() => {
+    if (!loadingMore && hasMore) {
+      fetchOutfits(currentPage + 1);
+    }
+  }, [loadingMore, hasMore, currentPage, fetchOutfits]);
 
   // Handle outfit selection
   const handleSelectOutfit = useCallback((outfit: Outfit) => {
@@ -120,23 +157,15 @@ function WardrobeContent() {
     if (isAlreadySelected) {
       setSelectedOutfits(prev => prev.filter(o => o.id !== outfit.id));
     } else {
-      // Logic:
-      // If Integrated Mode: Respect slots limit
-      // If Standalone Mode: Unlimited selection (user builds their own package)
-
       if (isIntegratedMode && selectedOutfits.length >= packageSlots) {
-        // Optional: Replace last selected or show error? For now, just block.
-        // Or maybe replace the oldest selection?
         return;
       }
-
       setSelectedOutfits(prev => [...prev, outfit]);
     }
   }, [selectedOutfits, isIntegratedMode, packageSlots]);
 
   // Handle "Use This" / Continue
   const handleContinue = useCallback(() => {
-    // Save selections
     const selectionData = {
       outfits: selectedOutfits,
       selectedAt: new Date().toISOString(),
@@ -145,15 +174,9 @@ function WardrobeContent() {
     localStorage.setItem('radikal_selected_outfits', JSON.stringify(selectionData));
 
     if (isIntegratedMode) {
-      // Case 2: User came from package -> Go to Step 3 (Photos) or back to where they were
-      // Actually per "Use case 3", if they select here, they flow.
-      // If returnToStep is set, use it (usually Step 4)
       const targetStep = returnToStep || '4';
       router.push(`/individuals/style-journey?step=${targetStep}`);
     } else {
-      // Case 1: Standalone -> Start Journey with pre-selected package
-      // Calculate derived package based on number of outfits?
-      // For now, just push to Style Journey, passing outfit count in URL might be helpful
       router.push(`/individuals/style-journey?fromWardrobe=true&outfitCount=${selectedOutfits.length}`);
     }
   }, [selectedOutfits, isIntegratedMode, returnToStep, router]);
@@ -163,16 +186,9 @@ function WardrobeContent() {
     localStorage.removeItem('radikal_selected_outfits');
   }, []);
 
-  // --- Render Components ---
-
-  // ... (Keep existing OutfitCard, LoadingSkeleton) ...
-  // [We need to re-declare OutfitCard here to use new state variables if we don't pass them]
-  // Ideally, I should simple inline it or update the existing one. 
-  // For brevity in this diff, I will assume the structure allows me to reuse the return layout
-  // But I will rewrite the JSX to include the Gender Filter and Mobile Layout.
-
   return (
     <>
+      <PreconnectHints />
       <Navigation />
 
       <main className="pt-20 min-h-screen bg-gray-50/50 overflow-x-hidden">
@@ -305,7 +321,7 @@ function WardrobeContent() {
             <div className="text-center py-20">
               <div className="animate-spin w-8 h-8 border-2 border-[#D4AF37] border-t-transparent rounded-full mx-auto"></div>
             </div>
-          ) : filteredOutfits.length === 0 ? (
+          ) : outfits.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
               <Shirt className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No outfits found matching your criteria</p>
@@ -314,44 +330,73 @@ function WardrobeContent() {
               </button>
             </div>
           ) : (
-            <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}>
-              {filteredOutfits.map((outfit) => {
-                const isSelected = selectedOutfits.some(o => o.id === outfit.id);
-                const isDisabled = isIntegratedMode && !isSelected && selectedOutfits.length >= packageSlots;
+            <>
+              {/* Results count */}
+              <p className="text-sm text-gray-500 mb-4">
+                Showing {outfits.length} of {totalOutfits} outfits
+              </p>
 
-                return (
-                  <div
-                    key={outfit.id}
-                    onClick={() => !isDisabled && handleSelectOutfit(outfit)}
-                    className={`group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all ${isSelected ? 'ring-2 ring-[#D4AF37]' : 'hover:shadow-lg'
-                      } ${isDisabled ? 'opacity-50' : ''}`}
-                  >
-                    {/* Image */}
-                    <div className="aspect-[3/4] relative">
-                      <OptimizedImage
-                        src={outfit.imageUrl}
-                        alt={outfit.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-[#D4AF37]/20 flex items-center justify-center">
-                          <div className="bg-[#D4AF37] text-white p-2 rounded-full shadow-lg scale-110">
-                            <Check className="w-5 h-5" />
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}>
+                {outfits.map((outfit, index) => {
+                  const isSelected = selectedOutfits.some(o => o.id === outfit.id);
+                  const isDisabled = isIntegratedMode && !isSelected && selectedOutfits.length >= packageSlots;
+
+                  return (
+                    <div
+                      key={outfit.id}
+                      onClick={() => !isDisabled && handleSelectOutfit(outfit)}
+                      className={`group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all ${isSelected ? 'ring-2 ring-[#D4AF37]' : 'hover:shadow-lg'
+                        } ${isDisabled ? 'opacity-50' : ''}`}
+                    >
+                      {/* Image */}
+                      <div className="aspect-[3/4] relative">
+                        <OptimizedImage
+                          src={outfit.imageUrl}
+                          alt={outfit.name}
+                          priority={index < 4}
+                          sizes={isMobile ? '50vw' : '(max-width: 1024px) 33vw, 25vw'}
+                          className="w-full h-full"
+                        />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-[#D4AF37]/20 flex items-center justify-center z-10">
+                            <div className="bg-[#D4AF37] text-white p-2 rounded-full shadow-lg scale-110">
+                              <Check className="w-5 h-5" />
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {/* Mobile Mini Badge */}
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <div className="bg-white/95 backdrop-blur-sm p-2 rounded-lg shadow-sm">
-                          <p className="text-xs font-bold text-gray-900 truncate">{outfit.name}</p>
-                          <p className="text-[10px] text-gray-500 truncate">{outfit.category}</p>
+                        )}
+                        {/* Mobile Mini Badge */}
+                        <div className="absolute bottom-2 left-2 right-2 z-10">
+                          <div className="bg-white/95 backdrop-blur-sm p-2 rounded-lg shadow-sm">
+                            <p className="text-xs font-bold text-gray-900 truncate">{outfit.name}</p>
+                            <p className="text-[10px] text-gray-500 truncate">{outfit.category}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="inline-flex items-center space-x-2 px-8 py-3 bg-white border-2 border-gray-200 rounded-xl font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all disabled:opacity-50"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <span>Load More Outfits</span>
+                    )}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 

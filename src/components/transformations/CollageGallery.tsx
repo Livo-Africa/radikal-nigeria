@@ -186,7 +186,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                         >
                             <Image
                                 src={item.imageUrl}
-                                alt={item.category || 'Transformation'}
+                                alt={`${item.category || 'Professional Creative'} transformation by Radikal Creative`}
                                 fill
                                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                                 className="object-cover"
@@ -267,7 +267,7 @@ export default function CollageGallery({ transformations = [] }: CollageGalleryP
                     >
                         <img
                             src={selectedImage.imageUrl}
-                            alt={selectedImage.category}
+                            alt={`${selectedImage.category || 'Creative'} digital transformation portfolio piece by Radikal`}
                             className="max-w-full max-h-[85vh] mx-auto object-contain rounded-lg"
                         />
                         <div className="mt-4 text-center">

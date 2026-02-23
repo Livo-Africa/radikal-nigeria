@@ -9,8 +9,14 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 export const metadata = {
-    title: 'Our Work | Radikal Creative Transformations',
-    description: 'Explore our portfolio of transformations across personal branding, product photography, and creative editing.',
+    title: 'Portfolio & Transformations | Radikal Creative Studio',
+    description: 'Explore Radikal\'s portfolio of visual transformations. See before and after examples of our virtual photography, product, and creative editing in West Africa.',
+    keywords: ['creative portfolio', 'virtual photography examples', 'before and after photography', 'creative editing Ghana', 'product photography Nigeria'],
+    openGraph: {
+        title: 'Transformations Portfolio | Radikal Creative Technologies',
+        description: 'See the Radikal difference. Before and after examples of our premium creative services.',
+        url: 'https://radikalcreatech.com/transformations',
+    },
 };
 
 export default async function TransformationsPage() {

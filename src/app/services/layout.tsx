@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Our Creative Services',
+    title: 'Creative Services & Solutions | Virtual Photography & Design',
     description: 'Explore Radikal\'s full creative arsenal: Virtual Photography, Graphic Design, Motion Graphics, and Advanced Creative Technology for brands in Ghana and Nigeria.',
     keywords: [
         'virtual photoshoots', 'logo design Nigeria', 'brand identity Ghana',
@@ -20,5 +20,56 @@ export default function ServicesLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return <>{children}</>;
+    // Generate Service Schema for Rich Snippets
+    const serviceSchema = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Creative Agency Services",
+        "provider": {
+            "@type": "LocalBusiness",
+            "name": "Radikal Creative Technologies",
+            "image": "https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg"
+        },
+        "areaServed": [
+            { "@type": "Country", "name": "Nigeria" },
+            { "@type": "Country", "name": "Ghana" }
+        ],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Creative Services",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Virtual Photography & Videography"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Graphic Design & Brand Identity"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Motion Graphics & Animation"
+                    }
+                }
+            ]
+        }
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+            />
+            {children}
+        </>
+    );
 }

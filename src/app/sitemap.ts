@@ -1,25 +1,54 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://radikalcreatech.com'; // Note: Update this to the actual production URL
-
-    // Main routes
-    const routes = [
-        '',
-        '/services',
-        '/transformations',
-        '/wardrobe',
-        '/testimonials',
-        '/individuals',
-        '/business',
-        '/creators',
-        '/individuals/book',
-    ].map((route) => ({
-        url: `${baseUrl}${route}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: route === '' ? 1 : 0.8,
-    }));
-
-    return routes;
+    return [
+        {
+            url: 'https://radikalcreatech.com',
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 1,
+        },
+        {
+            url: 'https://radikalcreatech.com/services',
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.9,
+        },
+        {
+            url: 'https://radikalcreatech.com/wardrobe',
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: 'https://radikalcreatech.com/transformations',
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: 'https://radikalcreatech.com/testimonials',
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.8,
+        },
+        {
+            url: 'https://radikalcreatech.com/individuals',
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.7,
+        },
+        {
+            url: 'https://radikalcreatech.com/business',
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.7,
+        },
+        {
+            url: 'https://radikalcreatech.com/creators',
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.7,
+        },
+    ];
 }

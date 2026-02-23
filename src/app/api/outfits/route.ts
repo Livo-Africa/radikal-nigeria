@@ -2,6 +2,30 @@
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
+// ─── In-memory cache ──────────────────────────────────────────────
+interface CacheEntry {
+  data: OutfitRaw[];
+  timestamp: number;
+}
+
+interface OutfitRaw {
+  id: string;
+  name: string;
+  category: string;
+  imageUrl: string;
+  tags: string[];
+  available: boolean;
+  gender: string;
+}
+
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+let sheetsCache: CacheEntry | null = null;
+
+function isCacheValid(): boolean {
+  return sheetsCache !== null && Date.now() - sheetsCache.timestamp < CACHE_TTL_MS;
+}
+
+// ─── Google Sheets init ───────────────────────────────────────────
 function initializeSheets() {
   const auth = new google.auth.GoogleAuth({
     credentials: {
@@ -14,81 +38,114 @@ function initializeSheets() {
   return google.sheets({ version: 'v4', auth });
 }
 
+// ─── Fetch all outfits (cached) ──────────────────────────────────
+async function getAllOutfits(): Promise<OutfitRaw[]> {
+  if (isCacheValid()) {
+    return sheetsCache!.data;
+  }
+
+  const sheets = initializeSheets();
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: process.env.GOOGLE_SHEET_ID,
+    range: 'Outfits!A:G', // ID, Name, Category, Image_URL, Tags, Available, Gender
+  });
+
+  const rows = response.data.values;
+
+  if (!rows || rows.length === 0) {
+    sheetsCache = { data: [], timestamp: Date.now() };
+    return [];
+  }
+
+  const outfits = rows.slice(1).map((row) => ({
+    id: (row[0] || '').trim(),
+    name: (row[1] || '').trim(),
+    category: (row[2] || '').trim(),
+    imageUrl: row[3] || '',
+    tags: (row[4] || '').split(',').map((tag: string) => tag.trim()),
+    available: (row[5] || '').toString().trim().toUpperCase() === 'TRUE',
+    gender: (row[6] || 'Unisex').toString().trim(),
+  })).filter(outfit => outfit.available && outfit.id);
+
+  sheetsCache = { data: outfits, timestamp: Date.now() };
+  return outfits;
+}
+
+// ─── Filter helpers ──────────────────────────────────────────────
+function filterByCategory(outfits: OutfitRaw[], category: string | null): OutfitRaw[] {
+  if (!category || category === 'All') return outfits;
+  return outfits.filter(outfit => outfit.category === category);
+}
+
+function filterByGender(outfits: OutfitRaw[], gender: string | null): OutfitRaw[] {
+  if (!gender || gender === 'All') return outfits;
+  const g = gender.toUpperCase();
+
+  return outfits.filter(outfit => {
+    const outfitGender = (outfit.gender || '').toUpperCase().trim();
+    // Unisex items always show
+    const isUnisex = outfitGender === 'UNISEX' || outfitGender === 'U' || outfitGender === '';
+    if (isUnisex) return true;
+
+    // Match Male variations
+    if (g === 'M' || g === 'MALE' || g === 'MEN') {
+      return outfitGender === 'MALE' || outfitGender === 'M' || outfitGender === 'MEN';
+    }
+    // Match Female variations
+    if (g === 'F' || g === 'FEMALE' || g === 'WOMEN') {
+      return outfitGender === 'FEMALE' || outfitGender === 'F' || outfitGender === 'WOMEN';
+    }
+    // Match Unisex explicitly
+    if (g === 'U' || g === 'UNISEX') {
+      return isUnisex;
+    }
+    return true;
+  });
+}
+
+function filterBySearch(outfits: OutfitRaw[], search: string | null): OutfitRaw[] {
+  if (!search) return outfits;
+  const searchLower = search.toLowerCase();
+  return outfits.filter(outfit =>
+    outfit.name.toLowerCase().includes(searchLower) ||
+    outfit.tags.some(tag => tag.toLowerCase().includes(searchLower))
+  );
+}
+
+// ─── GET handler ─────────────────────────────────────────────────
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
+  const gender = searchParams.get('gender');
   const search = searchParams.get('search');
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '12');
 
   try {
-    const sheets = initializeSheets();
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Outfits!A:G', // ID, Name, Category, Image_URL, Tags, Available, Gender
-    });
-
-    const rows = response.data.values;
-
-    if (!rows || rows.length === 0) {
-      return NextResponse.json({ outfits: [] });
-    }
-
-    // Process outfit data
-    let outfits = rows.slice(1).map((row) => ({
-      id: (row[0] || '').trim(),
-      name: (row[1] || '').trim(),
-      category: (row[2] || '').trim(),
-      imageUrl: row[3] || '',
-      tags: (row[4] || '').split(',').map(tag => tag.trim()),
-      available: (row[5] || '').toString().trim().toUpperCase() === 'TRUE',
-      gender: (row[6] || 'Unisex').toString().trim(),
-    })).filter(outfit => outfit.available && outfit.id);
+    let outfits = await getAllOutfits();
 
     // Apply filters
-    if (category && category !== 'All') {
-      outfits = outfits.filter(outfit => outfit.category === category);
-    }
+    outfits = filterByCategory(outfits, category);
+    outfits = filterByGender(outfits, gender);
+    outfits = filterBySearch(outfits, search);
 
-    // Gender Filter
-    const gender = searchParams.get('gender');
-    if (gender && gender !== 'All') {
-      const g = gender.toUpperCase();
-      outfits = outfits.filter(outfit => {
-        const outfitGender = (outfit.gender || '').toUpperCase().trim();
-        // Check for Unisex - these should show for all genders
-        const isUnisex = outfitGender === 'UNISEX' || outfitGender === 'U' || outfitGender === '';
-        if (isUnisex) return true; // Unisex items always show
+    // Pagination
+    const total = outfits.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedOutfits = outfits.slice(startIndex, startIndex + limit);
 
-        // Match Male variations
-        if (g === 'M' || g === 'MALE' || g === 'MEN') {
-          return outfitGender === 'MALE' || outfitGender === 'M' || outfitGender === 'MEN';
-        }
-        // Match Female variations
-        if (g === 'F' || g === 'FEMALE' || g === 'WOMEN') {
-          return outfitGender === 'FEMALE' || outfitGender === 'F' || outfitGender === 'WOMEN';
-        }
-        // Match Unisex explicitly
-        if (g === 'U' || g === 'UNISEX') {
-          return isUnisex;
-        }
-        return true;
-      });
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase();
-      outfits = outfits.filter(outfit =>
-        outfit.name.toLowerCase().includes(searchLower) ||
-        outfit.tags.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-    }
-
-    return NextResponse.json({ outfits });
+    return NextResponse.json({
+      outfits: paginatedOutfits,
+      total,
+      page,
+      hasMore: startIndex + limit < total,
+    });
   } catch (error) {
     console.error('Error fetching outfits:', error);
 
     // Fallback mock data for development
-    const mockOutfits = [
+    const mockOutfits: OutfitRaw[] = [
       {
         id: '1',
         name: 'Navy Business Suit',
@@ -146,31 +203,21 @@ export async function GET(request: Request) {
     ];
 
     // Apply filters to mock data too
-    let filteredOutfits = mockOutfits;
-    if (category && category !== 'All') {
-      filteredOutfits = filteredOutfits.filter(outfit => outfit.category === category);
-    }
-    // Apply gender filter to mock data
-    const genderParam = searchParams.get('gender');
-    if (genderParam && genderParam !== 'All') {
-      const g = genderParam.toUpperCase();
-      filteredOutfits = filteredOutfits.filter(outfit => {
-        const og = (outfit.gender || '').toUpperCase();
-        const isUnisex = og === 'UNISEX' || og === 'U' || og === '';
-        if (isUnisex) return true;
-        if (g === 'M' || g === 'MALE') return og === 'MALE' || og === 'M';
-        if (g === 'F' || g === 'FEMALE') return og === 'FEMALE' || og === 'F';
-        return true;
-      });
-    }
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredOutfits = filteredOutfits.filter(outfit =>
-        outfit.name.toLowerCase().includes(searchLower) ||
-        outfit.tags.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-    }
+    let filteredOutfits = filterByCategory(mockOutfits, category);
+    filteredOutfits = filterByGender(filteredOutfits, gender);
+    filteredOutfits = filterBySearch(filteredOutfits, search);
 
-    return NextResponse.json({ outfits: filteredOutfits, source: 'mock-data' });
+    // Pagination on mock data
+    const total = filteredOutfits.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedOutfits = filteredOutfits.slice(startIndex, startIndex + limit);
+
+    return NextResponse.json({
+      outfits: paginatedOutfits,
+      total,
+      page,
+      hasMore: startIndex + limit < total,
+      source: 'mock-data',
+    });
   }
 }
