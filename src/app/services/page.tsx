@@ -206,9 +206,7 @@ export default function ServicesPage() {
                                 </a>
 
                                 <a
-                                    href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20need%20a%20custom%20quote%20for%20my%20project."
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    href="/contact"
                                     className="bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 border border-white/30 flex items-center space-x-2"
                                 >
                                     <MessageCircle className="w-5 h-5" />

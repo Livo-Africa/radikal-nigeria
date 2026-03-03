@@ -78,7 +78,7 @@ export default function FinalCTA() {
             Start Your Photoshoot Now
           </a>
           <a
-            href="/packages"
+            href="/individuals/packages"
             className="bg-white/20 backdrop-blur-xl text-white hover:bg-white/30 font-semibold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 border border-white/20 text-center"
           >
             View All Packages

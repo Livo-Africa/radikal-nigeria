@@ -139,7 +139,7 @@ export default function Pillars() {
             href="/about"
             className="inline-flex items-center space-x-3 bg-[#D4AF37] hover:bg-[#b8941f] text-black font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group"
           >
-            <span>Learn More About Our Philosophy</span>
+            <span>Learn More About Us</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </a>
         </div>
