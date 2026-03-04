@@ -7,17 +7,17 @@ export default function HeroSection() {
 
   const heroSlides = [
     {
-      image: "https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=1920&h=1080&fit=crop",
+      image: "https://i.postimg.cc/Qx2Pf2WL/In_Collage_20260205_102629080.jpg",
       title: "Virtual Photoshoot Studio",
       subtitle: "Professional Results in 1-3 Hours"
     },
     {
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&h=1080&fit=crop",
+      image: "https://i.postimg.cc/Xvt60rr6/In_Collage_20260205_100128942.jpg",
       title: "Studio Quality Photos",
       subtitle: "From your phone to professional portfolio"
     },
     {
-      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1920&h=1080&fit=crop",
+      image: "https://i.postimg.cc/GhWNXWsw/In_Collage_20260205_102600649.jpg",
       title: "No Studio Required",
       subtitle: "Get perfect shots from anywhere"
     }
@@ -96,19 +96,7 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Progress Indicators */}
-            <div className="flex justify-center space-x-2 mt-8">
-              {heroSlides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`rounded-full transition-all duration-500 ${index === currentSlide
-                      ? 'bg-gradient-to-r from-amber-400 to-orange-400 w-8 h-2 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
-                      : 'bg-white/30 hover:bg-white/50 w-2 h-2'
-                    }`}
-                />
-              ))}
-            </div>
+
 
             {/* Stats - Glass Cards */}
             <div className="grid grid-cols-3 gap-4 mt-10 pt-6 border-t border-white/10 max-w-md mx-auto">
