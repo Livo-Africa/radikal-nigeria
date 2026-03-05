@@ -77,19 +77,7 @@ export default function HeroSection() {
                                 ))}
                             </div>
 
-                            {/* Slide Indicators */}
-                            <div className="flex justify-center space-x-2 mb-10">
-                                {heroSlides.map((_, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setCurrentSlide(index)}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${index === currentSlide
-                                            ? 'bg-[#D4AF37] w-10'
-                                            : 'bg-white/20 w-4 hover:bg-white/40'
-                                            }`}
-                                    />
-                                ))}
-                            </div>
+
                         </div>
 
                         {/* Mobile: Minimal Static Hero */}
