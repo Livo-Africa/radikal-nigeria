@@ -396,8 +396,15 @@ export default function Navigation() {
               ))}
             </div>
 
-            {/* CTA Button with Glass Effect */}
-            <div className="hidden lg:flex items-center">
+            {/* CTA Buttons with Glass Effect */}
+            <div className="hidden lg:flex items-center space-x-4">
+              <a
+                href="/blog"
+                className={`px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 border ${!mounted || isAtTop ? 'border-white/20 text-white hover:border-[#D4AF37] hover:text-[#D4AF37]' : 'border-gray-300 text-gray-900 hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                  }`}
+              >
+                Our Blog
+              </a>
               <a
                 href="/contact"
                 className="px-6 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 transform hover:scale-105"
@@ -515,8 +522,15 @@ export default function Navigation() {
               </div>
             </div>
 
-            {/* Mobile CTA */}
-            <div className="mt-8 pt-6 border-t border-gray-200/50">
+            {/* Mobile CTAs */}
+            <div className="mt-8 pt-6 border-t border-gray-200/50 flex flex-col gap-3">
+              <a
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full border border-gray-300 text-gray-900 font-semibold py-4 px-4 rounded-xl text-center transition-all duration-300 hover:border-[#D4AF37] hover:text-[#D4AF37] text-sm"
+              >
+                Read Our Blog
+              </a>
               <a
                 href="/contact"
                 onClick={() => setMobileMenuOpen(false)}

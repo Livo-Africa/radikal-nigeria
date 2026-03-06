@@ -255,3 +255,46 @@ export async function getOutfits(category?: string, search?: string) {
     return [];
   }
 }
+
+// ADD NEW BLOG POSTS FUNCTION
+export interface BlogPostMetadata {
+  slug: string;
+  title: string;
+  date: string;
+  category: string;
+  docId: string;
+  featuredImage: string;
+  published: boolean;
+}
+
+export async function getBlogPosts(): Promise<BlogPostMetadata[]> {
+  try {
+    const sheets = initializeSheets();
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Blog!A:G', // Slug, Title, Date, Category, DocId, FeaturedImage, Published
+    });
+
+    const rows = response.data.values;
+
+    if (!rows || rows.length === 0) {
+      return [];
+    }
+
+    const posts = rows.slice(1).map((row) => ({
+      slug: (row[0] || '').trim(),
+      title: (row[1] || '').trim(),
+      date: (row[2] || '').trim(),
+      category: (row[3] || '').trim(),
+      docId: (row[4] || '').trim(),
+      featuredImage: (row[5] || '').trim(),
+      published: (row[6] || '').toString().trim().toUpperCase() === 'TRUE',
+    })).filter(item => item.slug && item.docId);
+
+    return posts;
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+}

@@ -16,8 +16,8 @@ module.exports = {
         'light-grey': '#F5F5F5',
       },
       fontFamily: {
-  playfair: ['var(--font-playfair)', 'serif'], 
-},
+        playfair: ['var(--font-playfair)', 'serif'],
+      },
       animation: {
         'float': 'float 3s ease-in-out infinite',
         'glow': 'glow 2s ease-in-out infinite',
@@ -53,11 +53,11 @@ module.exports = {
           to: { transform: 'scale(1)', opacity: '1' },
         },
         'bounce-glow': {
-          '0%, 100%': { 
+          '0%, 100%': {
             transform: 'translateY(0) scale(1)',
             boxShadow: '0 0 20px #25D366, 0 0 30px #25D366'
           },
-          '50%': { 
+          '50%': {
             transform: 'translateY(-10px) scale(1.1)',
             boxShadow: '0 0 30px #25D366, 0 0 50px #25D366'
           },
@@ -65,5 +65,7 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }
