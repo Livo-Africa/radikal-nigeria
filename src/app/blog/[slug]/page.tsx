@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import Navigation from '@/components/shared/Navigation';
 
 export const revalidate = 3600; // Revalidate at most every hour
 
@@ -49,6 +50,7 @@ export default async function BlogPostPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-primary-black text-clean-white pt-32 pb-24">
+            <Navigation />
             <article className="max-w-3xl mx-auto px-4">
                 {/* Back Link */}
                 <div className="mb-8">

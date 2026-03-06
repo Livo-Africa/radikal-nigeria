@@ -1,6 +1,7 @@
 import { getBlogPosts } from '@/lib/google-sheets';
 import Link from 'next/link';
 import Image from 'next/image';
+import Navigation from '@/components/shared/Navigation';
 
 export const revalidate = 3600; // Revalidate at most every hour
 
@@ -10,6 +11,7 @@ export default async function BlogPage() {
 
     return (
         <div className="min-h-screen bg-primary-black text-clean-white pt-32 pb-24">
+            <Navigation />
             <div className="container mx-auto px-4">
                 {/* Header Section */}
                 <div className="max-w-4xl mx-auto text-center mb-16">
