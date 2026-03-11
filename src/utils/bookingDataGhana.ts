@@ -3,7 +3,7 @@
 // Using icon names for Lucide icon rendering
 
 export interface Category {
-    id: 'specialty' | 'birthday' | 'solo' | 'group' | 'digital';
+    id: 'specialty' | 'birthday' | 'solo' | 'group' | 'digital' | 'kids' | 'video';
     iconName: string; // Lucide icon name
     label: string;
     priceRange: string;
@@ -63,6 +63,18 @@ export const CATEGORIES: Category[] = [
         iconName: 'Smartphone',
         label: 'Digital Services',
         priceRange: '₵10+'
+    },
+    {
+        id: 'kids',
+        iconName: 'Baby',
+        label: 'Kids',
+        priceRange: '₵50+'
+    },
+    {
+        id: 'video',
+        iconName: 'Video',
+        label: 'Short Video Services',
+        priceRange: '₵15+'
     }
 ];
 
@@ -184,14 +196,82 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             description: 'Premium group concept.'
         }
     ],
-    digital: [
+    kids: [
         {
-            id: 'background-replacement',
-            name: 'Background Replacement',
-            price: 10,
+            id: 'kids-package',
+            name: 'Kids Package',
+            price: 50,
+            images: 3,
+            outfits: 1,
+            description: 'Varied creative poses. Premium editing.'
+        }
+    ],
+    video: [
+        {
+            id: 'ai-animation',
+            name: 'AI Animation',
+            price: 25,
             images: 1,
             outfits: 0,
-            description: 'Swap to studio, outdoor, etc. No package required.'
+            description: 'One photo comes alive (smile, wave). 80% face likeness. (6 secs)'
+        },
+        {
+            id: 'simple-slideshow',
+            name: 'Simple Slideshow',
+            price: 15,
+            images: 10,
+            outfits: 0,
+            description: 'Basic photo transitions with music (10-20 photos). (30 secs)'
+        },
+        {
+            id: 'cinematic-slideshow',
+            name: 'Cinematic Slideshow',
+            price: 20,
+            images: 10,
+            outfits: 0,
+            description: 'Fancy zooms and fades. Professional movie style (10-20 photos). (30-40 secs)'
+        },
+        {
+            id: 'creative-video',
+            name: 'Creative Video',
+            price: 25,
+            images: 1,
+            outfits: 0,
+            description: 'Advanced video compilation effects. Professional touch (1-2 photos). (20-30 secs)'
+        },
+        {
+            id: 'text-on-video',
+            name: 'Text on Video',
+            price: 25,
+            images: 0,
+            outfits: 0,
+            description: 'Moving text added to your video/photo. Perfect for birthdays.'
+        }
+    ],
+    digital: [
+        {
+            id: 'basic-photo-retouch',
+            name: 'Basic Photo Retouch',
+            price: 30,
+            images: 1,
+            outfits: 0,
+            description: 'Standard editing enhancements.'
+        },
+        {
+            id: 'digital-advanced-retouch',
+            name: 'Advanced Retouch',
+            price: 50,
+            images: 1,
+            outfits: 0,
+            description: 'Professional editing.'
+        },
+        {
+            id: 'outfit-change',
+            name: 'Outfit Change',
+            price: 15,
+            images: 1,
+            outfits: 0,
+            description: 'Replace clothing digitally.'
         },
         {
             id: 'hairstyle-change',
@@ -202,28 +282,44 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             description: 'Braids, curls, straight, etc.'
         },
         {
-            id: 'digital-advanced-retouch',
-            name: 'Advanced Retouch',
-            price: 15,
-            images: 1,
-            outfits: 0,
-            description: 'Professional editing.'
-        },
-        {
-            id: 'outfit-change',
-            name: 'Outfit Change',
+            id: 'makeup',
+            name: 'Makeup Application',
             price: 20,
             images: 1,
             outfits: 0,
-            description: 'Replace clothing digitally.'
+            description: 'Professional eyes, lips, skin glow.'
         },
         {
-            id: 'makeup',
-            name: 'Makeup',
-            price: 45,
+            id: 'pose-adjustment',
+            name: 'Pose Adjustment / Correction',
+            price: 10,
             images: 1,
             outfits: 0,
-            description: 'Professional eyes, lips, skin glow.'
+            description: 'Corecting and switching body posturing digitally.'
+        },
+        {
+            id: 'background-replacement',
+            name: 'Background Change / Replacement',
+            price: 10,
+            images: 1,
+            outfits: 0,
+            description: 'Swap to studio, outdoor, etc. No package required.'
+        },
+        {
+            id: 'combine-people',
+            name: 'Two People Combined into One Image',
+            price: 50,
+            images: 1,
+            outfits: 0,
+            description: 'Merge separate individuals realistically.'
+        },
+        {
+            id: 'object-removal',
+            name: 'Object or Person Removal',
+            price: 20,
+            images: 1,
+            outfits: 0,
+            description: 'Removing undesired elements.'
         },
         {
             id: 'digital-body-restructuring',
@@ -238,11 +334,15 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
 
 // Add-ons with Lucide icon names
 export const ADD_ONS: AddOn[] = [
-    { id: 'extra-image', name: 'Extra Image', price: 5, description: '+1 additional edited photo', iconName: 'ImagePlus' },
-    { id: 'background-pose-change', name: 'Background/Pose Change', price: 5, description: 'Change scenery or pose', iconName: 'Image' },
-    { id: 'extra-outfit', name: 'Extra Outfit', price: 10, description: 'Add one more outfit', iconName: 'Shirt', popular: true },
-    { id: 'advanced-retouch', name: 'Advanced Retouch', price: 15, description: 'Professional skin smoothing', iconName: 'Sparkles' },
-    { id: 'body-restructuring', name: 'Body Restructuring', price: 30, description: 'Pregnancy, weight, height adjustment', iconName: 'Wand2' }
+    { id: 'extra-image', name: 'Extra Edited Image', price: 5, description: '+1 additional edited photo', iconName: 'ImagePlus' },
+    { id: 'extra-outfit', name: 'Additional Outfit', price: 10, description: 'Add one more outfit', iconName: 'Shirt', popular: true },
+    { id: 'extra-person', name: 'Additional Person', price: 30, description: 'Add 1 more person to group package', iconName: 'UserPlus' },
+    { id: 'hairstyle-change-addon', name: 'Hairstyle Change', price: 10, description: 'Braids, curls, straight, etc.', iconName: 'Scissors' },
+    { id: 'makeup-addon', name: 'Makeup Application', price: 15, description: 'Professional eyes, lips, skin glow', iconName: 'Sparkles' },
+    { id: 'pose-change', name: 'Pose Change', price: 5, description: 'Change body posturing naturally', iconName: 'PersonStanding' },
+    { id: 'background-change', name: 'Background Change', price: 7, description: 'Change scenery naturally', iconName: 'Image' },
+    { id: 'body-restructuring-addon', name: 'Advanced Body Restructure', price: 30, description: 'Pregnancy, weight, height adjustment', iconName: 'Wand2' },
+    { id: 'priority-handling', name: 'Priority Handling', price: 15, description: 'Front of Queue delivery', iconName: 'Zap' }
 ];
 
 // Helper tips for each section

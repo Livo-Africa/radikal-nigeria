@@ -191,6 +191,86 @@ const GH_DATA: Record<string, { packages: Package[] }> = {
                 categoryId: "specialty"
             }
         ]
+    },
+    'Kids': {
+        packages: [
+            {
+                id: "kids-package",
+                name: "Kids Package",
+                price: "₵50",
+                photos: 3,
+                outfits: 1,
+                deliveryTime: "1-3 hours",
+                features: ["Varied creative poses", "Premium editing"],
+                popular: true,
+                category: "Kids",
+                categoryId: "kids"
+            }
+        ]
+    },
+    'Short Video Services': {
+        packages: [
+            {
+                id: "ai-animation",
+                name: "AI Animation",
+                price: "₵25",
+                photos: 1,
+                outfits: 0,
+                deliveryTime: "1-3 hours",
+                features: ["Smiling/waving animation", "80% face likeness", "6 seconds length"],
+                popular: false,
+                category: "Video",
+                categoryId: "video"
+            },
+            {
+                id: "simple-slideshow",
+                name: "Simple Slideshow",
+                price: "₵15",
+                photos: 10,
+                outfits: 0,
+                deliveryTime: "1-3 hours",
+                features: ["Basic photo transitions", "Background music included", "30 seconds length"],
+                popular: false,
+                category: "Video",
+                categoryId: "video"
+            },
+            {
+                id: "cinematic-slideshow",
+                name: "Cinematic Slideshow",
+                price: "₵20",
+                photos: 10,
+                outfits: 0,
+                deliveryTime: "2-4 hours",
+                features: ["Professional movie style", "Fancy zooms and fades", "30-40 seconds length"],
+                popular: true,
+                category: "Video",
+                categoryId: "video"
+            },
+            {
+                id: "creative-video",
+                name: "Creative Video",
+                price: "₵25",
+                photos: 1,
+                outfits: 0,
+                deliveryTime: "2-4 hours",
+                features: ["Advanced compilation effects", "Professional touch", "20-30 seconds length"],
+                popular: false,
+                category: "Video",
+                categoryId: "video"
+            },
+            {
+                id: "text-on-video",
+                name: "Text on Video",
+                price: "₵25",
+                photos: 0,
+                outfits: 0,
+                deliveryTime: "1-3 hours",
+                features: ["Moving text additions", "Perfect for birthdays", "Custom messages"],
+                popular: false,
+                category: "Video",
+                categoryId: "video"
+            }
+        ]
     }
 };
 

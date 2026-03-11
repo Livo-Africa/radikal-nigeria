@@ -10,6 +10,8 @@ import {
     Users,
     Smartphone,
     Briefcase,
+    Baby,
+    Video,
     LucideIcon
 } from 'lucide-react';
 
@@ -20,7 +22,9 @@ const ICON_MAP: Record<string, LucideIcon> = {
     'User': User,
     'Users': Users,
     'Smartphone': Smartphone,
-    'Briefcase': Briefcase
+    'Briefcase': Briefcase,
+    'Baby': Baby,
+    'Video': Video
 };
 
 interface CategoryGridProps {
