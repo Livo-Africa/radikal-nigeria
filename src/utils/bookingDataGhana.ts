@@ -3,7 +3,7 @@
 // Using icon names for Lucide icon rendering
 
 export interface Category {
-    id: 'specialty' | 'birthday' | 'solo' | 'group' | 'digital' | 'kids' | 'video';
+    id: 'specialty' | 'birthday' | 'solo' | 'couple' | 'group' | 'digital' | 'kids' | 'video';
     iconName: string; // Lucide icon name
     label: string;
     priceRange: string;
@@ -38,7 +38,7 @@ export const CATEGORIES: Category[] = [
         id: 'specialty',
         iconName: 'Star',
         label: 'Specialty & Themed',
-        priceRange: '₵20+'
+        priceRange: '₵30+'
     },
     {
         id: 'birthday',
@@ -49,14 +49,20 @@ export const CATEGORIES: Category[] = [
     {
         id: 'solo',
         iconName: 'User',
-        label: 'General Solo',
+        label: 'Solo Collection',
         priceRange: '₵50+'
+    },
+    {
+        id: 'couple',
+        iconName: 'Users',
+        label: 'Couple Collection',
+        priceRange: '₵80+'
     },
     {
         id: 'group',
         iconName: 'Users',
-        label: 'Group & Duo',
-        priceRange: '₵80+'
+        label: 'Group Collection',
+        priceRange: '₵150+'
     },
     {
         id: 'digital',
@@ -106,12 +112,28 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             description: 'CVs, LinkedIn. Professional outfit theme + Studio background.'
         },
         {
-            id: 'graduation-shots',
-            name: 'Graduation Shots',
+            id: 'grad-basic',
+            name: 'GRAD BASIC',
             price: 70,
             images: 3,
             outfits: 1, // Gown
-            description: 'Celebrating finishing school. Custom gown & sash.'
+            description: 'Headshot, Medium, Full. Graduation gown & cap.'
+        },
+        {
+            id: 'grad-sash',
+            name: 'GRAD BASIC + Custom Sash',
+            price: 90,
+            images: 3,
+            outfits: 1,
+            description: 'Basic package + Custom Sash with name & school.'
+        },
+        {
+            id: 'grad-props',
+            name: 'GRAD BASIC + Sash + Props',
+            price: 110,
+            images: 3,
+            outfits: 1,
+            description: 'Basic package + Custom Sash + Props (Certificate, Flowers, Balloons).'
         }
     ],
     birthday: [
@@ -121,7 +143,7 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 40,
             images: 4,
             outfits: 1,
-            description: 'Clean birthday setup.'
+            description: 'The Simple Balloon Look. Balloon background only.'
         },
         {
             id: 'birthday-deluxe',
@@ -129,81 +151,107 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             price: 70,
             images: 6,
             outfits: 2,
-            description: 'Enhanced birthday layout.'
+            description: 'The Complete Party Look. Balloons + Party Props (e.g. happy birthday banner or age). 1 Hairstyle.'
         },
         {
             id: 'birthday-royal',
             name: 'Birthday Royal',
             price: 100,
-            images: 10,
+            images: 9,
             outfits: 3,
-            description: 'Luxury birthday layout.'
+            description: 'The VIP Luxury Experience. Props based on client preference. 2 Hairstyles. Priority Express Processing.'
         }
     ],
     solo: [
         {
             id: 'solo-standard',
-            name: 'Solo Standard',
+            name: 'SOLO STANDARD',
             price: 50,
-            images: 4,
+            images: 3,
             outfits: 1,
-            description: 'Classic solo poses.'
+            description: 'Basic poses. Basic editing.'
         },
         {
             id: 'solo-medium',
-            name: 'Solo Medium',
+            name: 'SOLO MEDIUM',
             price: 90,
-            images: 8,
+            images: 6,
             outfits: 2,
-            description: 'Multiple poses per outfit.'
+            description: 'Varied creative poses. Premium editing.'
         },
         {
             id: 'solo-supreme',
-            name: 'Solo Supreme',
+            name: 'SOLO SUPREME',
             price: 130,
-            images: 15,
+            images: 10,
             outfits: 3,
             popular: true,
-            description: 'Premium lighting & wide variety.'
+            description: 'Premium creative poses. Advanced retouching. Priority Delivery.'
+        }
+    ],
+    couple: [
+        {
+            id: 'couple-standard',
+            name: 'COUPLE STANDARD',
+            price: 80,
+            images: 3,
+            outfits: 1,
+            description: 'Studio layout. 1 Outfit theme.'
+        },
+        {
+            id: 'couple-medium',
+            name: 'COUPLE MEDIUM',
+            price: 150,
+            images: 6,
+            outfits: 2,
+            description: 'Creative poses (Studio). 2 Outfit themes.'
+        },
+        {
+            id: 'couple-supreme',
+            name: 'COUPLE SUPREME',
+            price: 280,
+            images: 9,
+            outfits: 3,
+            description: 'Premium concept (Outdoor/Studio). 3 Outfit themes.'
         }
     ],
     group: [
         {
-            id: 'group-standard',
-            name: 'Group Standard',
-            basePrice: 80,
-            price: 80,
-            images: 4,
-            outfits: 2, // "Outfit themes"
-            description: 'Studio group layout.'
+            id: 'group-lite',
+            name: 'GROUP LITE',
+            basePrice: 150,
+            price: 150,
+            images: 3,
+            outfits: 1,
+            description: 'Studio group layout. 1 Outfit theme.'
         },
         {
-            id: 'group-deluxe',
-            name: 'Group Deluxe',
-            basePrice: 130,
-            price: 130,
+            id: 'group-plus',
+            name: 'GROUP PLUS',
+            basePrice: 280,
+            price: 280,
             images: 6,
-            outfits: 3,
-            description: 'Creative group poses.'
+            outfits: 2,
+            description: 'Creative group poses (Studio). 2 Outfit themes.'
         },
         {
-            id: 'group-supreme',
-            name: 'Group Supreme',
-            basePrice: 200,
-            price: 200,
-            images: 10,
-            outfits: 5,
-            description: 'Premium group concept.'
+            id: 'group-max',
+            name: 'GROUP MAX',
+            basePrice: 500,
+            price: 500,
+            images: 9,
+            outfits: 3,
+            description: 'Premium group concept (Outdoor / Studio). 3 Outfit themes.'
         }
     ],
     kids: [
         {
             id: 'kids-package',
-            name: 'Kids Package',
+            name: 'KIDS',
             price: 50,
             images: 3,
             outfits: 1,
-            description: 'Varied creative poses. Premium editing.'
+            description: 'Premium editing. Note: Want more than one outfit? Simply book multiple packages.'
         }
     ],
     video: [
@@ -328,6 +376,62 @@ export const PACKAGES_BY_CATEGORY: Record<string, Package[]> = {
             images: 1,
             outfits: 0,
             description: 'Shape adjustment or slimming.'
+        },
+        {
+            id: 'full-scene-replacement',
+            name: 'Full Scene Replacement (Indoor/Outdoor)',
+            price: 50,
+            images: 1,
+            outfits: 0,
+            description: 'Replace the entire environment.'
+        },
+        {
+            id: 'photo-to-illustration',
+            name: 'Photo-to-Illustration / Cartoon Style',
+            price: 40,
+            images: 1,
+            outfits: 0,
+            description: 'Convert photo to cartoon illustration.'
+        },
+        {
+            id: 'environmental-enhancement',
+            name: 'Environmental Enhancement',
+            price: 30,
+            images: 1,
+            outfits: 0,
+            description: 'Sky, Nature, Studio enhancement.'
+        },
+        {
+            id: 'mood-filter-pack',
+            name: 'Mood / Filter Pack Application',
+            price: 20,
+            images: 1,
+            outfits: 0,
+            description: 'Cinematic Tones and mood application.'
+        },
+        {
+            id: 'single-object-pet-addition',
+            name: 'Single Object / Pet Addition',
+            price: 20,
+            images: 1,
+            outfits: 0,
+            description: 'Digitally add objects or pets.'
+        },
+        {
+            id: 'photo-restoration',
+            name: 'Photo Restoration',
+            price: 50,
+            images: 1,
+            outfits: 0,
+            description: 'Restore old / damaged photos.'
+        },
+        {
+            id: 'mirror-reflection-effect',
+            name: 'Mirror / Reflection Effect',
+            price: 25,
+            images: 1,
+            outfits: 0,
+            description: 'Add reflection effects.'
         }
     ]
 };
@@ -342,7 +446,17 @@ export const ADD_ONS: AddOn[] = [
     { id: 'pose-change', name: 'Pose Change', price: 5, description: 'Change body posturing naturally', iconName: 'PersonStanding' },
     { id: 'background-change', name: 'Background Change', price: 7, description: 'Change scenery naturally', iconName: 'Image' },
     { id: 'body-restructuring-addon', name: 'Advanced Body Restructure', price: 30, description: 'Pregnancy, weight, height adjustment', iconName: 'Wand2' },
-    { id: 'priority-handling', name: 'Priority Handling', price: 15, description: 'Front of Queue delivery', iconName: 'Zap' }
+    { id: 'priority-handling', name: 'Priority Handling', price: 15, description: 'Front of Queue delivery', iconName: 'Zap' },
+    { id: 'accessory-addition', name: 'Accessory Addition (Hats, Glasses, Jewelry)', price: 5, description: 'Enhance the look with accessories', iconName: 'Sparkles' },
+    { id: 'lens-filter-effect', name: 'Lens / Filter Effect', price: 5, description: 'Creative lens and filter effects', iconName: 'Camera' },
+    { id: 'color-boost', name: 'Color Boost / Saturation Adjustment', price: 10, description: 'Enhance image colors', iconName: 'Palette' },
+    { id: 'shadow-removal', name: 'Shadow Removal / Brightness Fix', price: 7, description: 'Fix dark areas and shadows', iconName: 'Sun' },
+    { id: 'background-blur', name: 'Background Blur / Bokeh Effect', price: 10, description: 'Professional depth of field', iconName: 'Aperture' },
+    { id: 'outfit-pattern-change', name: 'Outfit Pattern Change', price: 15, description: 'Change clothing patterns', iconName: 'Shirt' },
+    { id: 'facial-feature-enhancement', name: 'Full Facial Feature Enhancement', price: 20, description: 'Detailed facial retouching', iconName: 'Smile' },
+    { id: 'virtual-lighting-adjustment', name: 'Virtual Lighting Adjustment', price: 10, description: 'Fix or enhance lighting', iconName: 'Lightbulb' },
+    { id: 'watermark-removal', name: 'Watermark Removal', price: 5, description: 'Remove existing watermarks', iconName: 'Eraser' },
+    { id: 'themed-shoot-addon', name: 'Themed shoot (Anniversary, Save the Date, etc.)', price: 50, description: 'Add theme to package', iconName: 'PartyPopper' }
 ];
 
 // Helper tips for each section
@@ -393,12 +507,14 @@ export const HELPER_TIPS: Record<string, string[]> = {
 };
 
 // Calculate group package price based on size
-export function calculateGroupPrice(pkg: Package, groupSize: number): number {
-    // Base price is for 2 people
-    // Add 1 extra person: +GH₵30
+export function calculateGroupPrice(pkg: Package, groupSize: number, categoryId: string = 'group'): number {
     const base = pkg.basePrice || pkg.price;
-    if (groupSize <= 2) return base;
-    return base + (groupSize - 2) * 30;
+    
+    // Couple is for 2, Group is for up to 4
+    const includedPeople = categoryId === 'group' ? 4 : 2;
+    
+    if (groupSize <= includedPeople) return base;
+    return base + (groupSize - includedPeople) * 30;
 }
 
 // Format Ghana currency

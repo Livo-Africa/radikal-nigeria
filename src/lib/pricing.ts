@@ -90,8 +90,8 @@ export function calculateServerPrice(orderData: OrderPricingData): PricingResult
 
     // Calculate package price (handle group pricing)
     let packagePrice: number;
-    if (shootType === 'group' && serverPackage.basePrice) {
-        packagePrice = calculateGroupPrice(serverPackage as any, groupSize);
+    if ((shootType === 'group' || shootType === 'couple') && serverPackage.basePrice) {
+        packagePrice = (calculateGroupPrice as any)(serverPackage, groupSize, shootType);
     } else {
         packagePrice = serverPackage.price;
     }

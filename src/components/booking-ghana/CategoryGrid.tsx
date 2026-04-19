@@ -82,8 +82,9 @@ export default function CategoryGrid({ selectedId, onSelect }: CategoryGridProps
                             </div>
 
                             {/* Label */}
-                            <span className={`font-bold text-base mb-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                {category.label}
+                            <span className={`font-bold text-base mb-1 text-center leading-tight ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                <span className="md:hidden">{category.label.replace(' Collection', '')}</span>
+                                <span className="hidden md:inline">{category.label}</span>
                             </span>
 
                             {/* Price Range */}

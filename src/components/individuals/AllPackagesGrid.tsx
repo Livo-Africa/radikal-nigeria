@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { ArrowRight, Camera, Shirt, Clock, Check, ArrowLeft } from 'lucide-react';
 import { PACKAGES_BY_CATEGORY as NG_PACKAGES_DATA, CATEGORIES as NG_CATEGORIES_DATA } from '@/utils/bookingDataNigeria';
+import { PACKAGES_BY_CATEGORY as GH_PACKAGES_DATA, CATEGORIES as GH_CATEGORIES_DATA } from '@/utils/bookingDataGhana';
 
 interface Package {
     id: string;
@@ -18,261 +19,7 @@ interface Package {
     categoryId: string;
 }
 
-// Hardcoded Ghana Data
-const GH_DATA: Record<string, { packages: Package[] }> = {
-    'Solo': {
-        packages: [
-            {
-                id: "solo-standard",
-                name: "Solo Standard",
-                price: "₵50",
-                photos: 4,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Multiple poses", "Basic editing"],
-                popular: true,
-                category: "Solo",
-                categoryId: "solo"
-            },
-            {
-                id: "solo-medium",
-                name: "Solo Medium",
-                price: "₵90",
-                photos: 8,
-                outfits: 2,
-                deliveryTime: "1-3 hours",
-                features: ["Varied poses", "Premium editing"],
-                popular: false,
-                category: "Solo",
-                categoryId: "solo"
-            },
-            {
-                id: "solo-supreme",
-                name: "Solo Supreme",
-                price: "₵130",
-                photos: 15,
-                outfits: 3,
-                deliveryTime: "2-4 hours",
-                features: ["Premium lighting", "Advanced retouching"],
-                popular: false,
-                category: "Solo",
-                categoryId: "solo"
-            }
-        ]
-    },
-    'Birthday': {
-        packages: [
-            {
-                id: "birthday-basic",
-                name: "Birthday Basic",
-                price: "₵40",
-                photos: 4,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Birthday props & theme"],
-                popular: true,
-                category: "Birthday",
-                categoryId: "birthday"
-            },
-            {
-                id: "birthday-deluxe",
-                name: "Birthday Deluxe",
-                price: "₵70",
-                photos: 6,
-                outfits: 2,
-                deliveryTime: "1-3 hours",
-                features: ["Enhanced set design", "Prop usage"],
-                popular: false,
-                category: "Birthday",
-                categoryId: "birthday"
-            },
-            {
-                id: "birthday-royal",
-                name: "Birthday Royal",
-                price: "₵100",
-                photos: 10,
-                outfits: 3,
-                deliveryTime: "2-4 hours",
-                features: ["Luxury set design", "Balloon arrangement"],
-                popular: false,
-                category: "Birthday",
-                categoryId: "birthday"
-            }
-        ]
-    },
-    'Group': {
-        packages: [
-            {
-                id: "group-standard",
-                name: "Group Standard",
-                price: "₵80",
-                photos: 4,
-                outfits: 2,
-                deliveryTime: "1-3 hours",
-                features: ["Up to 2 People", "Group coordination"],
-                popular: false,
-                category: "Group",
-                categoryId: "group"
-            },
-            {
-                id: "group-deluxe",
-                name: "Group Deluxe",
-                price: "₵130",
-                photos: 6,
-                outfits: 3,
-                deliveryTime: "1-3 hours",
-                features: ["Up to 2 People", "Creative direction"],
-                popular: false,
-                category: "Group",
-                categoryId: "group"
-            },
-            {
-                id: "group-supreme",
-                name: "Group Supreme",
-                price: "₵200",
-                photos: 10,
-                outfits: 5,
-                deliveryTime: "2-4 hours",
-                features: ["Up to 2 People", "Extra person: ₵30"],
-                popular: false,
-                category: "Group",
-                categoryId: "group"
-            }
-        ]
-    },
-    'Specialty & Themed': {
-        packages: [
-            {
-                id: "profile-headshots",
-                name: "Profile Headshots",
-                price: "₵30",
-                photos: 3,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Social media ready", "Perfect for CV/LinkedIn"],
-                popular: true,
-                category: "Specialty",
-                categoryId: "specialty"
-            },
-            {
-                id: "jersey-shoot",
-                name: "Jersey Shoot",
-                price: "₵20",
-                photos: 3,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Custom jersey name styling", "Sports theme background"],
-                popular: false,
-                category: "Specialty",
-                categoryId: "specialty"
-            },
-            {
-                id: "occupation-shots",
-                name: "Occupation Shots",
-                price: "₵50",
-                photos: 3,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Professional props included", "Studio background"],
-                popular: true,
-                category: "Specialty",
-                categoryId: "specialty"
-            },
-            {
-                id: "graduation-shots",
-                name: "Graduation Shots",
-                price: "₵70",
-                photos: 3,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Gown styling assistance", "School theme set"],
-                popular: true,
-                category: "Specialty",
-                categoryId: "specialty"
-            }
-        ]
-    },
-    'Kids': {
-        packages: [
-            {
-                id: "kids-package",
-                name: "Kids Package",
-                price: "₵50",
-                photos: 3,
-                outfits: 1,
-                deliveryTime: "1-3 hours",
-                features: ["Varied creative poses", "Premium editing"],
-                popular: true,
-                category: "Kids",
-                categoryId: "kids"
-            }
-        ]
-    },
-    'Short Video Services': {
-        packages: [
-            {
-                id: "ai-animation",
-                name: "AI Animation",
-                price: "₵25",
-                photos: 1,
-                outfits: 0,
-                deliveryTime: "1-3 hours",
-                features: ["Smiling/waving animation", "80% face likeness", "6 seconds length"],
-                popular: false,
-                category: "Video",
-                categoryId: "video"
-            },
-            {
-                id: "simple-slideshow",
-                name: "Simple Slideshow",
-                price: "₵15",
-                photos: 10,
-                outfits: 0,
-                deliveryTime: "1-3 hours",
-                features: ["Basic photo transitions", "Background music included", "30 seconds length"],
-                popular: false,
-                category: "Video",
-                categoryId: "video"
-            },
-            {
-                id: "cinematic-slideshow",
-                name: "Cinematic Slideshow",
-                price: "₵20",
-                photos: 10,
-                outfits: 0,
-                deliveryTime: "2-4 hours",
-                features: ["Professional movie style", "Fancy zooms and fades", "30-40 seconds length"],
-                popular: true,
-                category: "Video",
-                categoryId: "video"
-            },
-            {
-                id: "creative-video",
-                name: "Creative Video",
-                price: "₵25",
-                photos: 1,
-                outfits: 0,
-                deliveryTime: "2-4 hours",
-                features: ["Advanced compilation effects", "Professional touch", "20-30 seconds length"],
-                popular: false,
-                category: "Video",
-                categoryId: "video"
-            },
-            {
-                id: "text-on-video",
-                name: "Text on Video",
-                price: "₵25",
-                photos: 0,
-                outfits: 0,
-                deliveryTime: "1-3 hours",
-                features: ["Moving text additions", "Perfect for birthdays", "Custom messages"],
-                popular: false,
-                category: "Video",
-                categoryId: "video"
-            }
-        ]
-    }
-};
+
 
 export default function AllPackagesGrid() {
     const [country, setCountry] = useState<'GH' | 'NG'>('GH');
@@ -302,9 +49,21 @@ export default function AllPackagesGrid() {
             return ngPackages;
         } else {
             const ghPackages: Package[] = [];
-            Object.keys(GH_DATA).forEach(categoryKey => {
-                GH_DATA[categoryKey].packages.forEach(pkg => {
-                    ghPackages.push(pkg);
+            GH_CATEGORIES_DATA.forEach(cat => {
+                const packages = GH_PACKAGES_DATA[cat.id] || [];
+                packages.forEach(pkg => {
+                    ghPackages.push({
+                        id: pkg.id,
+                        name: pkg.name,
+                        price: `₵${pkg.price.toLocaleString()}`,
+                        photos: pkg.images,
+                        outfits: pkg.outfits,
+                        deliveryTime: pkg.deliveryTime || "1-3 hours",
+                        features: [pkg.description],
+                        popular: pkg.popular || false,
+                        category: cat.label,
+                        categoryId: cat.id
+                    });
                 });
             });
             return ghPackages;
