@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { ArrowRight, Star, Clock, Image, Shirt, Check } from 'lucide-react';
 import { PACKAGES_BY_CATEGORY as NG_PACKAGES_DATA } from '@/utils/bookingDataNigeria';
+import { PACKAGES_BY_CATEGORY as GH_PACKAGES_DATA, CATEGORIES as GH_CATEGORIES_DATA } from '@/utils/bookingDataGhana';
 
 interface Package {
   id: string;
@@ -20,97 +21,7 @@ interface PackageShowcaseProps {
   country?: 'GH' | 'NG';
 }
 
-// Hardcoded Ghana Packages
-const GH_PACKAGES: Package[] = [
-  {
-    id: "profile-headshots",
-    name: "Profile Headshots",
-    price: "₵30",
-    photos: 2,
-    outfits: 1,
-    deliveryTime: "1-3 hours",
-    features: ["LinkedIn ready", "2 edited photos"],
-    popular: false,
-    category: "Professional"
-  },
-  {
-    id: "solo-standard",
-    name: "Solo Standard",
-    price: "₵50",
-    photos: 4,
-    outfits: 1,
-    deliveryTime: "1-3 hours",
-    features: ["Basic editing", "Multiple poses"],
-    popular: true,
-    category: "Solo"
-  },
-  {
-    id: "birthday-basic",
-    name: "Birthday Basic",
-    price: "₵40",
-    photos: 4,
-    outfits: 1,
-    deliveryTime: "1-3 hours",
-    features: ["Birthday theme", "Props included"],
-    popular: false,
-    category: "Special Occasions"
-  },
-  {
-    id: "graduation-shots",
-    name: "Graduation Shots",
-    price: "₵70",
-    photos: 3,
-    outfits: 1,
-    deliveryTime: "1-3 hours",
-    features: ["Graduation theme", "Gown enhancement"],
-    popular: true,
-    category: "Special Occasions"
-  },
-  {
-    id: "solo-medium",
-    name: "Solo Medium",
-    price: "₵90",
-    photos: 8,
-    outfits: 2,
-    deliveryTime: "1-3 hours",
-    features: ["Premium editing", "Variety of backgrounds"],
-    popular: false,
-    category: "Solo"
-  },
-  {
-    id: "group-standard",
-    name: "Group Standard",
-    price: "₵80",
-    photos: 4,
-    outfits: 2,
-    deliveryTime: "1-3 hours",
-    features: ["Group coordination", "Creative direction"],
-    popular: false,
-    category: "Group"
-  },
-  {
-    id: "premium-portfolio",
-    name: "Premium Portfolio",
-    price: "₵120",
-    photos: 10,
-    outfits: 3,
-    deliveryTime: "2-4 hours",
-    features: ["Advanced editing", "Artistic direction"],
-    popular: false,
-    category: "Professional"
-  },
-  {
-    id: "family-package",
-    name: "Family Package",
-    price: "₵150",
-    photos: 8,
-    outfits: 3,
-    deliveryTime: "2-4 hours",
-    features: ["Family coordination", "Large group lighting"],
-    popular: false,
-    category: "Group"
-  }
-];
+
 
 export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps) {
   const [showAll, setShowAll] = useState(false);
@@ -138,7 +49,25 @@ export default function PackageShowcase({ country = 'GH' }: PackageShowcaseProps
     });
     allPackages = ngPackages;
   } else {
-    allPackages = GH_PACKAGES;
+    const ghPackages: Package[] = [];
+    GH_CATEGORIES_DATA.forEach(cat => {
+      const packages = GH_PACKAGES_DATA[cat.id] || [];
+      packages.forEach(pkg => {
+        ghPackages.push({
+          id: pkg.id,
+          name: pkg.name,
+          price: `₵${pkg.price.toLocaleString()}`,
+          originalPrice: pkg.originalPrice ? `₵${pkg.originalPrice.toLocaleString()}` : undefined,
+          photos: pkg.images,
+          outfits: pkg.outfits || 0,
+          deliveryTime: pkg.deliveryTime || "1-3 hours",
+          features: [pkg.description],
+          popular: pkg.popular || false,
+          category: cat.label
+        });
+      });
+    });
+    allPackages = ghPackages;
   }
 
   const displayedPackages = showAll ? allPackages : allPackages.slice(0, 6);

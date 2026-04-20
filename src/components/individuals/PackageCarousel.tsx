@@ -15,6 +15,7 @@ import {
     Check
 } from 'lucide-react';
 import { PACKAGES_BY_CATEGORY as NG_PACKAGES_DATA, CATEGORIES as NG_CATEGORIES_DATA } from '@/utils/bookingDataNigeria';
+import { PACKAGES_BY_CATEGORY as GH_PACKAGES_DATA, CATEGORIES as GH_CATEGORIES_DATA } from '@/utils/bookingDataGhana';
 
 interface Package {
     id: string;
@@ -33,182 +34,7 @@ interface PackageCarouselProps {
     country?: 'GH' | 'NG';
 }
 
-// Hardcoded Ghana Data
-const GH_DATA = {
-    'Solo': {
-        packages: [
-            {
-                id: "solo-standard",
-                name: "Solo Standard",
-                price: "₵50",
-                photos: 4,
-                outfits: 1,
-                features: ["Multiple poses", "Basic editing"],
-                popular: true,
-                category: "Solo",
-                categoryId: "solo",
-                description: "Personal photos"
-            },
-            {
-                id: "solo-medium",
-                name: "Solo Medium",
-                price: "₵90",
-                photos: 8,
-                outfits: 2,
-                features: ["Varied poses", "Premium editing"],
-                popular: false,
-                category: "Solo",
-                categoryId: "solo",
-                description: "More variety"
-            },
-            {
-                id: "solo-supreme",
-                name: "Solo Supreme",
-                price: "₵130",
-                photos: 15,
-                outfits: 3,
-                features: ["Premium lighting", "Advanced retouching"],
-                popular: false,
-                category: "Solo",
-                categoryId: "solo",
-                description: "Premium portfolio"
-            }
-        ]
-    },
-    'Birthday': {
-        packages: [
-            {
-                id: "birthday-basic",
-                name: "Birthday Basic",
-                price: "₵40",
-                photos: 4,
-                outfits: 1,
-                features: ["Birthday props & theme"],
-                popular: false,
-                category: "Birthday",
-                categoryId: "birthday",
-                description: "Simple birthday photos"
-            },
-            {
-                id: "birthday-deluxe",
-                name: "Birthday Deluxe",
-                price: "₵70",
-                photos: 6,
-                outfits: 2,
-                features: ["Enhanced set design", "Prop usage"],
-                popular: true,
-                category: "Birthday",
-                categoryId: "birthday",
-                description: "Enhanced birthday photos"
-            },
-            {
-                id: "birthday-royal",
-                name: "Birthday Royal",
-                price: "₵100",
-                photos: 10,
-                outfits: 3,
-                features: ["Luxury set design", "Balloon arrangement"],
-                popular: false,
-                category: "Birthday",
-                categoryId: "birthday",
-                description: "Premium birthday photos"
-            }
-        ]
-    },
 
-    'Group': {
-        packages: [
-            {
-                id: "group-standard",
-                name: "Group Standard",
-                price: "₵80",
-                photos: 4,
-                outfits: 2,
-                features: ["Up to 2 People", "Group coordination"],
-                popular: false,
-                category: "Group",
-                categoryId: "group",
-                description: "Couples or friends"
-            },
-            {
-                id: "group-deluxe",
-                name: "Group Deluxe",
-                price: "₵130",
-                photos: 6,
-                outfits: 3,
-                features: ["Up to 2 People", "Creative direction"],
-                popular: true,
-                category: "Group",
-                categoryId: "group",
-                description: "Creative group photos"
-            },
-            {
-                id: "group-supreme",
-                name: "Group Supreme",
-                price: "₵200",
-                photos: 10,
-                outfits: 5,
-                features: ["Up to 2 People", "Extra person: ₵30"],
-                popular: false,
-                category: "Group",
-                categoryId: "group",
-                description: "Premium group photos"
-            }
-        ]
-    },
-    'Specialty & Themed': {
-        packages: [
-            {
-                id: "profile-headshots",
-                name: "Profile Headshots",
-                price: "₵30",
-                photos: 3,
-                outfits: 1,
-                features: ["Social media ready", "Perfect for CV/LinkedIn"],
-                popular: true,
-                category: "Specialty",
-                categoryId: "specialty",
-                description: "Professional profile photos"
-            },
-            {
-                id: "jersey-shoot",
-                name: "Jersey Shoot",
-                price: "₵20",
-                photos: 3,
-                outfits: 1,
-                features: ["Custom jersey name styling", "Sports theme background"],
-                popular: false,
-                category: "Specialty",
-                categoryId: "specialty",
-                description: "Team spirit photos"
-            },
-            {
-                id: "occupation-shots",
-                name: "Occupation Shots",
-                price: "₵50",
-                photos: 3,
-                outfits: 1,
-                features: ["Professional props included", "Studio background"],
-                popular: true,
-                category: "Specialty",
-                categoryId: "specialty",
-                description: "Career-focused photos"
-            },
-            {
-                id: "graduation-shots",
-                name: "Graduation Shots",
-                price: "₵70",
-                photos: 3,
-                outfits: 1,
-                features: ["Gown styling assistance", "School theme set"],
-                popular: true,
-                category: "Specialty",
-                categoryId: "specialty",
-                description: "Graduation celebration"
-            }
-        ]
-    }
-};
 
 export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -217,16 +43,15 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
     const carouselRef = useRef<HTMLDivElement>(null);
 
     // Dynamic Data Loading
-    let categoryData: typeof GH_DATA;
+    let categoryData: any = {};
 
     if (country === 'NG') {
-        const transformedData: any = {};
         NG_CATEGORIES_DATA.forEach(cat => {
             const catKey = cat.id;
             const packages = NG_PACKAGES_DATA[catKey] || [];
 
             if (packages.length > 0) {
-                transformedData[cat.label] = {
+                categoryData[cat.label] = {
                     packages: packages.map(pkg => ({
                         id: pkg.id,
                         name: pkg.name,
@@ -242,9 +67,28 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                 };
             }
         });
-        categoryData = transformedData;
     } else {
-        categoryData = GH_DATA;
+        GH_CATEGORIES_DATA.forEach(cat => {
+            const catKey = cat.id;
+            const packages = GH_PACKAGES_DATA[catKey] || [];
+
+            if (packages.length > 0) {
+                categoryData[cat.label] = {
+                    packages: packages.map(pkg => ({
+                        id: pkg.id,
+                        name: pkg.name,
+                        price: `₵${pkg.price.toLocaleString()}`,
+                        photos: pkg.images,
+                        outfits: pkg.outfits || 0,
+                        features: [pkg.description],
+                        popular: pkg.popular || false,
+                        category: cat.label,
+                        categoryId: cat.id,
+                        description: pkg.description
+                    }))
+                };
+            }
+        });
     }
 
     const categories = Object.keys(categoryData);
