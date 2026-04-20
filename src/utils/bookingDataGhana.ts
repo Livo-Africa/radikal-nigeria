@@ -35,12 +35,6 @@ export interface AddOn {
 // Category data - using Lucide icon names
 export const CATEGORIES: Category[] = [
     {
-        id: 'specialty',
-        iconName: 'Star',
-        label: 'Specialty & Themed',
-        priceRange: '₵30+'
-    },
-    {
         id: 'birthday',
         iconName: 'Cake',
         label: 'Birthday',
@@ -63,6 +57,12 @@ export const CATEGORIES: Category[] = [
         iconName: 'Users',
         label: 'Group Collection',
         priceRange: '₵150+'
+    },
+    {
+        id: 'specialty',
+        iconName: 'Star',
+        label: 'Special',
+        priceRange: '₵30+'
     },
     {
         id: 'digital',

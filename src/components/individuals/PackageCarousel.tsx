@@ -323,13 +323,13 @@ export default function PackageCarousel({ country = 'GH' }: PackageCarouselProps
                     </div>
 
                     {/* View All Link */}
-                    <div className="text-center mt-6 pt-6 border-t border-white/5">
+                    <div className="text-center mt-8 px-4">
                         <a
                             href="/individuals/packages"
-                            className="inline-flex items-center gap-2 text-white/30 hover:text-amber-400 transition-colors text-sm font-medium"
+                            className="inline-flex items-center justify-center gap-2 w-full max-w-sm bg-white/10 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 text-white hover:text-black font-bold py-4 rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] border border-white/10 hover:border-transparent active:scale-[0.98]"
                         >
-                            View all packages
-                            <ChevronRight className="w-4 h-4" />
+                            View All Packages
+                            <ChevronRight className="w-5 h-5" />
                         </a>
                     </div>
                 </div>

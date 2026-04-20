@@ -12,6 +12,7 @@ import {
     Briefcase,
     Baby,
     Video,
+    MonitorPlay,
     LucideIcon
 } from 'lucide-react';
 
@@ -24,7 +25,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
     'Smartphone': Smartphone,
     'Briefcase': Briefcase,
     'Baby': Baby,
-    'Video': Video
+    'Video': Video,
+    'MonitorPlay': MonitorPlay
 };
 
 interface CategoryGridProps {

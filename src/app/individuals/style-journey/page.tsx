@@ -179,7 +179,7 @@ const BookingContent = () => {
   }, [searchParams]);
 
   // Check if this is a group booking
-  const isGroupBooking = category === 'group';
+  const isGroupBooking = category === 'group' || category === 'couple';
 
   // Initialize group photos when group size changes
   useEffect(() => {
@@ -217,8 +217,8 @@ const BookingContent = () => {
   const calculateTotal = useCallback(() => {
     if (!selectedPackage) return 0;
 
-    let total = category === 'group' && selectedPackage.basePrice
-      ? calculateGroupPrice(selectedPackage, groupSize)
+    let total = (category === 'group' || category === 'couple') && selectedPackage.basePrice
+      ? calculateGroupPrice(selectedPackage, groupSize, category)
       : selectedPackage.price;
 
     addOns.forEach(addOnId => {
@@ -391,7 +391,7 @@ const BookingContent = () => {
         images: selectedPackage.images,
         outfits: selectedPackage.outfits
       },
-      groupSize: category === 'group' ? groupSize : undefined,
+      groupSize: (category === 'group' || category === 'couple') ? groupSize : undefined,
       outfits: selectedOutfits.map(o => ({
         id: o.id,
         name: o.name,
@@ -518,7 +518,7 @@ const BookingContent = () => {
           name: selectedPackage.name,
           price: selectedPackage.price,
         },
-        groupSize: category === 'group' ? groupSize : undefined,
+        groupSize: (category === 'group' || category === 'couple') ? groupSize : undefined,
         outfits: selectedOutfits.map(o => ({
           id: o.id,
           name: o.name,

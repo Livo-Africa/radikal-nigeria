@@ -24,7 +24,7 @@ export default function PackageCarousel({
     const scrollRef = useRef<HTMLDivElement>(null);
     const [showConfetti, setShowConfetti] = useState(false);
     const packages = PACKAGES_BY_CATEGORY[category] || [];
-    const isGroupCategory = category === 'group';
+    const isGroupCategory = category === 'group' || category === 'couple';
 
     const handleSelect = (pkg: Package) => {
         onSelect(pkg);
