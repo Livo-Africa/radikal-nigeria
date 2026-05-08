@@ -12,10 +12,27 @@ export const metadata = {
     title: 'Client Reviews & Testimonials | Radikal Creative',
     description: 'Read 5-star reviews from our clients across Ghana and Nigeria. See why top brands trust Radikal for their creative technology and virtual photography needs.',
     keywords: ['Radikal reviews', 'creative agency testimonials', 'virtual photography reviews', 'client stories Africa'],
+    alternates: {
+        canonical: 'https://radikalcreatech.com/testimonials',
+    },
     openGraph: {
         title: 'Client Reviews & Stories | Radikal Creative Technologies',
         description: 'Read 5-star reviews from our clients across Ghana and Nigeria.',
         url: 'https://radikalcreatech.com/testimonials',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies - Client Testimonials',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Client Reviews & Testimonials | Radikal Creative',
+        description: '5-star reviews from clients across Ghana and Nigeria.',
+        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
     },
 };
 

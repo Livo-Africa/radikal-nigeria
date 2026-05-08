@@ -5,13 +5,20 @@ import './globals.css';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#000000',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://radikalcreatech.com'),
   title: {
-    default: 'Radikal Creative Technologies | Photography & Motion Graphics',
+    default: 'Radikal Creative Technologies | Photography & Motion Graphics Studio',
     template: '%s | Radikal Creative Technologies'
   },
-  description: 'Premium Creative Agency in Ghana & Nigeria. Specializing in Virtual Photography, Motion Graphics, Graphic Design, and Brand Identity.',
+  description: 'Radikal Creative Technologies is a premium creative agency across West Africa specializing in virtual photography, motion graphics, and brand identity. We transform your creative visions into stunning visual reality through innovative technology and world-class design.',
   keywords: [
     'virtual photography', 'graphic design', 'motion graphics', 'video animation',
     'advertising agency', 'brand identity', 'creative technology', 'Ghana', 'Nigeria',
@@ -19,6 +26,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Radikal Creative Technologies' }],
   creator: 'Radikal Creative Technologies',
+  publisher: 'Radikal Creative Technologies',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     title: 'Radikal Creative Technologies | Top Agency in Ghana & Nigeria',
     description: 'Transforming Visions into Visual Reality - Premium Virtual Photography, Motion Graphics & Creative Agency.',
@@ -27,15 +40,34 @@ export const metadata: Metadata = {
     locale: 'en_GH',
     alternateLocale: ['en_NG'],
     type: 'website',
+    images: [
+      {
+        url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Radikal Creative Technologies Branding',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Radikal Creative Technologies | Creative Agency',
-    description: 'Class • Technology • Future - Transforming Visions into Visual Reality across West Africa.',
-    creator: '@radikalcreatech',
+    description: 'Virtual Photography Studio transforming visuals across Africa.',
+    images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
   },
   alternates: {
     canonical: 'https://radikalcreatech.com',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
@@ -55,11 +87,21 @@ export default function RootLayout({
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "name": "Radikal Creative Technologies",
+                "alternateName": "Radikal Createch",
                 "url": "https://radikalcreatech.com",
                 "logo": "https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg",
-                "sameAs": [
-                  "https://www.instagram.com/radikal.io",
-                  "https://wa.me/233207472307"
+                "description": "Radikal Creative Technologies is a premium creative agency specializing in virtual photography, motion graphics, and brand identity across West Africa.",
+                "address": [
+                  {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Lagos",
+                    "addressCountry": "NG"
+                  },
+                  {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Accra",
+                    "addressCountry": "GH"
+                  }
                 ],
                 "contactPoint": {
                   "@type": "ContactPoint",
@@ -68,7 +110,12 @@ export default function RootLayout({
                   "areaServed": ["GH", "NG"],
                   "availableLanguage": "en"
                 },
-                "description": "Premium virtual photography, graphic design, and creative technology solutions across West Africa."
+                "sameAs": [
+                  "https://www.instagram.com/radikal_creativetechnologies/",
+                  "https://tiktok.com/@radikalcreatechnology",
+                  "https://facebook.com/radikalcreativetechnologies",
+                  "https://wa.me/233207472307"
+                ]
               },
               {
                 "@context": "https://schema.org",

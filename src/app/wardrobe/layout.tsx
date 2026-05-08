@@ -8,10 +8,27 @@ export const metadata: Metadata = {
         'virtual styling Ghana', 'creative studio wardrobe', 'AI fashion styling',
         'professional photoshoot outfits'
     ],
+    alternates: {
+        canonical: 'https://radikalcreatech.com/wardrobe',
+    },
     openGraph: {
         title: 'Digital Wardrobe & Virtual Styling | Radikal Creative Technologies',
         description: 'Limitless styling possibilities for your virtual photoshoot. Choose from our professional digital wardrobe.',
         url: 'https://radikalcreatech.com/wardrobe',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies - Digital Wardrobe',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Digital Wardrobe | Virtual Photography Styling',
+        description: 'Limitless styling possibilities for your virtual photoshoot in Ghana and Nigeria.',
+        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
     },
 };
 

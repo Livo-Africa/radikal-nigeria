@@ -6,10 +6,27 @@ import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
 export const metadata = {
     title: 'Privacy Policy - Radikal Creative Technologies',
     description: 'Privacy Policy for Radikal Creative Technologies. Learn how we protect your data and privacy.',
+    alternates: {
+        canonical: 'https://radikalcreatech.com/privacy',
+    },
     openGraph: {
         title: 'Privacy Policy - Radikal Creative Technologies',
         description: 'Our commitment to protecting your privacy and data.',
+        url: 'https://radikalcreatech.com/privacy',
         type: 'website',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies - Privacy Policy',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary',
+        title: 'Privacy Policy - Radikal Creative Technologies',
+        description: 'Our commitment to protecting your privacy and data.',
     },
 };
 

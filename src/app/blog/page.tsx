@@ -5,6 +5,35 @@ import Navigation from '@/components/shared/Navigation';
 
 export const revalidate = 3600; // Revalidate at most every hour
 
+export const metadata = {
+    title: 'Blog | Insights & Inspiration from Radikal Creative Technologies',
+    description: 'Discover the latest trends, tips, and stories from the Radikal team. Creative photography insights, brand-building strategies, and visual technology updates from Ghana and Nigeria.',
+    keywords: ['creative agency blog', 'photography tips', 'brand building Africa', 'virtual photography insights', 'Radikal blog'],
+    alternates: {
+        canonical: 'https://radikalcreatech.com/blog',
+    },
+    openGraph: {
+        title: 'Blog | Radikal Creative Technologies',
+        description: 'Insights and inspiration from the Radikal team on creative photography, brand building, and visual technology.',
+        url: 'https://radikalcreatech.com/blog',
+        type: 'website',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies Blog',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Blog | Radikal Creative Technologies',
+        description: 'Creative photography insights and brand-building strategies from Ghana and Nigeria.',
+        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+    },
+};
+
 export default async function BlogPage() {
     const allPosts = await getBlogPosts();
     const publishedPosts = allPosts.filter(post => post.published);

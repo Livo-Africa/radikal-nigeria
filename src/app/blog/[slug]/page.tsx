@@ -27,12 +27,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         return { title: 'Post Not Found' };
     }
 
+    const postUrl = `https://radikalcreatech.com/blog/${post.slug}`;
+    const ogImage = post.featuredImage || 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg';
+
     return {
         title: `${post.title} | Radikal Blog`,
-        description: `Read ${post.title} on the Radikal blog.`,
+        description: `Read ${post.title} on the Radikal blog. Creative insights and inspiration from Radikal Creative Technologies.`,
+        alternates: {
+            canonical: postUrl,
+        },
         openGraph: {
             title: post.title,
-            images: post.featuredImage ? [post.featuredImage] : [],
+            description: `Read ${post.title} on the Radikal blog.`,
+            url: postUrl,
+            type: 'article',
+            publishedTime: post.date ? new Date(post.date).toISOString() : undefined,
+            siteName: 'Radikal Creative Technologies',
+            images: [
+                {
+                    url: ogImage,
+                    width: 1200,
+                    height: 630,
+                    alt: post.title,
+                },
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: `Read ${post.title} on the Radikal blog.`,
+            images: [ogImage],
         },
     };
 }

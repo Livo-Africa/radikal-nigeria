@@ -12,10 +12,27 @@ export const metadata = {
     title: 'Portfolio & Transformations | Radikal Creative Studio',
     description: 'Explore Radikal\'s portfolio of visual transformations. See before and after examples of our virtual photography, product, and creative editing in West Africa.',
     keywords: ['creative portfolio', 'virtual photography examples', 'before and after photography', 'creative editing Ghana', 'product photography Nigeria'],
+    alternates: {
+        canonical: 'https://radikalcreatech.com/transformations',
+    },
     openGraph: {
         title: 'Transformations Portfolio | Radikal Creative Technologies',
         description: 'See the Radikal difference. Before and after examples of our premium creative services.',
         url: 'https://radikalcreatech.com/transformations',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies - Portfolio Transformations',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Portfolio & Transformations | Radikal Creative Studio',
+        description: 'Before and after examples of our premium creative services in Ghana and Nigeria.',
+        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
     },
 };
 

@@ -8,10 +8,27 @@ export const metadata: Metadata = {
         'motion graphics Lagos', '3D product rendering', 'social media management Accra',
         'creative advertising Africa', 'corporate branding Nigeria'
     ],
+    alternates: {
+        canonical: 'https://radikalcreatech.com/services',
+    },
     openGraph: {
         title: 'Creative Services | Radikal Creative Technologies',
         description: 'Professional visual solutions for Individuals, Businesses, and Creators across West Africa.',
         url: 'https://radikalcreatech.com/services',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies - Creative Services',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Creative Services & Solutions | Radikal',
+        description: 'Virtual Photography, Graphic Design, Motion Graphics, and Creative Technology for brands in Ghana and Nigeria.',
+        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
     },
 };
 

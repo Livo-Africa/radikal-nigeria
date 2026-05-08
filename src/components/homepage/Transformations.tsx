@@ -297,7 +297,7 @@ export default function Transformations({ transformations = [] }: Transformation
               <div className={`absolute inset-0 ${showAfter ? 'hidden' : 'block'}`}>
                 <img
                   src={currentTransform.beforeUrl}
-                  alt="Before transformation"
+                  alt={`Before transformation - ${currentTransform.title}`}
                   className="w-full h-full object-cover"
                   loading="eager"
                   onLoad={(e) => {
@@ -318,7 +318,7 @@ export default function Transformations({ transformations = [] }: Transformation
               <div className={`absolute inset-0 ${showAfter ? 'block' : 'hidden'}`}>
                 <img
                   src={currentTransform.afterUrl}
-                  alt="After transformation"
+                  alt={`After transformation - ${currentTransform.title}`}
                   className="w-full h-full object-cover"
                   loading="eager"
                   onLoad={(e) => {

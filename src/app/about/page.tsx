@@ -4,15 +4,7 @@ import Footer from '@/components/shared/Footer';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
 import { Crown, Cpu, TrendingUp, Camera, Palette, Video, Zap, Users, CheckCircle2, ArrowRight, MapPin, Heart } from 'lucide-react';
 
-export const metadata = {
-    title: 'About Us - Radikal Creative Technologies',
-    description: 'Radikal Creative Technologies is a premium creative agency serving Ghana and Nigeria. Specializing in virtual photography, motion graphics, graphic design, and brand identity.',
-    openGraph: {
-        title: 'About Us - Radikal Creative Technologies',
-        description: 'Transforming visions into visual reality across West Africa.',
-        type: 'website',
-    },
-};
+// Metadata is defined in about/layout.tsx
 
 export default function AboutPage() {
     const pillars = [

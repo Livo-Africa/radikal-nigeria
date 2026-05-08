@@ -6,10 +6,27 @@ import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
 export const metadata = {
     title: 'Terms of Service - Radikal Creative Technologies',
     description: 'Terms of Service for Radikal Creative Technologies. Read our service terms, revision policy, and refund policy.',
+    alternates: {
+        canonical: 'https://radikalcreatech.com/terms',
+    },
     openGraph: {
         title: 'Terms of Service - Radikal Creative Technologies',
         description: 'Service terms, revision policy, and client guidelines.',
+        url: 'https://radikalcreatech.com/terms',
         type: 'website',
+        images: [
+            {
+                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                width: 1200,
+                height: 630,
+                alt: 'Radikal Creative Technologies - Terms of Service',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary',
+        title: 'Terms of Service - Radikal Creative Technologies',
+        description: 'Service terms, revision policy, and client guidelines.',
     },
 };
 
