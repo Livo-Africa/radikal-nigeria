@@ -1,10 +1,14 @@
-// src/app/about/page.tsx
+'use client';
+
 import Navigation from '@/components/shared/Navigation';
 import Footer from '@/components/shared/Footer';
 import WhatsAppFloat from '@/components/shared/WhatsAppFloat';
-import { Crown, Cpu, TrendingUp, Camera, Palette, Video, Zap, Users, CheckCircle2, ArrowRight, MapPin, Heart } from 'lucide-react';
-
-// Metadata is defined in about/layout.tsx
+import MobileStickyBar from '@/components/shared/MobileStickyBar';
+import { motion } from 'framer-motion';
+import { 
+    Crown, Cpu, TrendingUp, ArrowRight, MapPin, Heart, Sparkles,
+    Quote, Target, Lightbulb
+} from 'lucide-react';
 
 export default function AboutPage() {
     const pillars = [
@@ -12,236 +16,243 @@ export default function AboutPage() {
             title: 'CLASS',
             description: 'Premium visual language rooted in elegance and professional finesse. We believe in quality that speaks for itself.',
             icon: Crown,
-            color: 'from-[#D4AF37] to-[#F4D03F]',
+            accent: 'bg-[#D4AF37]/5',
+            iconColor: 'text-[#D4AF37]'
         },
         {
             title: 'TECHNOLOGY',
-            description: 'Advanced digital tools redefining creative possibilities. We leverage cutting-edge technology to enhance, not replace, human creativity.',
+            description: 'Advanced digital tools redefining creative possibilities. We leverage cutting-edge technology to enhance human creativity.',
             icon: Cpu,
-            color: 'from-blue-500 to-cyan-500',
+            accent: 'bg-blue-500/5',
+            iconColor: 'text-blue-500'
         },
         {
             title: 'FUTURE',
-            description: 'Forward-thinking creativity anticipating market trends and evolving needs. We\'re not just keeping up — we\'re paving the way.',
+            description: 'Forward-thinking creativity anticipating market trends. We\'re not just keeping up — we\'re paving the way.',
             icon: TrendingUp,
-            color: 'from-purple-500 to-pink-500',
+            accent: 'bg-purple-500/5',
+            iconColor: 'text-purple-500'
         }
     ];
 
-    const services = [
-        { name: 'Virtual Photography', icon: Camera, description: 'Studio-quality photos without the studio' },
-        { name: 'Graphic Design', icon: Palette, description: 'Complete brand identity and visual assets' },
-        { name: 'Motion & Animation', icon: Video, description: 'Dynamic video and animated content' },
-        { name: 'Advanced Technology', icon: Zap, description: 'Virtual try-ons, AI-enhanced imagery, 3D rendering' },
-        { name: 'Social Media', icon: Users, description: 'Strategy, content creation, and management' },
-    ];
-
-    const stats = [
-        { number: '500+', label: 'Happy Clients' },
-        { number: '4.9/5', label: 'Client Rating' },
-        { number: '1-3h', label: 'Average Delivery' },
-        { number: '24/7', label: 'WhatsApp Support' },
+    const milestones = [
+        { year: '2022', title: 'Founding', description: 'Radikal was established in Accra with a vision to democratize premium creative services.' },
+        { year: '2023', title: 'Expansion', description: 'Launched our Lagos operations, becoming a truly West African creative powerhouse.' },
+        { year: '2024', title: 'Tech Integration', description: 'Introduced Virtual Try-on technology and AI-enhanced studio workflows.' }
     ];
 
     return (
-        <>
+        <div className="min-h-screen bg-[#0A0A0F] text-white flex flex-col font-sans selection:bg-[#D4AF37]/30">
             <Navigation />
-            <main className="flex-1 pt-20">
-                {/* Hero Section */}
-                <section className="py-20 md:py-32 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
-                    <div className="absolute inset-0">
-                        <div className="absolute top-20 left-10 w-72 h-72 bg-[#D4AF37]/15 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
-                    </div>
-                    <div className="container mx-auto px-4 text-center relative z-10">
-                        <div className="inline-block bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white px-6 py-2 rounded-full text-sm font-bold mb-6">
-                            🌟 Our Story
-                        </div>
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 font-playfair">
-                            Transforming Visions Into <span className="bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] bg-clip-text text-transparent">Visual Reality</span>
-                        </h1>
-                        <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                            Radikal Creative Technologies is a premium creative agency at the intersection of art and technology, serving individuals and businesses across Ghana, Nigeria, and beyond.
-                        </p>
-                    </div>
-                </section>
+            
+            <main className="flex-1 pt-32 pb-20 relative overflow-hidden">
+                {/* Brand Accent Backgrounds */}
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#D4AF37]/5 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[100px] -z-10 -translate-x-1/2 translate-y-1/2" />
 
-                {/* Who We Are */}
-                <section className="py-16 md:py-24 bg-white">
-                    <div className="container mx-auto px-4">
-                        <div className="max-w-4xl mx-auto">
-                            <h2 className="text-3xl md:text-5xl font-bold mb-8 font-playfair text-center">
-                                Who We <span className="text-[#D4AF37]">Are</span>
-                            </h2>
-                            <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
-                                <p>
-                                    <strong className="text-gray-900">Radikal Creative Technologies</strong> was born from a simple yet powerful belief: that premium creative services should be accessible to everyone — not just those in major cities with access to expensive studios and agencies.
+                <div className="container mx-auto px-4 lg:px-8">
+                    {/* Premium Header */}
+                    <header className="max-w-5xl mx-auto mb-32">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            className="text-center md:text-left"
+                        >
+                            <span className="inline-block text-[#D4AF37] font-bold tracking-[0.2em] text-xs uppercase mb-6">
+                                Defining the Future of Creativity
+                            </span>
+                            <h1 className="text-5xl md:text-8xl font-bold mb-10 font-playfair tracking-tight leading-[1.1] text-white">
+                                Where <span className="italic text-[#D4AF37]">Artistry</span> Meets <span className="relative">Innovation<div className="absolute -bottom-2 left-0 w-full h-1 bg-[#D4AF37]/20 rounded-full" /></span>
+                            </h1>
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+                                <p className="md:col-span-8 text-xl md:text-2xl text-gray-400 leading-relaxed font-light">
+                                    Radikal Creative Technologies is a premium agency at the intersection of high-end aesthetics and cutting-edge digital tools. We serve the bold, the ambitious, and the visionary.
                                 </p>
-                                <p>
-                                    Operating from <strong className="text-gray-900">Accra, Ghana</strong> and <strong className="text-gray-900">Lagos, Nigeria</strong>, we combine cutting-edge technology with artistic excellence to deliver professional-grade creative solutions. Our virtual studio approach means you get studio-quality photos, designs, and videos — no matter where you are.
-                                </p>
-                                <p>
-                                    From a single portrait to a complete brand overhaul, we handle every project with the same commitment to premium quality, rapid delivery, and transparent pricing. Our team blends human creativity with advanced digital tools to produce results that consistently exceed expectations.
-                                </p>
+                                <div className="md:col-span-4 flex flex-wrap gap-4 justify-center md:justify-end">
+                                    <div className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm">
+                                        <div className="text-3xl font-bold text-[#D4AF37]">500+</div>
+                                        <div className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Global Clients</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </header>
+
+                    {/* Sophisticated Story Section */}
+                    <section className="mb-40">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                            <motion.div 
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                className="relative"
+                            >
+                                <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#D4AF37]/10 rounded-full blur-2xl" />
+                                <div className="relative z-10 bg-white/5 backdrop-blur-md p-12 md:p-16 rounded-[40px] border border-white/10">
+                                    <Quote className="w-12 h-12 text-[#D4AF37]/20 mb-8" />
+                                    <h2 className="text-3xl md:text-4xl font-bold mb-8 font-playfair leading-tight text-white">
+                                        Born from a belief that <span className="text-[#D4AF37]">Premium</span> shouldn't be limited by geography.
+                                    </h2>
+                                    <div className="space-y-6 text-gray-400 leading-relaxed text-lg">
+                                        <p>
+                                            We realized that traditional studios were becoming a barrier to rapid, high-quality creativity. Our virtual-first approach was built to break those walls.
+                                        </p>
+                                        <p>
+                                            Whether you're in the heart of Accra, the bustle of Lagos, or anywhere else in the world, we bring the studio directly to your digital doorstep.
+                                        </p>
+                                    </div>
+                                    <div className="mt-12 flex items-center space-x-4">
+                                        <div className="w-12 h-1 bg-[#D4AF37] rounded-full" />
+                                        <span className="text-sm font-bold uppercase tracking-widest text-gray-500">Our Founding Principle</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                            
+                            <div className="space-y-12">
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    className="flex gap-6 group"
+                                >
+                                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:border-[#D4AF37]/50 transition-all duration-500">
+                                        <Target className="w-8 h-8 text-[#D4AF37]" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2 group-hover:text-[#D4AF37] transition-colors text-white">Our Mission</h3>
+                                        <p className="text-gray-400 leading-relaxed">To provide world-class creative assets with unprecedented speed and precision, empowering individuals and brands to excel.</p>
+                                    </div>
+                                </motion.div>
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: 0.1 }}
+                                    className="flex gap-6 group"
+                                >
+                                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:border-blue-500/50 transition-all duration-500">
+                                        <Lightbulb className="w-8 h-8 text-blue-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2 group-hover:text-blue-500 transition-colors text-white">Our Vision</h3>
+                                        <p className="text-gray-400 leading-relaxed">To be the global benchmark for technology-driven creativity, where AI and human artistry create magic together.</p>
+                                    </div>
+                                </motion.div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                {/* Three Pillars */}
-                <section className="py-16 md:py-24 bg-black text-white">
-                    <div className="container mx-auto px-4">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair">
-                                Our Three <span className="text-[#D4AF37]">Pillars</span>
-                            </h2>
-                            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                                The core principles guiding every project we undertake
-                            </p>
+                    {/* Core Pillars Section */}
+                    <section className="mb-40">
+                        <div className="text-center mb-20">
+                            <h2 className="text-4xl md:text-6xl font-bold font-playfair mb-6 text-white">Core <span className="text-[#D4AF37]">Pillars</span></h2>
+                            <div className="w-24 h-1.5 bg-[#D4AF37] mx-auto rounded-full" />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                            {pillars.map((pillar, index) => {
-                                const Icon = pillar.icon;
-                                return (
-                                    <div
-                                        key={index}
-                                        className="text-center bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800 hover:border-[#D4AF37]/50 transition-all duration-500 transform hover:-translate-y-2"
-                                    >
-                                        <div className={`w-20 h-20 bg-gradient-to-br ${pillar.color} rounded-2xl flex items-center justify-center text-white mx-auto mb-6 shadow-lg`}>
-                                            <Icon className="w-10 h-10" />
-                                        </div>
-                                        <h3 className="text-2xl font-bold mb-4 text-[#D4AF37]">{pillar.title}</h3>
-                                        <p className="text-gray-300 text-base leading-relaxed">{pillar.description}</p>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Stats */}
-                <section className="py-16 bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white">
-                    <div className="container mx-auto px-4">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-                            {stats.map((stat, index) => (
-                                <div key={index} className="text-center">
-                                    <div className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</div>
-                                    <div className="text-white/80 text-sm md:text-base font-medium">{stat.label}</div>
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                            {pillars.map((pillar, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: index * 0.2 }}
+                                    className="relative group p-10 bg-white/5 rounded-[32px] border border-white/10 hover:border-[#D4AF37]/50 transition-all duration-500 overflow-hidden backdrop-blur-sm"
+                                >
+                                    <div className={`absolute top-0 right-0 w-32 h-32 ${pillar.accent} rounded-bl-[100px] -z-10 group-hover:scale-150 transition-transform duration-700`} />
+                                    <pillar.icon className={`w-12 h-12 ${pillar.iconColor} mb-8`} />
+                                    <h3 className="text-2xl font-bold mb-4 text-white">{pillar.title}</h3>
+                                    <p className="text-gray-400 leading-relaxed">{pillar.description}</p>
+                                </motion.div>
                             ))}
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                {/* What We Do */}
-                <section className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white">
-                    <div className="container mx-auto px-4">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-5xl font-bold mb-4 font-playfair">
-                                What We <span className="text-[#D4AF37]">Do</span>
-                            </h2>
-                            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                                A complete creative arsenal for individuals and businesses
-                            </p>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                            {services.map((service, index) => {
-                                const Icon = service.icon;
-                                return (
-                                    <div
+                    {/* Our Journey Section */}
+                    <section className="mb-40 py-20 bg-white/5 rounded-[60px] border border-white/10 shadow-2xl backdrop-blur-sm">
+                        <div className="max-w-4xl mx-auto px-10">
+                            <h2 className="text-3xl md:text-5xl font-bold font-playfair mb-16 text-center text-white">Our <span className="text-[#D4AF37]">Journey</span></h2>
+                            <div className="relative space-y-16">
+                                <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-white/10 hidden md:block" />
+                                {milestones.map((ms, index) => (
+                                    <motion.div 
                                         key={index}
-                                        className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100"
+                                        initial={{ opacity: 0 }}
+                                        whileInView={{ opacity: 1 }}
+                                        viewport={{ once: true }}
+                                        className={`flex flex-col md:flex-row items-center gap-8 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
                                     >
-                                        <div className="w-14 h-14 bg-gradient-to-br from-[#D4AF37]/10 to-[#B91C1C]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                            <Icon className="w-7 h-7 text-[#D4AF37]" />
+                                        <div className="flex-1 text-center md:text-right">
+                                            <div className="text-4xl font-black text-white/5 mb-2">{ms.year}</div>
+                                            <h4 className="text-xl font-bold mb-2 text-white">{ms.title}</h4>
+                                            <p className="text-gray-400 text-sm leading-relaxed">{ms.description}</p>
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{service.name}</h3>
-                                        <p className="text-gray-500 text-sm">{service.description}</p>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="text-center mt-12">
-                            <a
-                                href="/services"
-                                className="inline-flex items-center space-x-2 bg-gray-900 hover:bg-black text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
-                            >
-                                <span>View All Services</span>
-                                <ArrowRight className="w-5 h-5" />
-                            </a>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Where We Serve */}
-                <section className="py-16 md:py-24 bg-gray-900 text-white">
-                    <div className="container mx-auto px-4">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <h2 className="text-3xl md:text-5xl font-bold mb-8 font-playfair">
-                                Where We <span className="text-[#D4AF37]">Serve</span>
-                            </h2>
-                            <p className="text-xl text-gray-300 mb-12">
-                                Proudly serving clients across West Africa and beyond through our virtual-first approach
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                                    <div className="text-4xl mb-4">🇬🇭</div>
-                                    <h3 className="text-2xl font-bold mb-2">Ghana</h3>
-                                    <div className="flex items-center justify-center text-gray-400 mb-4">
-                                        <MapPin className="w-4 h-4 mr-2" />
-                                        <span>Accra</span>
-                                    </div>
-                                    <p className="text-gray-400 text-sm">Our founding base, serving individuals and businesses across Ghana with premium creative solutions.</p>
-                                </div>
-                                <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
-                                    <div className="text-4xl mb-4">🇳🇬</div>
-                                    <h3 className="text-2xl font-bold mb-2">Nigeria</h3>
-                                    <div className="flex items-center justify-center text-gray-400 mb-4">
-                                        <MapPin className="w-4 h-4 mr-2" />
-                                        <span>Lagos</span>
-                                    </div>
-                                    <p className="text-gray-400 text-sm">Expanding our reach to Africa&apos;s largest economy, bringing the same premium quality to the Nigerian market.</p>
-                                </div>
+                                        <div className="w-4 h-4 rounded-full bg-[#D4AF37] ring-8 ring-[#D4AF37]/10 relative z-10" />
+                                        <div className="flex-1" />
+                                    </motion.div>
+                                ))}
                             </div>
-                            <p className="text-gray-400 mt-8 text-sm">
-                                Our virtual studio model means we can serve clients <span className="text-[#D4AF37] font-semibold">anywhere in the world</span> — no physical studio visit required.
-                            </p>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                {/* CTA */}
-                <section className="py-16 md:py-24 bg-gradient-to-br from-[#D4AF37]/10 via-white to-[#B91C1C]/5">
-                    <div className="container mx-auto px-4 text-center">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6 font-playfair">
-                            Ready to Work <span className="text-[#D4AF37]">Together</span>?
-                        </h2>
-                        <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-                            Whether you&apos;re an individual looking for the perfect portrait or a business ready for a complete visual transformation — let&apos;s talk.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a
-                                href="/contact"
-                                className="bg-gradient-to-r from-[#D4AF37] to-[#B91C1C] text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center space-x-2"
-                            >
-                                <Heart className="w-5 h-5" />
-                                <span>Get In Touch</span>
-                            </a>
-                            <a
-                                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
-                            >
-                                <span>💬</span>
-                                <span>Chat on WhatsApp</span>
-                            </a>
+                    {/* Geographic Presence */}
+                    <section className="mb-40">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                            <div className="p-12 rounded-[40px] bg-white/5 border border-white/10 group hover:bg-[#D4AF37] transition-all duration-500 backdrop-blur-sm">
+                                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 group-hover:bg-white/20">
+                                    <MapPin className="w-6 h-6 text-[#D4AF37] group-hover:text-white" />
+                                </div>
+                                <h3 className="text-3xl font-bold mb-4 group-hover:text-white text-white">Ghana</h3>
+                                <p className="text-gray-400 group-hover:text-white/90 leading-relaxed">Headquartered in Accra, we are the creative pulse of the nation, serving top-tier brands and creators.</p>
+                            </div>
+                            <div className="p-12 rounded-[40px] bg-white/5 border border-white/10 group hover:bg-[#B91C1C] transition-all duration-500 backdrop-blur-sm">
+                                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 group-hover:bg-white/20">
+                                    <MapPin className="w-6 h-6 text-[#B91C1C] group-hover:text-white" />
+                                </div>
+                                <h3 className="text-3xl font-bold mb-4 group-hover:text-white text-white">Nigeria</h3>
+                                <p className="text-gray-400 group-hover:text-white/90 leading-relaxed">Our Lagos hub brings premium speed and quality to the continent's most dynamic market.</p>
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+
+                    {/* High-End CTA */}
+                    <motion.section 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        className="relative p-12 md:p-24 rounded-[60px] bg-white/5 border border-white/10 text-center overflow-hidden backdrop-blur-md"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 via-transparent to-[#B91C1C]/10 opacity-50" />
+                        <div className="relative z-10">
+                            <h2 className="text-4xl md:text-7xl font-bold font-playfair mb-8 text-white">Ready to define <br /> your <span className="text-[#D4AF37]">Visual Legacy</span>?</h2>
+                            <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+                                Let's collaborate to build a brand that stands the test of time and technology.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                                <a 
+                                    href="/contact"
+                                    className="px-10 py-5 bg-[#D4AF37] hover:bg-white text-black font-black rounded-2xl text-lg transition-all duration-500 transform hover:scale-110 shadow-2xl shadow-[#D4AF37]/20 flex items-center gap-3"
+                                >
+                                    <Heart className="w-5 h-5" />
+                                    Start a Project
+                                </a>
+                                <a 
+                                    href="https://wa.me/233207472307"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl text-lg transition-all border border-white/10 backdrop-blur-md"
+                                >
+                                    WhatsApp Us
+                                </a>
+                            </div>
+                        </div>
+                    </motion.section>
+                </div>
             </main>
+
             <Footer />
             <WhatsAppFloat />
-        </>
+            <MobileStickyBar />
+        </div>
     );
 }
