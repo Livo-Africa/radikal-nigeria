@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     const postUrl = `https://radikalcreatech.com/blog/${post.slug}`;
-    const ogImage = post.featuredImage || 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg';
+    const ogImage = post.featuredImage || `https://radikalcreatech.com/api/og?title=${encodeURIComponent(post.title)}&subtitle=${encodeURIComponent(post.category || 'Radikal Blog')}`;
 
     return {
         title: `${post.title} | Radikal Blog`,

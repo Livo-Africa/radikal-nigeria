@@ -118,7 +118,7 @@ export default function ServicesPage() {
             icon: Sparkles,
             gradient: "from-purple-500/20 to-pink-500/20",
             items: ["Logo & branding", "Basic website visuals", "Social media setup"],
-            price: "From ₦150,000",
+            price: "From GHS 6000",
             savings: "Save 20%"
         },
         {
@@ -126,7 +126,7 @@ export default function ServicesPage() {
             icon: Camera,
             gradient: "from-blue-500/20 to-cyan-500/20",
             items: ["Personal photoshoot", "Social media templates", "Intro video", "Content planning"],
-            price: "From ₦100,000",
+            price: "From GHS 4000",
             savings: "Save 15%"
         },
         {
@@ -171,7 +171,7 @@ export default function ServicesPage() {
                 <div className="container mx-auto px-4">
                     {/* Header Section (Replaced Hero) */}
                     <div className="max-w-4xl mb-16">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
@@ -195,11 +195,10 @@ export default function ServicesPage() {
                             <button
                                 key={filter.value}
                                 onClick={() => setActiveFilter(filter.value)}
-                                className={`px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 ${
-                                    activeFilter === filter.value
+                                className={`px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 ${activeFilter === filter.value
                                         ? 'bg-[#D4AF37] text-black shadow-lg shadow-[#D4AF37]/20'
                                         : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
-                                }`}
+                                    }`}
                             >
                                 {filter.label}
                             </button>
@@ -250,7 +249,7 @@ export default function ServicesPage() {
                         </div>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                             {integrationExamples.map((example, index) => (
-                                <motion.div 
+                                <motion.div
                                     key={index}
                                     initial={{ opacity: 0 }}
                                     whileInView={{ opacity: 1 }}
@@ -303,7 +302,7 @@ export default function ServicesPage() {
                                         ))}
                                     </ul>
                                     <div className="text-2xl font-bold mb-8 text-white">{bundle.price}</div>
-                                    <a 
+                                    <a
                                         href={getWhatsAppUrl(bundle.title)}
                                         target="_blank"
                                         rel="noopener noreferrer"

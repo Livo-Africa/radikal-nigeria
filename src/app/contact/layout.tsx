@@ -12,7 +12,7 @@ export const metadata: Metadata = {
         url: 'https://radikalcreatech.com/contact',
         images: [
             {
-                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                url: 'https://radikalcreatech.com/api/og?title=Get in Touch&subtitle=Let%27s Transform Your Vision into Reality',
                 width: 1200,
                 height: 630,
                 alt: 'Contact Radikal Creative Technologies',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Contact Radikal Creative Technologies',
         description: 'Get in touch for premium creative solutions in Ghana, Nigeria, and beyond.',
-        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+        images: ['https://radikalcreatech.com/api/og?title=Get in Touch&subtitle=Let%27s Transform Your Vision into Reality'],
     },
 };
 

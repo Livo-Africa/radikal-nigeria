@@ -13,7 +13,7 @@ export const metadata: Metadata = {
         url: 'https://radikalcreatech.com/individuals',
         images: [
             {
-                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                url: 'https://radikalcreatech.com/api/og?title=Personal Photography&subtitle=Professional Headshots %E2%80%A2 Creative Portraits %E2%80%A2 Delivered in Hours',
                 width: 1200,
                 height: 630,
                 alt: 'Radikal Creative Technologies - Individual Photography',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Individual Photography & Personal Branding | Radikal',
         description: 'Professional virtual photoshoots for individuals. Headshots, portraits, and social media content.',
-        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+        images: ['https://radikalcreatech.com/api/og?title=Personal Photography&subtitle=Professional Headshots %E2%80%A2 Creative Portraits %E2%80%A2 Delivered in Hours'],
     },
 };
 

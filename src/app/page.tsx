@@ -13,9 +13,9 @@ import Footer from '@/components/shared/Footer';
 import MobileStickyBar from '@/components/shared/MobileStickyBar'; // NEW
 import { getTestimonials, getTransformations } from '@/lib/google-sheets';
 
-// Add this to prevent build failures if Google Sheets is down
-export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Revalidate every hour
+// ISR: Revalidate every hour. fetchData() has robust mock fallbacks
+// so builds won't fail even if Google Sheets is unavailable.
+export const revalidate = 3600;
 
 // Enhanced mock data for better fallback experience
 const mockTestimonials = [
@@ -240,4 +240,4 @@ export default async function Home() {
       <MobileStickyBar />
     </>
   );
-}
+}

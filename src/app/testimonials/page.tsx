@@ -21,7 +21,7 @@ export const metadata = {
         url: 'https://radikalcreatech.com/testimonials',
         images: [
             {
-                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                url: 'https://radikalcreatech.com/api/og?title=Client Reviews %26 Testimonials&subtitle=5-Star Reviews from Clients Across Ghana %26 Nigeria',
                 width: 1200,
                 height: 630,
                 alt: 'Radikal Creative Technologies - Client Testimonials',
@@ -32,7 +32,7 @@ export const metadata = {
         card: 'summary_large_image',
         title: 'Client Reviews & Testimonials | Radikal Creative',
         description: '5-star reviews from clients across Ghana and Nigeria.',
-        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+        images: ['https://radikalcreatech.com/api/og?title=Client Reviews %26 Testimonials&subtitle=5-Star Reviews from Clients Across Ghana %26 Nigeria'],
     },
 };
 

@@ -15,15 +15,43 @@ export const viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://radikalcreatech.com'),
   title: {
-    default: 'Radikal Creative Technologies | Photography & Motion Graphics Studio',
+    default: 'Radikal Creative Technologies | AI Photography & Virtual Studio',
     template: '%s | Radikal Creative Technologies'
   },
   description: 'Radikal Creative Technologies is a premium creative agency across West Africa specializing in virtual photography, motion graphics, and brand identity. We transform your creative visions into stunning visual reality through innovative technology and world-class design.',
   keywords: [
     'virtual photography', 'graphic design', 'motion graphics', 'video animation',
     'advertising agency', 'brand identity', 'creative technology', 'Ghana', 'Nigeria',
-    'Lagos', 'Accra', 'virtual studio', 'professional headshots', 'digital marketing'
-  ],
+    'Lagos', 'Accra', 'virtual studio', 'professional headshots', 'digital marketing',
+    'AI Photography', 'AI photography in Ghana', 'AI photography in Nigeria', 'AI studio',
+    'Virtual photography in Ghana', 'virtual photography in Nigeria', 'virtual photography in Kenya',
+    'Creative technology company in Ghana', 'Creative technology company in Nigeria', 'Creative technology company in Kenya',
+    'Best creative technology company in Ghana', 'Best creative technology company in Nigeria', 'Best creative technology company in Kenya',
+    'Top creative technology company in Ghana', 'Top creative technology company in Nigeria', 'Top creative technology company in Kenya',
+    'AI photo studio', 'best AI photo studio in Ghana',
+    'best AI photo studio in Nigeria',
+    'best AI photo studio in Kenya', 'AI photoshoots in Ghana', 'AI photoshoots in Nigeria', 'AI photoshoots in Kenya', 'AI photography studio in Ghana', 'AI photography studio in Nigeria', 'AI photography studio in Kenya', 'AI portrait studio in Ghana', 'AI portrait studio in Nigeria', 'AI portrait studio in Kenya',
+    'Best AI studio', 'Best AI photography company', 'Best virtual photography studio', 'Best creative technology studio',
+    'How to create AI images', 'Create AI images online',
+    'How to create AI photos',
+    'How to create AI portraits',
+    'How to create AI headshots',
+    'How to create AI fashion',
+    'How to create AI models',
+    'What is AI photography',
+    'What is virtual photography',
+    'What is AI studio',
+    'What is virtual studio',
+    'How to create AI images',
+    'How to create AI photos',
+    'How to create AI portraits',
+    'How to create AI headshots',
+    'How to create AI fashion',
+    'How to create AI models',
+    'What is AI photography',
+    'What is virtual photography',
+    'What is AI studio',
+    'What is virtual studio',],
   authors: [{ name: 'Radikal Creative Technologies' }],
   creator: 'Radikal Creative Technologies',
   publisher: 'Radikal Creative Technologies',
@@ -42,18 +70,18 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+        url: 'https://radikalcreatech.com/api/og?title=AI Photography %26 Virtual Studio&subtitle=Premium Creative Agency in Ghana %26 Nigeria',
         width: 1200,
         height: 630,
-        alt: 'Radikal Creative Technologies Branding',
+        alt: 'Radikal Creative Technologies - AI Photography & Virtual Studio',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Radikal Creative Technologies | Creative Agency',
-    description: 'Virtual Photography Studio transforming visuals across Africa.',
-    images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+    description: 'Virtual Photography Studio transforming visuals across Ghana, Nigeria, Kenya and more.',
+    images: ['https://radikalcreatech.com/api/og?title=AI Photography %26 Virtual Studio&subtitle=Premium Creative Agency in Ghana %26 Nigeria'],
   },
   alternates: {
     canonical: 'https://radikalcreatech.com',
@@ -94,13 +122,13 @@ export default function RootLayout({
                 "address": [
                   {
                     "@type": "PostalAddress",
-                    "addressLocality": "Lagos",
-                    "addressCountry": "NG"
+                    "addressLocality": "Accra",
+                    "addressCountry": "GH"
                   },
                   {
                     "@type": "PostalAddress",
-                    "addressLocality": "Accra",
-                    "addressCountry": "GH"
+                    "addressLocality": "Lagos",
+                    "addressCountry": "NG"
                   }
                 ],
                 "contactPoint": {
@@ -140,7 +168,6 @@ export default function RootLayout({
                   "addressCountry": "NG",
                   "addressLocality": "Lagos"
                 },
-                "telephone": "+233207472307",
                 "url": "https://radikalcreatech.com"
               }
             ])

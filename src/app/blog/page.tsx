@@ -19,7 +19,7 @@ export const metadata = {
         type: 'website',
         images: [
             {
-                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                url: 'https://radikalcreatech.com/api/og?title=Insights %26 Inspiration&subtitle=Creative Photography Tips %E2%80%A2 Brand Building %E2%80%A2 Visual Technology',
                 width: 1200,
                 height: 630,
                 alt: 'Radikal Creative Technologies Blog',
@@ -30,7 +30,7 @@ export const metadata = {
         card: 'summary_large_image',
         title: 'Blog | Radikal Creative Technologies',
         description: 'Creative photography insights and brand-building strategies from Ghana and Nigeria.',
-        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+        images: ['https://radikalcreatech.com/api/og?title=Insights %26 Inspiration&subtitle=Creative Photography Tips %E2%80%A2 Brand Building %E2%80%A2 Visual Technology'],
     },
 };
 

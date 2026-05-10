@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         url: 'https://radikalcreatech.com/wardrobe',
         images: [
             {
-                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                url: 'https://radikalcreatech.com/api/og?title=Digital Wardrobe&subtitle=Curated Styles for Your Perfect Virtual Photoshoot',
                 width: 1200,
                 height: 630,
                 alt: 'Radikal Creative Technologies - Digital Wardrobe',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'Digital Wardrobe | Virtual Photography Styling',
         description: 'Limitless styling possibilities for your virtual photoshoot in Ghana and Nigeria.',
-        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+        images: ['https://radikalcreatech.com/api/og?title=Digital Wardrobe&subtitle=Curated Styles for Your Perfect Virtual Photoshoot'],
     },
 };
 

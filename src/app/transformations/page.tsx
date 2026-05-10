@@ -21,7 +21,7 @@ export const metadata = {
         url: 'https://radikalcreatech.com/transformations',
         images: [
             {
-                url: 'https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg',
+                url: 'https://radikalcreatech.com/api/og?title=Portfolio %26 Transformations&subtitle=Before %26 After Examples of Our Premium Creative Work',
                 width: 1200,
                 height: 630,
                 alt: 'Radikal Creative Technologies - Portfolio Transformations',
@@ -32,7 +32,7 @@ export const metadata = {
         card: 'summary_large_image',
         title: 'Portfolio & Transformations | Radikal Creative Studio',
         description: 'Before and after examples of our premium creative services in Ghana and Nigeria.',
-        images: ['https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg'],
+        images: ['https://radikalcreatech.com/api/og?title=Portfolio %26 Transformations&subtitle=Before %26 After Examples of Our Premium Creative Work'],
     },
 };
 
