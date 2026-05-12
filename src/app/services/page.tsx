@@ -161,7 +161,7 @@ export default function ServicesPage() {
     ];
 
     const getWhatsAppUrl = (bundleTitle: string) => {
-        return `https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20the%20${encodeURIComponent(bundleTitle)}`;
+        return `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20interested%20in%20the%20${encodeURIComponent(bundleTitle)}`;
     };
 
     return (

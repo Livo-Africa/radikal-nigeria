@@ -97,7 +97,7 @@ export default function BusinessFAQ() {
                                 Chat with us on WhatsApp for instant answers and personalized guidance.
                             </p>
                             <a
-                                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20have%20a%20question%20about%20your%20business%20services"
+                                href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%20have%20a%20question%20about%20your%20business%20services`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"

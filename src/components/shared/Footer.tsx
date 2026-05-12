@@ -24,7 +24,7 @@ export default function Footer() {
           <div className="mb-6">
             <div className="space-y-3">
               <a
-                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
+                href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services`}
                 className="flex items-center justify-center text-gray-400 hover:text-white transition-colors group bg-white/5 rounded-lg p-3"
               >
                 <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
@@ -157,7 +157,7 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4 text-[#D4AF37]">Get In Touch</h4>
             <div className="space-y-4">
               <a
-                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
+                href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services`}
                 className="flex items-center text-gray-400 hover:text-white transition-colors group"
               >
                 <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">

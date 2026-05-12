@@ -128,7 +128,7 @@ export default function FinalCTA() {
         <div className="mt-12">
           <p className="text-sm text-white/60 mb-4">Prefer to chat first?</p>
           <a
-            href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20virtual%20photoshoot%20services"
+            href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20virtual%20photoshoot%20services`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-[0_0_20px_rgba(37,211,102,0.3)]"

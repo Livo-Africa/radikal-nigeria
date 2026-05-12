@@ -58,7 +58,7 @@ export default function MobileStepHeader({
             <Home className="w-5 h-5" />
           </button>
           <button 
-            onClick={() => window.open('https://wa.me/233207472307', '_blank')}
+            onClick={() => window.open(`https://wa.me/${process.env.WHATSAPP_NUMBER}`, '_blank')}
             className="flex items-center justify-center w-10 h-10 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <MessageCircle className="w-5 h-5" />

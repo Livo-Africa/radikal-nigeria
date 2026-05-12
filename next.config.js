@@ -56,6 +56,7 @@ const nextConfig = {
   // Environment variables exposed to the browser
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
+    WHATSAPP_NUMBER: process.env.WHATSAPP_NUMBER,
   },
 
   // Enable trailing slashes for better SEO

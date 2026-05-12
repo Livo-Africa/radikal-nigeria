@@ -19,7 +19,7 @@ export default function BusinessCTA() {
 
                 {/* WhatsApp CTA */}
                 <a
-                    href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20need%20business%20solutions%20for%20my%20brand.%20Can%20we%20discuss%20my%20needs?"
+                    href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%20need%20business%20solutions%20for%20my%20brand.%20Can%20we%20discuss%20my%20needs?`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center bg-black hover:bg-gray-900 text-white font-bold py-4 px-10 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"

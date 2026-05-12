@@ -118,7 +118,7 @@ export default function ServicesShowcase() {
 
                             {/* CTA - visible on hover (desktop) / always visible (mobile) */}
                             <a
-                                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%27m%20interested%20in%20your%20business%20solutions"
+                                href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%27m%20interested%20in%20your%20business%20solutions`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full bg-gray-900 hover:bg-black text-white font-semibold py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm md:opacity-0 md:group-hover:opacity-100"
@@ -140,7 +140,7 @@ export default function ServicesShowcase() {
                             Our team creates tailored packages for your specific business needs and budget.
                         </p>
                         <a
-                            href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20need%20a%20custom%20business%20solution.%20Can%20we%20discuss?"
+                            href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%20need%20a%20custom%20business%20solution.%20Can%20we%20discuss?`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center bg-[#D4AF37] hover:bg-[#b8941f] text-black font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group"

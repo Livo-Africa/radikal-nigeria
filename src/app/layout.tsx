@@ -133,7 +133,7 @@ export default function RootLayout({
                 ],
                 "contactPoint": {
                   "@type": "ContactPoint",
-                  "telephone": "+233207472307",
+                  "telephone": `+${process.env.WHATSAPP_NUMBER}`,
                   "contactType": "customer service",
                   "areaServed": ["GH", "NG"],
                   "availableLanguage": "en"
@@ -142,7 +142,7 @@ export default function RootLayout({
                   "https://www.instagram.com/radikal_creativetechnologies/",
                   "https://tiktok.com/@radikalcreatechnology",
                   "https://facebook.com/radikalcreativetechnologies",
-                  "https://wa.me/233207472307"
+                  `https://wa.me/${process.env.WHATSAPP_NUMBER}`
                 ]
               },
               {
@@ -155,7 +155,7 @@ export default function RootLayout({
                   "addressCountry": "GH",
                   "addressLocality": "Accra"
                 },
-                "telephone": "+233207472307",
+                "telephone": `+${process.env.WHATSAPP_NUMBER}`,
                 "url": "https://radikalcreatech.com"
               },
               {

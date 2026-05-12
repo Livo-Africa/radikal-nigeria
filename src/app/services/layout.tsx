@@ -50,7 +50,7 @@ export default function ServicesLayout({
                 "@id": "https://radikalcreatech.com/#organization",
                 "name": "Radikal Creative Technologies",
                 "image": "https://i.postimg.cc/3NNYCZgm/radikal-logo.jpg",
-                "telephone": "+233207472307",
+                "telephone": `+${process.env.WHATSAPP_NUMBER}`,
                 "address": [
                     {
                         "@type": "PostalAddress",

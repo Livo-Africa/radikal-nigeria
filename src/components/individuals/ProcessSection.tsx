@@ -183,7 +183,7 @@ export default function ProcessSection() {
           {/* Secondary CTA */}
           <div className="mt-6">
             <a
-              href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20have%20questions%20about%20the%20process"
+              href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%20have%20questions%20about%20the%20process`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center text-white/40 hover:text-amber-400 font-medium text-sm transition-colors"

@@ -9,7 +9,7 @@ export default function WhatsAppFloat() {
   const [showTooltip, setShowTooltip] = useState(false);
   const pathname = usePathname();
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '233207472307';
+  const whatsappNumber = process.env.WHATSAPP_NUMBER;
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services`;
 
   // Show tooltip on mount for 3 seconds - HOMEPAGE ONLY

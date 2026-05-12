@@ -102,7 +102,7 @@ export default function HeroSection() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6 md:mb-0">
                             {/* Primary — Amber Gradient */}
                             <a
-                                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20need%20business%20solutions%20for%20my%20brand.%20Can%20we%20discuss%20my%20needs?"
+                                href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%20need%20business%20solutions%20for%20my%20brand.%20Can%20we%20discuss%20my%20needs?`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="group inline-flex justify-center items-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold py-4 px-8 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.3)] hover:shadow-[0_0_40px_rgba(245,158,11,0.5)]"

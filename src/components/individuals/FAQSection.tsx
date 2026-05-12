@@ -230,7 +230,7 @@ export default function FAQSection() {
                 Chat with us on WhatsApp for instant answers and support.
               </p>
               <a
-                href="https://wa.me/233207472307?text=Hi%20Radikal!%20I%20have%20a%20question%20about%20your%20virtual%20photoshoots"
+                href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I%20have%20a%20question%20about%20your%20virtual%20photoshoots`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="relative z-10 inline-flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-[0_0_20px_rgba(37,211,102,0.25)]"

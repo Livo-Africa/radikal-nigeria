@@ -108,7 +108,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               {/* Support Link */}
               <div className="pt-4 border-t border-gray-200">
                 <a 
-                  href="https://wa.me/233207472307?text=Hi! I'm experiencing an error on the website"
+                  href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi! I'm experiencing an error on the website`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#D4AF37] hover:text-[#b8941f] font-semibold text-sm flex items-center justify-center space-x-2"

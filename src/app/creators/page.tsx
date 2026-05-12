@@ -147,7 +147,7 @@ export default function CreatorsPage() {
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 <a 
-                  href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20a%20creator%20interested%20in%20joining%20your%20partnership%20network.%20Can%20we%20discuss%20the%20opportunities?"
+                  href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20a%20creator%20interested%20in%20joining%20your%20partnership%20network.%20Can%20we%20discuss%20the%20opportunities?`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group bg-[#D4AF37] hover:bg-[#F4D03F] text-black font-bold py-5 px-10 rounded-2xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"

@@ -557,7 +557,7 @@ export function findBestPackageForOutfits(outfitCount: number): { category: stri
 }
 
 // WhatsApp deep link generator
-export function generateWhatsAppLink(orderId: string, packageName: string, amount: number, businessNumber: string = '233207472307'): string {
+export function generateWhatsAppLink(orderId: string, packageName: string, amount: number, businessNumber: string = process.env.WHATSAPP_NUMBER || '233591604876'): string {
     const message = `Hi Radikal Team!
 
 I just booked a photoshoot in Ghana and would like to track my order.

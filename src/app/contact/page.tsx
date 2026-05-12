@@ -79,7 +79,7 @@ export default function ContactPage() {
             formData.message ? `*Message:* ${formData.message}` : ''
         ].filter(Boolean).join('\n');
 
-        const whatsappUrl = `https://wa.me/233207472307?text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/${process.env.WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
 
         setIsSubmitting(false);
@@ -273,7 +273,7 @@ export default function ContactPage() {
                                 <div className="grid grid-cols-1 gap-4 mb-8">
                                     {/* WhatsApp */}
                                     <a
-                                        href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
+                                        href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 flex items-center space-x-4"
@@ -409,7 +409,7 @@ export default function ContactPage() {
                                 <div className="grid grid-cols-3 gap-6 mb-16">
                                     {/* WhatsApp */}
                                     <a
-                                        href="https://wa.me/233207472307?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services"
+                                        href={`https://wa.me/${process.env.WHATSAPP_NUMBER}?text=Hi%20Radikal!%20I'm%20interested%20in%20your%20services`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 text-center"

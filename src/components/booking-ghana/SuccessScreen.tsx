@@ -14,7 +14,7 @@ interface SuccessScreenProps {
 }
 
 // Ghana business WhatsApp number
-const BUSINESS_WHATSAPP = '233207472307';
+const BUSINESS_WHATSAPP = process.env.WHATSAPP_NUMBER || '233591604876';
 
 export default function SuccessScreen({
     orderId,
