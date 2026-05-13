@@ -33,51 +33,74 @@ export async function sendTelegramMessage(text: string) {
     }
 }
 
-export async function sendTelegramPhoto(photo: string | Blob | File, caption?: string) {
+const TELEGRAM_TIMEOUT_MS = 30_000; // 30s timeout per attempt
+const MAX_PHOTO_RETRIES = 2; // 2 retries = 3 total attempts
+
+export async function sendTelegramPhoto(photo: string | Blob | File, caption?: string): Promise<boolean> {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
         return false;
     }
 
-    try {
-        const formData = new FormData();
-        formData.append('chat_id', TELEGRAM_CHAT_ID);
+    for (let attempt = 0; attempt <= MAX_PHOTO_RETRIES; attempt++) {
+        try {
+            if (attempt > 0) {
+                const delay = 1000 * Math.pow(2, attempt - 1);
+                console.warn(`🔄 Telegram photo retry ${attempt}/${MAX_PHOTO_RETRIES} in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+            }
 
-        if (photo instanceof File) {
-            console.log(`📤 Sending File: ${photo.name} (${photo.size} bytes)`);
-            formData.append('photo', photo, photo.name);
-        } else if (photo instanceof Blob) {
-            console.log(`📤 Sending Blob (${photo.size} bytes)`);
-            formData.append('photo', photo, 'blob_photo');
-        } else if (typeof photo === 'string') {
-            console.log(`📤 Sending URL: ${photo}`);
-            formData.append('photo', photo);
-        } else {
-            console.error('❌ Invalid photo format passed to sendTelegramPhoto');
-            return false;
+            // Rebuild FormData each attempt (some runtimes consume the body)
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+
+            if (photo instanceof File) {
+                formData.append('photo', photo, photo.name);
+            } else if (photo instanceof Blob) {
+                formData.append('photo', photo, 'blob_photo');
+            } else if (typeof photo === 'string') {
+                formData.append('photo', photo);
+            } else {
+                console.error('❌ Invalid photo format passed to sendTelegramPhoto');
+                return false;
+            }
+
+            if (caption) {
+                formData.append('caption', caption);
+            }
+
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), TELEGRAM_TIMEOUT_MS);
+
+            const response = await fetch(
+                `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
+                { method: 'POST', body: formData, signal: controller.signal }
+            );
+
+            clearTimeout(timeout);
+            const data = await response.json();
+
+            if (data.ok) {
+                return true;
+            }
+
+            console.error(`❌ Telegram API Error (attempt ${attempt + 1}):`, data);
+
+            // Don't retry on client errors (bad file format, etc.)
+            if (data.error_code && data.error_code < 500) {
+                return false;
+            }
+
+        } catch (error) {
+            const isTimeout = error instanceof DOMException && error.name === 'AbortError';
+            console.error(
+                `❌ Telegram photo ${isTimeout ? 'timeout' : 'error'} (attempt ${attempt + 1}):`,
+                error
+            );
         }
-
-        if (caption) {
-            formData.append('caption', caption);
-        }
-
-        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        const data = await response.json();
-
-        if (!data.ok) {
-            console.error('❌ Telegram API Error:', data);
-        } else {
-            console.log('✅ Telegram Photo Sent Successfully');
-        }
-
-        return data.ok;
-    } catch (error) {
-        console.error('❌ Failed to send Telegram photo:', error);
-        return false;
     }
+
+    console.error('❌ All Telegram photo retry attempts exhausted');
+    return false;
 }
 
 // Helper to format order for Telegram

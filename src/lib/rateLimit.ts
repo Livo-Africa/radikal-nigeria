@@ -126,6 +126,16 @@ export function checkRateLimit(
  * Get rate limit config based on endpoint path
  */
 export function getRateLimitConfig(pathname: string): { maxRequests: number; windowMs: number } {
+    // File uploads get generous limits — each file is a separate request, retried up to 3x
+    if (pathname.includes('/api/orders/upload-file')) {
+        return { maxRequests: 30, windowMs: 60 * 1000 };
+    }
+
+    // Order confirmation may be retried by both client and webhook
+    if (pathname.includes('/api/orders/confirm')) {
+        return { maxRequests: 15, windowMs: 60 * 1000 };
+    }
+
     if (pathname.includes('/api/orders')) {
         return RATE_LIMITS.orders;
     }

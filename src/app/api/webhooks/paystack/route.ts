@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         }
 
         const event = JSON.parse(rawBody);
-        console.log(`🔔 Paystack Webhook received: ${event.event}`);
+        console.warn(`🔔 Paystack Webhook received: ${event.event}`);
 
         if (event.event === 'charge.success') {
             const { data } = event;
@@ -39,20 +39,29 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ received: true, status: 'no_metadata' });
             }
 
-            console.log(`✅ Processing webhook for ${metadata.orderId}`);
+            console.warn(`✅ Processing webhook for ${metadata.orderId}`);
 
             // Strategy: Try to confirm a pending order first.
-            // If the client already uploaded files as "pending", we just need to confirm payment.
-            // If the pending upload never happened (client crashed before upload), we fall back
-            // to the full processOrder with webhook_recovery status (no photos available).
+            // If the client already confirmed (dedup), webhook just acknowledges.
+            // If confirmOrder truly fails, fall back to full processOrder with webhook_recovery.
             try {
                 const confirmResult = await confirmOrder(metadata.orderId, reference);
+
+                if (confirmResult.alreadyConfirmed) {
+                    console.warn(`ℹ️ Order ${metadata.orderId} already confirmed by client — webhook skipping`);
+                    return NextResponse.json({ received: true, status: 'already_confirmed' });
+                }
+
                 if (confirmResult.success) {
-                    console.log(`✅ Webhook confirmed pending order ${metadata.orderId}`);
+                    console.warn(`✅ Webhook confirmed pending order ${metadata.orderId}`);
                     return NextResponse.json({ received: true, status: 'confirmed' });
                 }
+
+                // confirmOrder returned success: false — fall through to recovery
+                console.error(`⚠️ confirmOrder failed for ${metadata.orderId}, falling back to recovery`);
+
             } catch (confirmError) {
-                console.warn(`⚠️ confirmOrder failed for ${metadata.orderId}, falling back to full processOrder:`, confirmError);
+                console.error(`⚠️ confirmOrder threw for ${metadata.orderId}, falling back to full processOrder:`, confirmError);
             }
 
             // Fallback: Full processOrder with webhook_recovery status
@@ -65,7 +74,7 @@ export async function POST(req: NextRequest) {
             const result = await processOrder(orderData, [], 'webhook', 'webhook_recovery');
 
             if (result.success) {
-                console.log(`✅ Webhook processed order ${metadata.orderId} (full recovery)`);
+                console.warn(`✅ Webhook processed order ${metadata.orderId} (full recovery)`);
                 return NextResponse.json({ received: true, status: 'processed' });
             } else {
                 console.error(`❌ Webhook failed to process order ${metadata.orderId}:`, result.error);

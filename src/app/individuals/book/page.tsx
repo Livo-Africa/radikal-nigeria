@@ -148,6 +148,9 @@ const BookingContent = () => {
     const [orderId, setOrderId] = useState<string | null>(null);
     const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
 
+    // Background retry for file uploads that fail during initial upload
+    const backgroundRetryRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
     // Preloaded outfits
     const [preloadedOutfits, setPreloadedOutfits] = useState<Outfit[]>([]);
     const [outfitsLoading, setOutfitsLoading] = useState(false);
@@ -403,11 +406,19 @@ const BookingContent = () => {
 
     // Handle Paystack Callbacks
     const handlePaystackSuccess = useCallback((reference: any) => {
+        if (backgroundRetryRef.current) {
+            clearInterval(backgroundRetryRef.current);
+            backgroundRetryRef.current = null;
+        }
         clearPendingOrder();
         confirmOrder(reference);
     }, [confirmOrder]);
 
     const handlePaystackClose = useCallback(() => {
+        if (backgroundRetryRef.current) {
+            clearInterval(backgroundRetryRef.current);
+            backgroundRetryRef.current = null;
+        }
         // Payment cancelled — keep orderId so files aren't re-uploaded on retry
         setPaymentStatus('idle');
         alert('Payment cancelled. Tap Pay when you\'re ready to try again.');
@@ -563,7 +574,44 @@ const BookingContent = () => {
             }
         }
 
-        console.log(`✅ Upload complete. ${uploadedFiles.size}/${filesToUpload.length} files sent.`);
+        // --- Step 2b: Background retry for files that failed ---
+        const failedFiles = pendingFiles.filter(f => !uploadedFiles.has(f.key));
+        if (failedFiles.length > 0) {
+            let retryRound = 0;
+            const maxRetryRounds = 3;
+
+            backgroundRetryRef.current = setInterval(async () => {
+                if (retryRound >= maxRetryRounds || failedFiles.every(f => uploadedFiles.has(f.key))) {
+                    if (backgroundRetryRef.current) clearInterval(backgroundRetryRef.current);
+                    backgroundRetryRef.current = null;
+                    return;
+                }
+                retryRound++;
+
+                for (const { key, file } of failedFiles) {
+                    if (uploadedFiles.has(key)) continue;
+                    try {
+                        const retryForm = new FormData();
+                        retryForm.append('orderId', currentOrderId);
+                        retryForm.append('fileKey', key);
+                        retryForm.append('file', file);
+
+                        const res = await fetch('/api/orders/upload-file', { method: 'POST', body: retryForm });
+                        const r = await res.json();
+                        if (r.success) {
+                            uploadedFiles.add(key);
+                            savePendingOrder({
+                                orderId: currentOrderId,
+                                createdAt: pending?.createdAt || new Date().toISOString(),
+                                orderDataSent: true,
+                                uploadedFiles: Array.from(uploadedFiles),
+                                expiresAt: new Date(Date.now() + PENDING_ORDER_TTL).toISOString()
+                            });
+                        }
+                    } catch { /* silent retry */ }
+                }
+            }, 6000); // Retry every 6 seconds while user pays
+        }
 
         // --- Step 3: Open Paystack payment modal ---
         setPaymentStatus('processing');
@@ -575,35 +623,8 @@ const BookingContent = () => {
             publicKey,
             metadata: {
                 orderId: currentOrderId,
-                shootType: category,
-                shootTypeName: category ? category.charAt(0).toUpperCase() + category.slice(1) : '',
-                package: {
-                    id: selectedPackage.id,
-                    name: selectedPackage.name,
-                    price: selectedPackage.price,
-                },
-                groupSize: category === 'group' ? groupSize : undefined,
-                outfits: selectedOutfits.map(o => ({
-                    id: o.id,
-                    name: o.name,
-                    image: o.imageUrl || o.previewUrl,
-                    uploaded: o.isUploaded
-                })),
-                style: {
-                    makeup: {
-                        selectedName: styling.makeup
-                            ? (styling.makeupType === 'light' ? 'Light Makeup' :
-                                styling.makeupType === 'heavy' ? 'Heavy Makeup' :
-                                    styling.makeupType === 'glam' ? 'Glam Makeup' : 'Yes')
-                            : 'No'
-                    },
-                    hairstyle: { customDescription: styling.hairstyle ? styling.hairstyleText : 'Not specified' },
-                    background: { customDescription: styling.background ? styling.backgroundText : 'Not specified' }
-                },
                 whatsappNumber: phoneValidation.fullNumber,
-                addOns: addOns,
                 finalTotal: calculateTotal(),
-                timestamp: new Date().toISOString()
             }
         });
 

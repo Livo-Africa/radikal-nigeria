@@ -35,21 +35,27 @@ export async function POST(request: NextRequest) {
             metadata: { fileKey, fileName: file.name, sizeMB: (file.size / 1024 / 1024).toFixed(2) }
         });
 
-        // Send to Telegram
+        // Send to Telegram (with built-in retry)
+        let telegramSent = false;
         try {
             const label = fileKey.startsWith('photo_')
                 ? `📸 Reference Photo (${fileKey})`
                 : `👗 Outfit Upload (${fileKey})`;
 
-            await sendTelegramPhoto(file, `${label} — Order ${orderId}`);
+            telegramSent = await sendTelegramPhoto(file, `${label} — Order ${orderId}`);
+
+            if (!telegramSent) {
+                logger.warn('⚠️ File delivery incomplete after retries', {
+                    metadata: { orderId, fileKey }
+                });
+            }
         } catch (telegramError) {
-            logger.warn('⚠️ Failed to send file to Telegram, but upload accepted', {
+            logger.warn('⚠️ File delivery failed', {
                 metadata: { orderId, fileKey, error: String(telegramError) }
             });
-            // Don't fail the upload just because Telegram failed
         }
 
-        return NextResponse.json({ success: true, fileKey });
+        return NextResponse.json({ success: true, fileKey, telegramSent });
 
     } catch (error) {
         console.error('❌ Error uploading file:', error);

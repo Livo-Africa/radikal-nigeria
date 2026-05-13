@@ -3,6 +3,10 @@ import { google } from 'googleapis';
 import { sendTelegramMessage, sendTelegramPhoto, formatOrderForTelegram } from '@/lib/telegram';
 import { verifyOrderPrice } from '@/lib/pricing';
 
+// In-memory dedup for confirmed orders (prevents webhook + client confirm double-processing)
+// Per-instance on Vercel — catches the common case where both fire within seconds
+const confirmedOrders = new Set<string>();
+
 // Initialize Google Sheets
 function initializeSheets() {
     try {
@@ -62,7 +66,7 @@ export async function processOrder(
         timestamp = new Date().toISOString()
     } = orderData;
 
-    console.log(`🔄 Processing Order ${orderId} from ${source}`);
+    console.warn(`🔄 Processing Order ${orderId} from ${source}`);
 
     // 1. Price Verification (skip for pending orders — no payment yet)
     let priceVerification = { valid: true, serverTotal: finalTotal, difference: 0 };
@@ -89,10 +93,10 @@ export async function processOrder(
             }
             warnings.push(`Price mismatch detected! Paid: ${finalTotal}, Should be: ${priceVerification.serverTotal}`);
         } else {
-            console.log(`✅ Price verified: ${finalTotal}`);
+            console.warn(`✅ Price verified: ${finalTotal}`);
         }
     } else {
-        console.log(`⏳ Skipping price verification for pending order ${orderId}`);
+        console.warn(`⏳ Skipping price verification for pending order ${orderId}`);
     }
 
     // 2. Telegram Notifications
@@ -226,7 +230,7 @@ export async function processOrder(
             requestBody: { values: [rowData] },
         });
 
-        console.log('✅ Logged to Google Sheet');
+        console.warn('✅ Logged to Google Sheet');
 
     } catch (sheetError: any) {
         // Detailed error logging
@@ -254,10 +258,28 @@ export async function processOrder(
 export async function confirmOrder(
     orderId: string,
     paymentReference: string
-): Promise<ProcessingResult> {
+): Promise<ProcessingResult & { alreadyConfirmed?: boolean }> {
     const warnings: string[] = [];
 
-    console.log(`✅ Confirming order ${orderId} with ref ${paymentReference}`);
+    // Idempotency: skip if already confirmed on this instance
+    if (confirmedOrders.has(orderId)) {
+        console.warn(`⚠️ Order ${orderId} already confirmed — skipping duplicate`);
+        return {
+            success: true,
+            orderId,
+            priceVerified: true,
+            warnings: ['Already confirmed'],
+            alreadyConfirmed: true
+        };
+    }
+
+    console.warn(`✅ Confirming order ${orderId} with ref ${paymentReference}`);
+
+    // Mark as confirmed immediately to prevent race conditions
+    confirmedOrders.add(orderId);
+
+    // Cleanup old entries after 1 hour to prevent memory leak
+    setTimeout(() => confirmedOrders.delete(orderId), 60 * 60 * 1000);
 
     // 1. Telegram Confirmation
     try {
@@ -307,7 +329,7 @@ export async function confirmOrder(
             requestBody: { values: [rowData] },
         });
 
-        console.log('✅ Confirmation logged to Google Sheet');
+        console.warn('✅ Confirmation logged to Google Sheet');
     } catch (sheetError: any) {
         console.error('❌ Failed to log confirmation to Google Sheets:', sheetError?.message || sheetError);
         warnings.push(`Sheets confirmation logging failed: ${sheetError?.message || 'Unknown error'}`);
